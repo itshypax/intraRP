@@ -1,0 +1,179 @@
+#admin-nav #pageTitle {
+  font-size: 1.5rem;
+}
+
+#admin-links {
+  min-height: calc(100vh - 86px);
+  position: relative;
+
+  .admin-link {
+    display: flex;
+    font-weight: bold;
+    height: 100%;
+    width: 100%;
+    padding: 8px;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+  }
+
+  .cirs-login {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 25px;
+
+    > a {
+      color: var(--sh-darkgray);
+      font-weight: bold;
+    }
+  }
+
+  a {
+    color: var(--sh-blue);
+  }
+
+  h6 {
+    color: var(--sh-darkgray);
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+  }
+
+  .accordion {
+    --bs-accordion-bg: transparent;
+    --bs-accordion-border-width: 0;
+    --bs-accordion-active-bg: var(--sh-red);
+    --bs-accordion-active-color: var(--white);
+    --bs-accordion-btn-active-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewbox='0 0 16 16' fill='%23FFFFFF'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+
+    a {
+      text-decoration: none;
+      --bs-accordion-btn-icon: none;
+    }
+  }
+}
+
+.dropzone {
+  border: 2px dashed #ccc;
+  border-radius: 5px;
+  background: white;
+  padding: 20px;
+  margin: 20px auto;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  color: #999;
+}
+.dz-message i {
+  display: block;
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+@media screen and (max-width: 1024px) {
+  .mobile-hide {
+    display: none !important;
+  }
+
+  #admin-links {
+    min-width: 33% !important;
+    width: 33%;
+  }
+}
+
+#adminnav-new .nav-link {
+  position: relative;
+  padding: 0.5rem 1rem;
+  border-top: 4px solid transparent;
+  transition: border 0.3s ease-in-out, background-color 0.3s ease-in-out,
+    color 0.3s ease-in-out;
+
+  &.active {
+    font-weight: bold;
+    color: var(--white) !important;
+    background-color: var(--sh-red);
+    border-top: 4px solid var(--sh-red-dimmed);
+    border-radius: 5px;
+  }
+}
+
+@media (min-width: 1400px) {
+  #adminnav-new .navbar-nav {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 1399px) {
+  #adminnav-new .navbar-nav {
+    flex-wrap: wrap;
+  }
+
+  #adminnav-new .navbar-nav .nav-link {
+    margin-bottom: 10px;
+  }
+}
+
+#darkmode-switch {
+  position: absolute;
+  right: 2%;
+  bottom: 3%;
+  z-index: 9999;
+}
+
+#topLogo {
+  background-color: var(--sh-gray);
+}
+
+[data-bs-theme="dark"] {
+  #topLogo {
+    background-color: var(--bs-secondary-bg);
+    border-bottom-color: var(--bs-secondary-color) !important;
+  }
+
+  svg g#fh > path,
+  svg g#sb > path {
+    fill: var(--white) !important;
+  }
+
+  #mainpageContainer {
+    background-color: var(--bs-tertiary-bg) !important;
+  }
+
+  hr.text-light {
+    color: var(--bs-tertiary-bg) !important;
+  }
+
+  .ma-basedata,
+  .ma-comments,
+  .ma-documents {
+    background-color: var(--bs-secondary-bg) !important;
+    border-color: var(--bs-tertiary-color) !important;
+  }
+
+  .comment p {
+    color: var(--black);
+  }
+
+  .dropzone {
+    background: var(--bs-tertiary-bg) !important;
+    border-color: var(--sh-red);
+  }
+
+  #startpage .col.bg-sh-gray,
+  #startpage .col-6.bg-sh-gray {
+    background-color: #212529 !important;
+  }
+}
+
+/* CSS for the floating button */
+.floating-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+}
