@@ -277,6 +277,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }, 500); // Delay in milliseconds (adjust as needed)
         }
     </script>
+    <script>
+        document.getElementById("personal-save").addEventListener("click", function(event) {
+            event.preventDefault(); // Stop default button action
+
+            var form = document.getElementById("profil");
+            if (!form.checkValidity()) {
+                form.classList.add("was-validated"); // Show validation feedback
+                return;
+            }
+
+            var formData = new FormData(form);
+
+            fetch("create.php", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show success message
+                        var successAlert = document.createElement("div");
+                        successAlert.className = "alert alert-success mt-3";
+                        successAlert.innerHTML = data.message;
+                        form.prepend(successAlert);
+
+                        // Redirect to new user profile
+                        setTimeout(() => {
+                            window.location.href = data.redirect;
+                        }, 1500);
+                    } else {
+                        // Show error message
+                        var errorAlert = document.createElement("div");
+                        errorAlert.className = "alert alert-danger mt-3";
+                        errorAlert.innerHTML = data.message;
+                        form.prepend(errorAlert);
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+        });
+    </script>
 </body>
 
 </html>
