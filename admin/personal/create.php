@@ -1,64 +1,53 @@
 <?php
 session_start();
 require_once '../../assets/php/permissions.php';
-if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
-    header("Location: /admin/login.php");
-} elseif ($notadmincheck) {
-    if ($peredit) {
-        $canView = true;
-        $canEdit = $peredit;
-    } else {
-        $canView = false;
-        $canEdit = false;
-    }
+require '../../assets/php/mysql-con.php';
 
-    if (!$canView && !$canEdit) {
-        header("Location: /admin/index.php");
-    }
-} else {
-    $canView = true;
-    $canEdit = true;
-}
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $response = ['success' => false, 'message' => ''];
 
-include '../../assets/php/mysql-con.php';
+    try {
+        // Required fields
+        $fullname = $_POST['fullname'] ?? '';
+        $gebdatum = $_POST['gebdatum'] ?? '';
+        $charakterid = $_POST['charakterid'] ?? '';
+        $dienstgrad = $_POST['dienstgrad'] ?? '';
+        $forumprofil = $_POST['forumprofil'] ?? '';
+        $discordtag = $_POST['discordtag'] ?? '';
+        $telefonnr = $_POST['telefonnr'] ?? '';
+        $dienstnr = $_POST['dienstnr'] ?? '';
+        $einstdatum = $_POST['einstdatum'] ?? '';
 
-//Abfrage der Nutzer ID vom Login
-$userid = $_SESSION['userid'];
-$edituser = $_SESSION['cirs_user'];
-
-if (isset($_POST['new'])) {
-    if ($_POST['new'] == 1) {
-        // Get and sanitize input values
-        $fullname = $_POST['fullname'];
-        $gebdatum = $_POST['gebdatum'];
-        $charakterid = $_POST['charakterid'];
-        $dienstgrad = $_POST['dienstgrad'];
-        $forumprofil = $_POST['forumprofil'];
-        $discordtag = $_POST['discordtag'];
-        $telefonnr = $_POST['telefonnr'];
-        $dienstnr = $_POST['dienstnr'];
-        $einstdatum = $_POST['einstdatum'];
-        if ($einstdatum < '1900-01-01') {
-            // Zeige Fehlermeldung oder handle den ungültigen Wert
-            die("Das Einstellungsdatum ist ungültig.");
+        // Ensure required fields are not empty
+        if (empty($fullname) || empty($gebdatum) || empty($charakterid) || empty($dienstgrad)) {
+            $response['message'] = "Bitte alle erforderlichen Felder ausfüllen.";
+            echo json_encode($response);
+            exit;
         }
 
+        // Insert user into database
         $stmt = mysqli_prepare($conn, "INSERT INTO personal_profile (fullname, gebdatum, charakterid, dienstgrad, forumprofil, discordtag, telefonnr, dienstnr, einstdatum) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
         mysqli_stmt_bind_param($stmt, "ssssssiss", $fullname, $gebdatum, $charakterid, $dienstgrad, $forumprofil, $discordtag, $telefonnr, $dienstnr, $einstdatum);
         mysqli_stmt_execute($stmt);
-
-        // Save the ID of the newly inserted row
         $savedId = mysqli_insert_id($conn);
 
-        // Insert a log entry for profile data modification if dienstgrad and/or other data changed
+        // Log the action
+        $edituser = $_SESSION['cirs_user'] ?? 'Unknown';
         $logContent = 'Mitarbeiter wurde angelegt.';
         $logStmt = mysqli_prepare($conn, "INSERT INTO personal_log (profilid, type, content, paneluser) VALUES (?, '6', ?, ?)");
         mysqli_stmt_bind_param($logStmt, "iss", $savedId, $logContent, $edituser);
         mysqli_stmt_execute($logStmt);
-    }
-    header('Location: /admin/personal/profile.php?id=' . $savedId);
-}
 
+        $response['success'] = true;
+        $response['message'] = "Benutzer erfolgreich erstellt!";
+        $response['redirect'] = "/admin/personal/profile.php?id=" . $savedId;
+    } catch (Exception $e) {
+        $response['message'] = "Fehler: " . $e->getMessage();
+    }
+
+    echo json_encode($response);
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -105,8 +94,10 @@ if (isset($_POST['new'])) {
                     <h1 class="mb-3">Mitarbeiterprofil</h1>
                     <div class="row">
                         <div class="col p-3 shadow-sm border ma-basedata">
-                            <form id="profil" method="post">
-                                <a href="#" class="btn btn-success btn-sm" id="personal-save" onclick="document.getElementById('profil').submit()"><i class="fa-solid fa-floppy-disk"></i></a>
+                            <form id="profil" method="post" novalidate>
+                                <a href="#" class="btn btn-success btn-sm" id="personal-save">
+                                    <i class="fa-solid fa-floppy-disk"></i> Speichern / Benutzer erstellen
+                                </a>
                                 <?php
                                 // Function to remove the 'edit' parameter from the URL
                                 function removeEditParamFromURL()
@@ -145,7 +136,8 @@ if (isset($_POST['new'])) {
                                         14 => "Leitende/-r Branddirektor/-in",
                                     ];
                                     ?>
-                                    <select class="form-select mt-3" name="dienstgrad" id="dienstgrad">
+                                    <select class="form-select mt-3" name="dienstgrad" id="dienstgrad" required>
+                                        <option value="" selected hidden>Dienstgrad wählen</option>
                                         <?php foreach ($options as $value => $label) : ?>
                                             <option value="<?php echo $value; ?>">
                                                 <?php echo $label; ?>
@@ -159,17 +151,26 @@ if (isset($_POST['new'])) {
                                             <tr>
                                                 <td class="fw-bold" style="width:33%">Vor- und Zuname</td>
                                                 <td><span class="mx-1"></span></td>
-                                                <td style="width:66%"><input class="form-control w-100" type="text" name="fullname" id="fullname" value="" required></td>
+                                                <td style="width:66%">
+                                                    <input class="form-control w-100" type="text" name="fullname" id="fullname" value="" required>
+                                                    <div class="invalid-feedback">Bitte gebe einen Namen ein.</div>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-bold">Geburtsdatum</td>
                                                 <td><span class="mx-1"></span></td>
-                                                <td><input class="form-control" type="date" name="gebdatum" id="gebdatum" value="" min="1900-01-01" required></td>
+                                                <td>
+                                                    <input class="form-control" type="date" name="gebdatum" id="gebdatum" value="" min="1900-01-01" required>
+                                                    <div class="invalid-feedback">Bitte gebe ein Geburtsdatum ein.</div>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-bold">Charakter-ID</td>
                                                 <td><span class="mx-1"></span></td>
-                                                <td><input class="form-control" type="text" name="charakterid" id="charakterid" value="" pattern="[a-zA-Z]{3}[0-9]{5}" required></td>
+                                                <td>
+                                                    <input class="form-control" type="text" name="charakterid" id="charakterid" value="" pattern="[a-zA-Z]{3}[0-9]{5}" required>
+                                                    <div class="invalid-feedback">Bitte gebe eine charakter-ID ein.</div>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-bold">Foren-Profil</td>
@@ -189,12 +190,18 @@ if (isset($_POST['new'])) {
                                             <tr>
                                                 <td class="fw-bold">Dienstnummer</td>
                                                 <td><span class="mx-1"></span></td>
-                                                <td><input class="form-control" type="number" name="dienstnr" id="dienstnr" value="" oninput="checkDienstnrAvailability()"></td>
+                                                <td>
+                                                    <input class="form-control" type="number" name="dienstnr" id="dienstnr" value="" oninput="checkDienstnrAvailability()" required>
+                                                    <div class="invalid-feedback">Bitte gebe eine Dienstnummer ein.</div>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-bold">Einstellungsdatum</td>
                                                 <td><span class="mx-1"></span></td>
-                                                <td><input class="form-control" type="date" name="einstdatum" id="einstdatum" value="" min="2022-01-01" required></td>
+                                                <td>
+                                                    <input class="form-control" type="date" name="einstdatum" id="einstdatum" value="" min="2022-01-01" required>
+                                                    <div class="invalid-feedback">Bitte gebe ein Einstellungsdatum ein.</div>
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
