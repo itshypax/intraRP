@@ -374,9 +374,9 @@ CREATE TABLE IF NOT EXISTS `personal_profile` (
   `dienstnr` varchar(255) NOT NULL,
   `einstdatum` date NOT NULL,
   `dienstgrad` tinyint(2) NOT NULL DEFAULT 0,
-  `qualifw` longtext NOT NULL,
+  `qualifw` longtext NOT NULL DEFAULT '',
   `qualird` tinyint(1) NOT NULL DEFAULT 0,
-  `fachdienste` longtext NOT NULL,
+  `fachdienste` longtext NOT NULL DEFAULT '',
   `createdate` datetime NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=999 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
