@@ -1,6 +1,8 @@
 <?php
 session_start();
-require_once '../../assets/php/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     // Store the current page's URL in a session variable
@@ -13,23 +15,20 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     header("Location: /admin/index.php");
 }
 
-include '../../assets/php/mysql-con.php';
+$stmt = $pdo->prepare("SELECT * FROM intra_edivi WHERE id = :id");
+$stmt->bindParam(':id', $_GET['id']);
+$stmt->execute();
+$row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$result = mysqli_query($conn, "SELECT * FROM cirs_rd_protokolle WHERE id = " . $_GET['id']) or die(mysqli_error($conn));
-$row = mysqli_fetch_array($result);
-$rowamount = mysqli_num_rows($result);
-
-if ($rowamount == 0) {
+if (count($row) == 0) {
     header("Location: /admin/edivi/list.php");
 }
 
-if ($row['freigegeben'] == 1) {
-    $ist_freigegeben = true;
-} else {
-    $ist_freigegeben = false;
-}
+$ist_freigegeben = ($row['freigegeben'] == 1);
 
-$row['last_edit'] = date("d.m.Y H:i", strtotime($row['last_edit']));
+$row['last_edit'] = (!empty($row['last_edit']))
+    ? (new DateTime($row['last_edit']))->format('d.m.Y H:i')
+    : "Noch nicht bearbeitet";
 
 $old_status = $row['protokoll_status'];
 
@@ -38,36 +37,57 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
     $protokoll_status = $_POST['protokoll_status'];
     $qmkommentar = $_POST['qmkommentar'];
 
-    if ($protokoll_status == 0) {
-        $status_klar = "Ungesehen";
-    } else if ($protokoll_status == 1) {
-        $status_klar = "in Prüfung";
-    } else if ($protokoll_status == 2) {
-        $status_klar = "Freigegeben";
-    } else if ($protokoll_status == 3) {
-        $status_klar = "Ungenügend";
+    switch ($protokoll_status) {
+        case 0:
+            $status_klar = "Ungesehen";
+            $statusstring = '<span class="badge" style="line-height: var(--bs-body-line-height); border-radius: 0;">Ungesehen</span>';
+            break;
+        case 1:
+            $status_klar = "in Prüfung";
+            $statusstring = '<span class="badge bg-warning" style="line-height: var(--bs-body-line-height); border-radius: 0;">in Prüfung</span>';
+            break;
+        case 2:
+            $status_klar = "Freigegeben";
+            $statusstring = '<span class="badge bg-success" style="line-height: var(--bs-body-line-height); border-radius: 0;">Freigegeben</span>';
+            break;
+        case 3:
+            $status_klar = "Ungenügend";
+            $statusstring = '<span class="badge bg-danger" style="line-height: var(--bs-body-line-height); border-radius: 0;">Ungenügend</span>';
+            break;
     }
 
     if ($protokoll_status != $old_status) {
-        $statusstring = "Der Status wurde von " . $bearbeiter . " auf " . $status_klar . " gesetzt.";
-        $querylog = "INSERT INTO cirs_rd_prot_log (protokoll_id, kommentar, bearbeiter, log_aktion) VALUES (" . $_GET['id'] . ", '$statusstring', '$bearbeiter', '1')";
+        $logEntries[] = ['id' => $id, 'kommentar' => $statusstring, 'bearbeiter' => $bearbeiter, 'log_aktion' => 1];
     }
 
-    if ($qmkommentar != NULL) {
-        $queryins = "INSERT INTO cirs_rd_prot_log (protokoll_id, kommentar, bearbeiter, log_aktion) VALUES (" . $_GET['id'] . ", '$qmkommentar', '$bearbeiter', '0')";
+    if (!empty($qmkommentar)) {
+        $logEntries[] = ['id' => $id, 'kommentar' => $qmkommentar, 'bearbeiter' => $bearbeiter, 'log_aktion' => 0];
     }
-    $query = "UPDATE cirs_rd_protokolle SET bearbeiter = '$bearbeiter', protokoll_status = '$protokoll_status' WHERE id = " . $_GET['id'];
-    if (isset($queryins)) {
-        mysqli_query($conn, $queryins);
+
+    if (!empty($logEntries)) {
+        $stmt = $pdo->prepare("INSERT INTO intra_edivi_qmlog (protokoll_id, kommentar, bearbeiter, log_aktion) VALUES (:id, :kommentar, :bearbeiter, :log_aktion)");
+
+        foreach ($logEntries as $entry) {
+            $stmt->execute([
+                'id' => $_GET['id'],
+                'kommentar' => $entry['kommentar'],
+                'bearbeiter' => $entry['bearbeiter'],
+                'log_aktion' => $entry['log_aktion']
+            ]);
+        }
     }
-    if (isset($querylog)) {
-        mysqli_query($conn, $querylog);
-    }
-    mysqli_query($conn, $query);
+
+    $stmt = $pdo->prepare("UPDATE intra_edivi SET bearbeiter = :bearbeiter, protokoll_status = :status WHERE id = :id");
+    $stmt->execute([
+        'bearbeiter' => $bearbeiter,
+        'status' => $protokoll_status,
+        'id' => $_GET['id']
+    ]);
+
     echo "<script>window.onload = function() { window.close(); }</script>";
 }
 
-$prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id']; // ! URL ANPASSEN
+$prot_url = "https://" . SYSTEM_URL . "/admin/edivi/view.php?id=" . $row['id'];
 
 ?>
 
@@ -78,27 +98,36 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id']; // ! URL AN
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>[#<?= $row['enr'] . "] " . $row['patname'] ?> &rsaquo; eDIVI &rsaquo; intraRP</title>
+    <title>[#<?= $row['enr'] . "] " . $row['patname'] ?> &rsaquo; QM-AKTIONEN &rsaquo; eDIVI &rsaquo; <?php echo SYSTEM_NAME ?></title>
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/assets/css/divi.min.css" />
     <link rel="stylesheet" href="/assets/css/admin.min.css" />
     <link rel="stylesheet" href="/assets/fonts/fontawesome/css/all.min.css" />
-    <link rel="stylesheet" href="/assets/fonts/ptsans/css/all.min.css" />
+    <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="/assets/bootstrap-5.3/css/bootstrap.min.css">
-    <script src="/assets/bootstrap-5.3/js/bootstrap.bundle.min.js"></script>
-    <script src="/assets/jquery/jquery-3.7.0.min.js"></script>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/jquery/jquery.min.js"></script>
     <!-- html2canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico" />
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="<?php echo SYSTEM_NAME ?>" />
     <link rel="manifest" href="/assets/favicon/site.webmanifest" />
-
+    <!-- Metas -->
+    <meta name="theme-color" content="#ffaf2f" />
+    <meta property="og:site_name" content="<?php echo SERVER_NAME ?>" />
+    <meta property="og:url" content="<?= $prot_url ?>" />
+    <meta property="og:title" content="[#<?= $row['enr'] . "] " . $row['patname'] ?> &rsaquo; eDIVI &rsaquo; <?php echo SYSTEM_NAME ?>" />
+    <meta property="og:image" content="https://<?php echo SYSTEM_URL ?>/assets/img/aelrd.png" />
+    <meta property="og:description" content="Verwaltungsportal der <?php echo RP_ORGTYPE . " " .  SERVER_CITY ?>" />
 
 </head>
 
-<body>
+<body data-bs-theme="dark">
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
         <div class="container-fluid" id="edivi__container">
@@ -129,13 +158,12 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id']; // ! URL AN
                                 </div>
                             </div>
                             <div class="row mt-3">
-                                <div class="col-3 fw-bold">Öffentl. Link</div>
+                                <div class="col-3 fw-bold">Protokoll teilen</div>
                                 <div class="col">
-                                    https://intra.muster.de/edivi/p-<?= $row['enr'] ?>
-                                    <!-- ! URL ANPASSEN  -->
+                                    <a href='https://<?php echo SYSTEM_URL ?>/edivi/<?= $row['enr'] ?>' class='copy-link' style='text-decoration:none'>https://<?php echo SYSTEM_URL ?>/edivi/<?= $row['enr'] ?> <i class='fa-solid fa-copy fa-2xs'></i></a>
                                 </div>
                             </div>
-                            <div class="row mt-5 mb-4">
+                            <div class=" row mt-5 mb-4">
                                 <div class="col text-center">
                                     <input class="btn btn-success" name="submit" type="submit" value="Speichern" />
                                 </div>
@@ -159,6 +187,29 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id']; // ! URL AN
     <script>
         const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
         const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var links = document.querySelectorAll('.copy-link');
+            links.forEach(function(link) {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault(); // Prevent the default link behavior (opening the link)
+
+                    var linkUrl = this.getAttribute('href'); // Get the link from the href attribute
+                    copyToClipboard(linkUrl); // Call the function to copy the link to the clipboard
+                });
+            });
+
+            // Function to copy text to clipboard
+            function copyToClipboard(text) {
+                var textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+            }
+        });
     </script>
 </body>
 

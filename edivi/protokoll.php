@@ -1,20 +1,24 @@
 <?php
 session_start();
+require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
+require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 
-include '../assets/php/mysql-con.php';
-
-$daten = array(); // Initialize an empty array
+$daten = array();
 
 if (isset($_GET['enr'])) {
-    $queryget = "SELECT * FROM cirs_rd_protokolle WHERE enr = '" . $_GET['enr'] . "'";
-    $resultget = mysqli_query($conn, $queryget);
-    $daten = mysqli_fetch_assoc($resultget);
-    $datennr = mysqli_num_rows($resultget);
-    if ($datennr == 0) {
+    $queryget = "SELECT * FROM intra_edivi WHERE enr = :enr";
+    $stmt = $pdo->prepare($queryget);
+    $stmt->execute(['enr' => $_GET['enr']]);
+
+    $daten = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (count($daten) == 0) {
         header("Location: /edivi/");
+        exit();
     }
 } else {
     header("Location: /edivi/");
+    exit();
 }
 
 if ($daten['freigegeben'] == 1) {
@@ -23,7 +27,7 @@ if ($daten['freigegeben'] == 1) {
     $ist_freigegeben = false;
 }
 
-$daten['last_edit'] = date("d.m.Y H:i", strtotime($daten['last_edit']));
+$daten['last_edit'] = !empty($daten['last_edit']) ? (new DateTime($daten['last_edit']))->format('d.m.Y H:i') : NULL;
 
 $enr = $daten['enr'];
 
@@ -31,18 +35,20 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
     // STAMMDATEN
     $patname = $_POST['patname'] ?? NULL;
     $patgebdat = $_POST['patgebdat'] ?? NULL;
-    $patsex = $_POST['patsex'];
+    $patsex = $_POST['patsex'] ?? NULL;
     $edatum = $_POST['edatum'];
     $ezeit = $_POST['ezeit'];
     $eort = $_POST['eort'];
+
     // A - ATEMWEGE
-    $awfrei_1 = $_POST['awfrei_1'] >= 1 ? $_POST['awfrei_1'] : 0;
-    $awfrei_2 = $_POST['awfrei_2'] >= 1 ? $_POST['awfrei_2'] : 0;
-    $awfrei_3 = $_POST['awfrei_3'] >= 1 ? $_POST['awfrei_3'] : 0;
+    $awfrei_1 = $_POST['awfrei_1'] ?? 0;
+    $awfrei_2 = $_POST['awfrei_2'] ?? 0;
+    $awfrei_3 = $_POST['awfrei_3'] ?? 0;
     $awsicherung_neu = $_POST['awsicherung_neu'];
-    $zyanose_1 = $_POST['zyanose_1'] >= 1 ? $_POST['zyanose_1'] : 0;
-    $zyanose_2 = $_POST['zyanose_2'] >= 1 ? $_POST['zyanose_2'] : 0;
-    $o2gabe = $_POST['o2gabe'] >= 1 ? $_POST['o2gabe'] : 0;
+    $zyanose_1 = $_POST['zyanose_1'] ?? 0;
+    $zyanose_2 = $_POST['zyanose_2'] ?? 0;
+    $o2gabe = $_POST['o2gabe'] ?? 0;
+
     // B - ATMUNG
     $b_symptome = $_POST['b_symptome'];
     $b_auskult = $_POST['b_auskult'];
@@ -50,6 +56,7 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
     $spo2 = $_POST['spo2'] ?? NULL;
     $atemfreq = $_POST['atemfreq'] ?? NULL;
     $etco2 = $_POST['etco2'] ?? NULL;
+
     // C - KREISLAUF
     $c_kreislauf = $_POST['c_kreislauf'];
     $rrsys = $_POST['rrsys'] ?? NULL;
@@ -62,9 +69,10 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
     $c_zugang_gr_1 = $_POST['c_zugang_gr_1'] ?? NULL;
     $c_zugang_gr_2 = $_POST['c_zugang_gr_2'] ?? NULL;
     $c_zugang_gr_3 = $_POST['c_zugang_gr_3'] ?? NULL;
-    $c_zugang_ort_1 = $_POST['c_zugang_ort_1'];
-    $c_zugang_ort_2 = $_POST['c_zugang_ort_2'];
-    $c_zugang_ort_3 = $_POST['c_zugang_ort_3'];
+    $c_zugang_ort_1 = $_POST['c_zugang_ort_1'] ?? NULL;
+    $c_zugang_ort_2 = $_POST['c_zugang_ort_2'] ?? NULL;
+    $c_zugang_ort_3 = $_POST['c_zugang_ort_3'] ?? NULL;
+
     // D - NEUROLOGIE
     $d_bewusstsein = $_POST['d_bewusstsein'];
     $d_pupillenw_1 = $_POST['d_pupillenw_1'];
@@ -75,9 +83,11 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
     $d_gcs_2 = $_POST['d_gcs_2'];
     $d_gcs_3 = $_POST['d_gcs_3'];
     $d_ex_1 = $_POST['d_ex_1'];
+
     // BZ + TEMP
     $bz = $_POST['bz'] ?? NULL;
     $temp = $_POST['temp'] ?? NULL;
+
     // VERLETZUNGEN
     $v_muster_k = $_POST['v_muster_k'];
     $v_muster_k1 = $_POST['v_muster_k1'];
@@ -91,19 +101,20 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
     $v_muster_bl1 = $_POST['v_muster_bl1'];
     $v_muster_w = $_POST['v_muster_w'];
     $v_muster_w1 = $_POST['v_muster_w1'];
-    $sz_nrs = $_POST['sz_nrs'];
-    $sz_toleranz_1 = $_POST['sz_toleranz_1'];
-    $sz_toleranz_2 = $_POST['sz_toleranz_2'];
+    $sz_nrs = $_POST['sz_nrs'] ?? NULL;
+    $sz_toleranz_1 = $_POST['sz_toleranz_1'] ?? 0;
+    $sz_toleranz_2 = $_POST['sz_toleranz_2'] ?? 0;
+
     // MEDIKAMENTE
     $medis = $_POST['medis'] ?? NULL;
+
     // DIAGNOSE
     $diagnose = $_POST['diagnose'] ?? NULL;
+
     // ANMERKUNGEN
     $anmerkungen = $_POST['anmerkungen'] ?? NULL;
+
     // PROTOKOLLDATEN
-    $notfallteam = $_POST['notfallteam'] >= 1 ? $_POST['notfallteam'] : 0;
-    $transportverw = $_POST['transportverw'] >= 1 ? $_POST['transportverw'] : 0;
-    $nacascore = $_POST['nacascore'] >= 1 ? $_POST['nacascore'] : 0;
     $pfname =  $_POST['pfname'];
     $fzg_transp = $_POST['fzg_transp'] ?? NULL;
     $fzg_transp_perso = $_POST['fzg_transp_perso'] ?? NULL;
@@ -111,7 +122,7 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
     $fzg_na_perso = $_POST['fzg_na_perso'] ?? NULL;
     $fzg_sonst = $_POST['fzg_sonst'] ?? NULL;
     $naname =  $_POST['naname'] ?? NULL;
-    $transportziel =  $_POST['transportziel2'] ?? NULL;
+    $transportziel =  $_POST['transportziel'] ?? NULL;
     $freigeber = $_POST['freigeber'] ?? NULL;
     if ($freigeber != NULL) {
         $freigeber_name = $freigeber;
@@ -122,95 +133,18 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
         $freigeber_status = 0;
         $last_edit = NULL;
     }
-    // SQL-Query ausführen
-    $query = "UPDATE cirs_rd_protokolle 
-    SET
-    patname = '$patname',
-    patgebdat = '$patgebdat',
-    patsex = '$patsex',
-    edatum = '$edatum',
-    ezeit = '$ezeit',
-    eort = '$eort',
-    awfrei_1 = '$awfrei_1',
-    awfrei_2 = '$awfrei_2',
-    awfrei_3 = '$awfrei_3',
-    awsicherung_neu = '$awsicherung_neu',
-    zyanose_1 = '$zyanose_1',
-    zyanose_2 = '$zyanose_2',
-    o2gabe = '$o2gabe',
-    b_symptome = '$b_symptome',
-    b_auskult = '$b_auskult',
-    b_beatmung = '$b_beatmung',
-    spo2 = '$spo2',
-    atemfreq = '$atemfreq',
-    etco2 = '$etco2',
-    c_kreislauf = '$c_kreislauf',
-    rrsys = '$rrsys',
-    rrdias = '$rrdias',
-    rrmad = '$rrmad',
-    herzfreq = '$herzfreq',
-    c_ekg = '$c_ekg',
-    c_zugang_art_1 = '$c_zugang_art_1',
-    c_zugang_art_2 = '$c_zugang_art_2',
-    c_zugang_art_3 = '$c_zugang_art_3',
-    c_zugang_gr_1 = '$c_zugang_gr_1',
-    c_zugang_gr_2 = '$c_zugang_gr_2',
-    c_zugang_gr_3 = '$c_zugang_gr_3',
-    c_zugang_ort_1 = '$c_zugang_ort_1',
-    c_zugang_ort_2 = '$c_zugang_ort_2',
-    c_zugang_ort_3 = '$c_zugang_ort_3',
-    d_bewusstsein = '$d_bewusstsein',
-    d_pupillenw_1 = '$d_pupillenw_1',
-    d_pupillenw_2 = '$d_pupillenw_2',
-    d_lichtreakt_1 = '$d_lichtreakt_1',
-    d_lichtreakt_2 = '$d_lichtreakt_2',
-    d_gcs_1 = '$d_gcs_1',
-    d_gcs_2 = '$d_gcs_2',
-    d_gcs_3 = '$d_gcs_3',
-    d_ex_1 = '$d_ex_1',
-    d_ex_2 = '$d_ex_2',
-    d_ex_3 = '$d_ex_3',
-    d_ex_4 = '$d_ex_4',
-    bz = '$bz',
-    temp = '$temp',
-    v_muster_k = '$v_muster_k',
-    v_muster_k1 = '$v_muster_k1',
-    v_muster_t = '$v_muster_t',
-    v_muster_t1 = '$v_muster_t1',
-    v_muster_al = '$v_muster_al',
-    v_muster_al1 = '$v_muster_al1',
-    v_muster_a = '$v_muster_a',
-    v_muster_a1 = '$v_muster_a1',
-    v_muster_bl = '$v_muster_bl',
-    v_muster_bl1 = '$v_muster_bl1',
-    v_muster_w = '$v_muster_w',
-    v_muster_w1 = '$v_muster_w1',
-    sz_nrs = '$sz_nrs',
-    sz_toleranz_1 = '$sz_toleranz_1',
-    sz_toleranz_2 = '$sz_toleranz_2',
-    medis = '$medis',
-    diagnose = '$diagnose',
-    anmerkungen = '$anmerkungen',
-    notfallteam = '$notfallteam',
-    transportverw = '$transportverw',
-    nacascore = '$nacascore',
-    pfname = '$pfname',
-    fzg_transp = '$fzg_transp',
-    fzg_transp_perso = '$fzg_transp_perso',
-    fzg_na = '$fzg_na',
-    fzg_na_perso = '$fzg_na_perso',
-    fzg_sonst = '$fzg_sonst',
-    naname = '$naname',
-    transportziel2 = '$transportziel',
-    freigeber_name = '$freigeber_name',
-    freigegeben = '$freigeber_status',
-    last_edit = '$last_edit'
-    WHERE enr = '$enr'";
-    mysqli_query($conn, $query);
+
+    $query = "UPDATE intra_edivi SET patname = :patname, patgebdat = :patgebdat, patsex = :patsex, edatum = :edatum, ezeit = :ezeit, eort = :eort, awfrei_1 = :awfrei_1, awfrei_2 = :awfrei_2, awfrei_3 = :awfrei_3, awsicherung_neu = :awsicherung_neu, zyanose_1 = :zyanose_1, zyanose_2 = :zyanose_2, o2gabe = :o2gabe, b_symptome = :b_symptome, b_auskult = :b_auskult, b_beatmung = :b_beatmung, spo2 = :spo2, atemfreq = :atemfreq, etco2 = :etco2, c_kreislauf = :c_kreislauf, rrsys = :rrsys, rrdias = :rrdias, herzfreq = :herzfreq, c_ekg = :c_ekg, c_zugang_art_1 = :c_zugang_art_1, c_zugang_art_2 = :c_zugang_art_2, c_zugang_art_3 = :c_zugang_art_3, c_zugang_gr_1 = :c_zugang_gr_1, c_zugang_gr_2 = :c_zugang_gr_2, c_zugang_gr_3 = :c_zugang_gr_3, c_zugang_ort_1 = :c_zugang_ort_1, c_zugang_ort_2 = :c_zugang_ort_2, c_zugang_ort_3 = :c_zugang_ort_3, d_bewusstsein = :d_bewusstsein, d_pupillenw_1 = :d_pupillenw_1, d_pupillenw_2 = :d_pupillenw_2, d_lichtreakt_1 = :d_lichtreakt_1, d_lichtreakt_2 = :d_lichtreakt_2, d_gcs_1 = :d_gcs_1, d_gcs_2 = :d_gcs_2, d_gcs_3 = :d_gcs_3, d_ex_1 = :d_ex_1, bz = :bz, temp = :temp, v_muster_k = :v_muster_k, v_muster_k1 = :v_muster_k1, v_muster_t = :v_muster_t, v_muster_t1 = :v_muster_t1, v_muster_al = :v_muster_al, v_muster_al1 = :v_muster_al1, v_muster_a = :v_muster_a, v_muster_a1 = :v_muster_a1, v_muster_bl = :v_muster_bl, v_muster_bl1 = :v_muster_bl1, v_muster_w = :v_muster_w, v_muster_w1 = :v_muster_w1, sz_nrs = :sz_nrs, sz_toleranz_1 = :sz_toleranz_1, sz_toleranz_2 = :sz_toleranz_2, medis = :medis, diagnose = :diagnose, anmerkungen = :anmerkungen, pfname = :pfname, fzg_transp = :fzg_transp, fzg_transp_perso = :fzg_transp_perso, fzg_na = :fzg_na, fzg_na_perso = :fzg_na_perso, fzg_sonst = :fzg_sonst, naname = :naname, transportziel = :transportziel, freigeber_name = :freigeber_name, freigegeben = :freigeber_status, last_edit = :last_edit WHERE enr = :enr";
+
+    $params = ['patname' => $patname, 'patgebdat' => $patgebdat, 'patsex' => $patsex, 'edatum' => $edatum, 'ezeit' => $ezeit, 'eort' => $eort, 'awfrei_1' => $awfrei_1, 'awfrei_2' => $awfrei_2, 'awfrei_3' => $awfrei_3, 'awsicherung_neu' => $awsicherung_neu, 'zyanose_1' => $zyanose_1, 'zyanose_2' => $zyanose_2, 'o2gabe' => $o2gabe, 'b_symptome' => $b_symptome, 'b_auskult' => $b_auskult, 'b_beatmung' => $b_beatmung, 'spo2' => $spo2, 'atemfreq' => $atemfreq, 'etco2' => $etco2, 'c_kreislauf' => $c_kreislauf, 'rrsys' => $rrsys, 'rrdias' => $rrdias, 'herzfreq' => $herzfreq, 'c_ekg' => $c_ekg, 'c_zugang_art_1' => $c_zugang_art_1, 'c_zugang_art_2' => $c_zugang_art_2, 'c_zugang_art_3' => $c_zugang_art_3, 'c_zugang_gr_1' => $c_zugang_gr_1, 'c_zugang_gr_2' => $c_zugang_gr_2, 'c_zugang_gr_3' => $c_zugang_gr_3, 'c_zugang_ort_1' => $c_zugang_ort_1, 'c_zugang_ort_2' => $c_zugang_ort_2, 'c_zugang_ort_3' => $c_zugang_ort_3, 'd_bewusstsein' => $d_bewusstsein, 'd_pupillenw_1' => $d_pupillenw_1, 'd_pupillenw_2' => $d_pupillenw_2, 'd_lichtreakt_1' => $d_lichtreakt_1, 'd_lichtreakt_2' => $d_lichtreakt_2, 'd_gcs_1' => $d_gcs_1, 'd_gcs_2' => $d_gcs_2, 'd_gcs_3' => $d_gcs_3, 'd_ex_1' => $d_ex_1, 'bz' => $bz, 'temp' => $temp, 'v_muster_k' => $v_muster_k, 'v_muster_k1' => $v_muster_k1, 'v_muster_t' => $v_muster_t, 'v_muster_t1' => $v_muster_t1, 'v_muster_al' => $v_muster_al, 'v_muster_al1' => $v_muster_al1, 'v_muster_a' => $v_muster_a, 'v_muster_a1' => $v_muster_a1, 'v_muster_bl' => $v_muster_bl, 'v_muster_bl1' => $v_muster_bl1, 'v_muster_w' => $v_muster_w, 'v_muster_w1' => $v_muster_w1, 'sz_nrs' => $sz_nrs, 'sz_toleranz_1' => $sz_toleranz_1, 'sz_toleranz_2' => $sz_toleranz_2, 'medis' => $medis, 'diagnose' => $diagnose, 'anmerkungen' => $anmerkungen, 'pfname' => $pfname, 'fzg_transp' => $fzg_transp, 'fzg_transp_perso' => $fzg_transp_perso, 'fzg_na' => $fzg_na, 'fzg_na_perso' => $fzg_na_perso, 'fzg_sonst' => $fzg_sonst, 'naname' => $naname, 'transportziel' => $transportziel, 'freigeber_name' => $freigeber_name, 'freigeber_status' => $freigeber_status, 'last_edit' => $last_edit, 'enr' => $enr];
+
+    $stmts = $pdo->prepare($query);
+    $stmts->execute($params);
+
     header("Refresh: 0");
 }
 
-$prot_url = "https://intra.muster.de/edivi/p-$enr"; // ! URL ANPASSEN
+$prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
 
 ?>
 
@@ -221,18 +155,28 @@ $prot_url = "https://intra.muster.de/edivi/p-$enr"; // ! URL ANPASSEN
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>[#<?= $daten['enr'] ?>] &rsaquo; eDIVI &rsaquo; intraRP</title>
+    <title>[#<?= $daten['enr'] ?>] &rsaquo; eDIVI &rsaquo; <?php echo SYSTEM_NAME ?></title>
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/assets/css/divi.min.css" />
     <link rel="stylesheet" href="/assets/fonts/fontawesome/css/all.min.css" />
-    <link rel="stylesheet" href="/assets/fonts/ptsans/css/all.min.css" />
+    <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="/assets/bootstrap-5.3/css/bootstrap.min.css">
-    <script src="/assets/bootstrap-5.3/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico" />
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="<?php echo SYSTEM_NAME ?>" />
     <link rel="manifest" href="/assets/favicon/site.webmanifest" />
+    <!-- Metas -->
+    <meta name="theme-color" content="#ffaf2f" />
+    <meta property="og:site_name" content="<?php echo SERVER_NAME ?>" />
+    <meta property="og:url" content="<?= $prot_url ?>" />
+    <meta property="og:title" content="[#<?= $daten['enr'] ?>] &rsaquo; eDIVI &rsaquo; <?php echo SYSTEM_NAME ?>" />
+    <meta property="og:image" content="https://<?php echo SYSTEM_URL ?>/assets/img/aelrd.png" />
+    <meta property="og:description" content="Verwaltungsportal der <?php echo RP_ORGTYPE . " " .  SERVER_CITY ?>" />
 </head>
 
 <body>
@@ -1498,68 +1442,6 @@ $prot_url = "https://intra.muster.de/edivi/p-$enr"; // ! URL ANPASSEN
                     </div>
                     <div class="row edivi__box">
                         <div class="col">
-                            <div class="row my-2">
-                                <div class="col">
-                                    <div class="row">
-                                        <div class="col">
-                                            <input type="checkbox" class="btn-check" id="notfallteam" name="notfallteam" value="1" <?php echo ($daten['notfallteam'] == 1 ? 'checked' : '') ?> autocomplete="off">
-                                            <label class="btn btn-sm btn-outline-danger w-100" for="notfallteam">Übergabe Notfallteam</label>
-                                        </div>
-                                        <div class="col">
-                                            <input type="checkbox" class="btn-check" id="transportverw" name="transportverw" value="1" <?php echo ($daten['transportverw'] == 1 ? 'checked' : '') ?> autocomplete="off">
-                                            <label class="btn btn-sm btn-outline-warning w-100" for="transportverw">Transportverweigerung</label>
-                                        </div>
-                                        <!-- <div class="col">
-                                            <button class="btn btn-sm btn-info w-100" type="button" data-bs-toggle="modal" data-bs-target="#myModal3">Voranmeldung</button>
-                                        </div> -->
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- MODAL -->
-                            <div class="modal fade" id="myModal3" tabindex="-1" aria-labelledby="myModalLabel3" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="myModalLabel3">Voranmeldung Klinik</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class="row mt-2 mb-1">
-                                                <div class="col">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio" value="10" name="nacascore" id="nacascore">
-                                                        <label class="form-check-label" for="nacascore">
-                                                            Schockraum
-                                                        </label>
-                                                    </div>
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio" value="11" name="nacascore" id="nacascore">
-                                                        <label class="form-check-label" for="nacascore">
-                                                            ZNA
-                                                        </label>
-                                                    </div>
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio" value="12" name="nacascore" id="nacascore">
-                                                        <label class="form-check-label" for="nacascore">
-                                                            Herzkatheter
-                                                        </label>
-                                                    </div>
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio" value="13" name="nacascore" id="nacascore">
-                                                        <label class="form-check-label" for="nacascore">
-                                                            Stroke-Unit
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- MODAL ENDE -->
                             <div class="row mt-3">
                                 <div class="col-3 fw-bold">Protokollant</div>
                                 <div class="col"><input type="text" name="pfname" id="pfname" class="w-100 form-control edivi__input-check" value="<?= $daten['pfname'] ?>" required></div>
@@ -1570,84 +1452,37 @@ $prot_url = "https://intra.muster.de/edivi/p-$enr"; // ! URL ANPASSEN
                                     <?php if ($daten['fzg_transp'] == NULL) : ?>
                                         <select name="fzg_transp" id="fzg_transp" class="w-100 form-select">
                                             <option selected value="NULL">Fzg. Transp.</option>
-                                            <option disabled>-- FuRw 1 --</option>
-                                            <option value="10-83-01">10-83-01</option>
-                                            <option value="10-83-02">10-83-02</option>
-                                            <option value="10-83-03">10-83-03</option>
-                                            <option value="10-83-04">10-83-04</option>
-                                            <option value="10-83-05">10-83-05</option>
-                                            <option value="10-83-06">10-83-06</option>
-                                            <option value="10-83-10">10-83-10</option>
-                                            <option value="10-85-01">10-85-01</option>
-                                            <option value="10-85-02">10-85-02</option>
-                                            <option value="10-85-03">10-85-03</option>
-                                            <option value="10-85-04">10-85-04</option>
-                                            <option value="10-85-05">10-85-05</option>
-                                            <option value="10-93-01">10-93-01</option>
-                                            <option disabled>-- RW 17 --</option>
-                                            <option value="17-83-01">17-83-01</option>
-                                            <option value="17-83-02">17-83-02</option>
-                                            <option value="17-83-03">17-83-03</option>
-                                            <option value="17-83-04">17-83-04</option>
-                                            <option value="17-83-05">17-83-05</option>
-                                            <option value="17-83-06">17-83-06</option>
-                                            <option value="17-85-01">17-85-01</option>
-                                            <option value="17-85-02">17-85-02</option>
-                                            <option value="17-85-03">17-85-03</option>
-                                            <option value="17-87-01">17-87-01</option>
-                                            <option disabled>-- SEG --</option>
-                                            <option value="42-83-01">42-83-01</option>
-                                            <option value="42-83-02">42-83-02</option>
-                                            <option value="42-83-03">42-83-03</option>
-                                            <option value="42-83-04">42-83-04</option>
-                                            <option value="42-90-01">42-90-01</option>
-                                            <option value="42-90-02">42-90-02</option>
-                                            <option value="42-90-03">42-90-03</option>
-                                            <option value="42-93-01">42-93-01</option>
-                                            <option disabled>-- Schule --</option>
-                                            <option value="50-83-01">50-83-01</option>
-                                            <option value="50-83-02">50-83-02</option>
+                                            <?php
+                                            require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+
+                                            $stmt = $pdo->prepare("SELECT * FROM intra_edivi_fahrzeuge WHERE doctor = 0 AND active = 1 ORDER BY priority ASC");
+                                            $stmt->execute();
+                                            $fahrzeuge = $stmt->fetchAll();
+                                            foreach ($fahrzeuge as $row) {
+                                                echo '<option value="' . $row['identifier'] . '">' . $row['name'] . '</option>';
+                                            }
+                                            ?>
                                         </select>
                                     <?php else : ?>
                                         <select name="fzg_transp" id="fzg_transp" class="w-100 form-select">
                                             <option selected value="NULL">Fzg. Transp.</option>
-                                            <option disabled>-- FuRw 1 --</option>
-                                            <option value="10-83-01" <?php echo ($daten['fzg_transp'] == "10-83-01" ? 'selected' : '') ?>>10-83-01</option>
-                                            <option value="10-83-02" <?php echo ($daten['fzg_transp'] == "10-83-02" ? 'selected' : '') ?>>10-83-02</option>
-                                            <option value="10-83-03" <?php echo ($daten['fzg_transp'] == "10-83-03" ? 'selected' : '') ?>>10-83-03</option>
-                                            <option value="10-83-04" <?php echo ($daten['fzg_transp'] == "10-83-04" ? 'selected' : '') ?>>10-83-04</option>
-                                            <option value="10-83-05" <?php echo ($daten['fzg_transp'] == "10-83-05" ? 'selected' : '') ?>>10-83-05</option>
-                                            <option value="10-83-06" <?php echo ($daten['fzg_transp'] == "10-83-06" ? 'selected' : '') ?>>10-83-06</option>
-                                            <option value="10-83-10" <?php echo ($daten['fzg_transp'] == "10-83-10" ? 'selected' : '') ?>>10-83-10</option>
-                                            <option value="10-85-01" <?php echo ($daten['fzg_transp'] == "10-85-01" ? 'selected' : '') ?>>10-85-01</option>
-                                            <option value="10-85-02" <?php echo ($daten['fzg_transp'] == "10-85-02" ? 'selected' : '') ?>>10-85-02</option>
-                                            <option value="10-85-03" <?php echo ($daten['fzg_transp'] == "10-85-03" ? 'selected' : '') ?>>10-85-03</option>
-                                            <option value="10-85-04" <?php echo ($daten['fzg_transp'] == "10-85-04" ? 'selected' : '') ?>>10-85-04</option>
-                                            <option value="10-85-05" <?php echo ($daten['fzg_transp'] == "10-85-05" ? 'selected' : '') ?>>10-85-05</option>
-                                            <option value="10-93-01" <?php echo ($daten['fzg_transp'] == "10-93-01" ? 'selected' : '') ?>>10-93-01</option>
-                                            <option disabled>-- RW 17 --</option>
-                                            <option value="17-83-01" <?php echo ($daten['fzg_transp'] == "17-83-01" ? 'selected' : '') ?>>17-83-01</option>
-                                            <option value="17-83-02" <?php echo ($daten['fzg_transp'] == "17-83-02" ? 'selected' : '') ?>>17-83-02</option>
-                                            <option value="17-83-03" <?php echo ($daten['fzg_transp'] == "17-83-03" ? 'selected' : '') ?>>17-83-03</option>
-                                            <option value="17-83-04" <?php echo ($daten['fzg_transp'] == "17-83-04" ? 'selected' : '') ?>>17-83-04</option>
-                                            <option value="17-83-05" <?php echo ($daten['fzg_transp'] == "17-83-05" ? 'selected' : '') ?>>17-83-05</option>
-                                            <option value="17-83-06" <?php echo ($daten['fzg_transp'] == "17-83-06" ? 'selected' : '') ?>>17-83-06</option>
-                                            <option value="17-85-01" <?php echo ($daten['fzg_transp'] == "17-85-01" ? 'selected' : '') ?>>17-85-01</option>
-                                            <option value="17-85-02" <?php echo ($daten['fzg_transp'] == "17-85-02" ? 'selected' : '') ?>>17-85-02</option>
-                                            <option value="17-85-03" <?php echo ($daten['fzg_transp'] == "17-85-03" ? 'selected' : '') ?>>17-85-03</option>
-                                            <option value="17-87-01" <?php echo ($daten['fzg_transp'] == "17-87-01" ? 'selected' : '') ?>>17-87-01</option>
-                                            <option disabled>-- SEG --</option>
-                                            <option value="42-83-01" <?php echo ($daten['fzg_transp'] == "42-83-01" ? 'selected' : '') ?>>42-83-01</option>
-                                            <option value="42-83-02" <?php echo ($daten['fzg_transp'] == "42-83-02" ? 'selected' : '') ?>>42-83-02</option>
-                                            <option value="42-83-03" <?php echo ($daten['fzg_transp'] == "42-83-03" ? 'selected' : '') ?>>42-83-03</option>
-                                            <option value="42-83-04" <?php echo ($daten['fzg_transp'] == "42-83-04" ? 'selected' : '') ?>>42-83-04</option>
-                                            <option value="42-90-01" <?php echo ($daten['fzg_transp'] == "42-90-01" ? 'selected' : '') ?>>42-90-01</option>
-                                            <option value="42-90-02" <?php echo ($daten['fzg_transp'] == "42-90-02" ? 'selected' : '') ?>>42-90-02</option>
-                                            <option value="42-90-03" <?php echo ($daten['fzg_transp'] == "42-90-03" ? 'selected' : '') ?>>42-90-03</option>
-                                            <option value="42-93-01" <?php echo ($daten['fzg_transp'] == "42-93-01" ? 'selected' : '') ?>>42-93-01</option>
-                                            <option disabled>-- Schule --</option>
-                                            <option value="50-83-01" <?php echo ($daten['fzg_transp'] == "50-83-01" ? 'selected' : '') ?>>50-83-01</option>
-                                            <option value="50-83-02" <?php echo ($daten['fzg_transp'] == "50-83-02" ? 'selected' : '') ?>>50-83-02</option>
+                                            <?php
+                                            require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+
+                                            $stmt = $pdo->prepare("SELECT * FROM intra_edivi_fahrzeuge WHERE doctor = 0 ORDER BY priority ASC");
+                                            $stmt->execute();
+                                            $fahrzeuge = $stmt->fetchAll();
+
+                                            foreach ($fahrzeuge as $row) {
+                                                if ($row['identifier'] == $daten['fzg_transp'] && $row['active'] == 1) {
+                                                    echo '<option value="' . $row['identifier'] . '" selected>' . $row['name'] . '</option>';
+                                                } elseif ($row['identifier'] == $daten['fzg_transp'] && $row['active'] == 0) {
+                                                    echo '<option value="' . $row['identifier'] . '" selected disabled>' . $row['name'] . '</option>';
+                                                } else {
+                                                    echo '<option value="' . $row['identifier'] . '">' . $row['name'] . '</option>';
+                                                }
+                                            }
+                                            ?>
                                         </select>
                                     <?php endif; ?>
                                 </div>
@@ -1661,40 +1496,37 @@ $prot_url = "https://intra.muster.de/edivi/p-$enr"; // ! URL ANPASSEN
                                     <?php if ($daten['fzg_na'] == NULL) : ?>
                                         <select name="fzg_na" id="fzg_na" class="w-100 form-select">
                                             <option selected value="NULL">Fzg. NA</option>
-                                            <option disabled>-- Andere --</option>
-                                            <option value="01-10-01">01-10-01</option>
-                                            <option value="04-82-01">04-82-01</option>
-                                            <option value="CHX">CHX</option>
-                                            <option disabled>-- FuRw 1 --</option>
-                                            <option value="10-80-01">10-80-01</option>
-                                            <option value="10-81-01">10-81-01</option>
-                                            <option value="10-82-01">10-82-01</option>
-                                            <option value="10-82-02">10-82-02</option>
-                                            <option value="10-82-03">10-82-03</option>
-                                            <option value="10-86-01">10-86-01</option>
-                                            <option disabled>-- RW 17 --</option>
-                                            <option value="17-81-01">17-81-01</option>
-                                            <option value="17-82-01">17-82-01</option>
-                                            <option value="17-82-02">17-82-02</option>
+                                            <?php
+                                            require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+
+                                            $stmt = $pdo->prepare("SELECT * FROM intra_edivi_fahrzeuge WHERE doctor = 1 AND active = 1 ORDER BY priority ASC");
+                                            $stmt->execute();
+                                            $fahrzeuge = $stmt->fetchAll();
+                                            foreach ($fahrzeuge as $row) {
+                                                echo '<option value="' . $row['identifier'] . '">' . $row['name'] . '</option>';
+                                            }
+                                            ?>
                                         </select>
                                     <?php else : ?>
                                         <select name="fzg_na" id="fzg_na" class="w-100 form-select">
                                             <option selected value="NULL">Fzg. NA</option>
-                                            <option disabled>-- Andere --</option>
-                                            <option value="01-10-01" <?php echo ($daten['fzg_na'] == "01-10-01" ? 'selected' : '') ?>>01-10-01</option>
-                                            <option value="04-82-01" <?php echo ($daten['fzg_na'] == "04-82-01" ? 'selected' : '') ?>>04-82-01</option>
-                                            <option value="CHX" <?php echo ($daten['fzg_na'] == "CHX" ? 'selected' : '') ?>>CHX</option>
-                                            <option disabled>-- FuRw 1 --</option>
-                                            <option value="10-80-01" <?php echo ($daten['fzg_na'] == "10-80-01" ? 'selected' : '') ?>>10-80-01</option>
-                                            <option value="10-81-01" <?php echo ($daten['fzg_na'] == "10-81-01" ? 'selected' : '') ?>>10-81-01</option>
-                                            <option value="10-82-01" <?php echo ($daten['fzg_na'] == "10-82-01" ? 'selected' : '') ?>>10-82-01</option>
-                                            <option value="10-82-02" <?php echo ($daten['fzg_na'] == "10-82-02" ? 'selected' : '') ?>>10-82-02</option>
-                                            <option value="10-82-03" <?php echo ($daten['fzg_na'] == "10-82-03" ? 'selected' : '') ?>>10-82-03</option>
-                                            <option value="10-86-01" <?php echo ($daten['fzg_na'] == "10-86-01" ? 'selected' : '') ?>>10-86-01</option>
-                                            <option disabled>-- RW 17 --</option>
-                                            <option value="17-81-01" <?php echo ($daten['fzg_na'] == "17-81-01" ? 'selected' : '') ?>>17-81-01</option>
-                                            <option value="17-82-01" <?php echo ($daten['fzg_na'] == "17-82-01" ? 'selected' : '') ?>>17-82-01</option>
-                                            <option value="17-82-02" <?php echo ($daten['fzg_na'] == "17-82-02" ? 'selected' : '') ?>>17-82-02</option>
+                                            <?php
+                                            require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+
+                                            $stmt = $pdo->prepare("SELECT * FROM intra_edivi_fahrzeuge WHERE doctor = 1 ORDER BY priority ASC");
+                                            $stmt->execute();
+                                            $fahrzeuge = $stmt->fetchAll();
+
+                                            foreach ($fahrzeuge as $row) {
+                                                if ($row['identifier'] == $daten['fzg_na'] && $row['active'] == 1) {
+                                                    echo '<option value="' . $row['identifier'] . '" selected>' . $row['name'] . '</option>';
+                                                } elseif ($row['identifier'] == $daten['fzg_na'] && $row['active'] == 0) {
+                                                    echo '<option value="' . $row['identifier'] . '" selected disabled>' . $row['name'] . '</option>';
+                                                } else {
+                                                    echo '<option value="' . $row['identifier'] . '">' . $row['name'] . '</option>';
+                                                }
+                                            }
+                                            ?>
                                         </select>
                                     <?php endif; ?>
                                 </div>
@@ -1709,25 +1541,46 @@ $prot_url = "https://intra.muster.de/edivi/p-$enr"; // ! URL ANPASSEN
                                 </div>
                             </div>
                             <div class="row mt-2">
-                                <div class="col-3 fw-bold">Transportziel</div>
+                                <div class="col-3 fw-bold">Transportart/-ziel</div>
                                 <div class="col">
                                     <?php
-                                    if ($daten['transportziel2'] == NULL) {
+                                    if ($daten['transportziel'] == NULL) {
                                     ?>
-                                        <select name="transportziel2" id="transportziel2" class="w-100 form-select edivi__input-check" required>
-                                            <option disabled hidden selected>---</option>
-                                            <option value="0">Kein Transport</option>
-                                            <!-- <option value="1">Uniklinik SB</option> -->
-                                            <option value="2">Städtisches Klinikum</option>
+                                        <select name="transportziel" id="transportziel" class="w-100 form-select edivi__input-check" required>
+                                            <option disabled hidden selected value="NULL">---</option>
+                                            <?php
+                                            require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+
+                                            $stmt = $pdo->prepare("SELECT * FROM intra_edivi_ziele ORDER BY priority ASC");
+                                            $stmt->execute();
+                                            $ziele = $stmt->fetchAll();
+                                            foreach ($ziele as $row) {
+                                                echo '<option value="' . $row['identifier'] . '">' . $row['name'] . '</option>';
+                                            }
+                                            ?>
                                         </select>
                                     <?php
                                     } else {
                                     ?>
-                                        <select name="transportziel2" id="transportziel2" class="w-100 mb-2 form-select edivi__input-check" autocomplete="off">
-                                            <option disabled hidden selected>---</option>
-                                            <option value="0" <?php echo ($daten['transportziel2'] == 0 ? 'selected' : '') ?>>Kein Transport</option>
-                                            <!-- <option value="1" <?php echo ($daten['transportziel2'] == 1 ? 'selected' : '') ?>>Uniklinik SB</option> -->
-                                            <option value="2" <?php echo ($daten['transportziel2'] == 2 ? 'selected' : '') ?>>Städtisches Klinikum</option>
+                                        <select name="transportziel" id="transportziel" class="w-100 mb-2 form-select edivi__input-check" autocomplete="off">
+                                            <option disabled hidden selected value="NULL">---</option>
+                                            <?php
+                                            require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+
+                                            $stmt = $pdo->prepare("SELECT * FROM intra_edivi_ziele ORDER BY priority ASC");
+                                            $stmt->execute();
+                                            $fahrzeuge = $stmt->fetchAll();
+
+                                            foreach ($fahrzeuge as $row) {
+                                                if ($row['identifier'] == $daten['transportziel'] && $row['active'] == 1) {
+                                                    echo '<option value="' . $row['identifier'] . '" selected>' . $row['name'] . '</option>';
+                                                } elseif ($row['identifier'] == $daten['transportziel'] && $row['active'] == 0) {
+                                                    echo '<option value="' . $row['identifier'] . '" selected disabled>' . $row['name'] . '</option>';
+                                                } else {
+                                                    echo '<option value="' . $row['identifier'] . '">' . $row['name'] . '</option>';
+                                                }
+                                            }
+                                            ?>
                                         </select>
                                     <?php
                                     }

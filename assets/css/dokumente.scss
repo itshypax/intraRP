@@ -49,20 +49,7 @@ table.docheader {
 }
 
 span.bfcolor {
-  color: #9c0000;
-}
-
-.document-styling {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  height: 100mm;
-  opacity: 0.2;
-
-  img {
-    max-height: 100%;
-    max-width: 100%;
-  }
+  color: var(--main-color);
 }
 
 [data-page-type="3"] .page h1 {
@@ -70,7 +57,7 @@ span.bfcolor {
 }
 
 .page h1 {
-  color: #9c0000;
+  color: var(--main-color);
   font-weight: bolder;
   font-size: 22pt;
 }
@@ -99,7 +86,16 @@ span.urkunde-important {
 }
 
 .urkunde-disclaimer {
+  position: absolute;
   font-size: 10pt;
+  color: var(--white);
+  background-color: var(--main-color);
+  border-top: 5px solid var(--main-color);
+  border-bottom: 5px solid var(--main-color);
+  width: 90%;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .dt-0,
@@ -159,4 +155,61 @@ body[data-page-type="13"] .dt-13 {
 .letter-content ul,
 .letter-content ol {
   font-size: 15pt;
+}
+
+#page-urkunde::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  height: 95%;
+  outline: 6px solid var(--main-color);
+}
+
+.document-styling {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  height: 100mm;
+  opacity: 0.2;
+
+  .strich-1 {
+    position: absolute;
+    bottom: 0;
+    right: -240px;
+    width: 25px;
+    height: 1500px;
+    background-color: var(--black);
+    opacity: 1;
+    transform: skewX(-30deg);
+  }
+
+  .strich-2 {
+    position: absolute;
+    bottom: 0;
+    right: -350px;
+    width: 100px;
+    height: 1500px;
+    background-color: var(--fw-red);
+    opacity: 1;
+    transform: skewX(-30deg);
+  }
+
+  .strich-3 {
+    position: absolute;
+    bottom: 0;
+    right: -385px;
+    width: 25px;
+    height: 1500px;
+    background-color: var(--black);
+    opacity: 1;
+    transform: skewX(-30deg);
+  }
+
+  img {
+    max-height: 100%;
+    max-width: 100%;
+  }
 }

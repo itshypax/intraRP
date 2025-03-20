@@ -1,12 +1,13 @@
 :root {
-  --sh-blue: #011e4a;
-  --sh-blue-dimmed: #0a2e5a;
-  --sh-red: #d4004b;
-  --sh-red-dimmed: #95094b;
-  --sh-gray: #f0f2f4;
-  --sh-darkgray: #4a4a4a;
-  --sh-tag-color: #a4a6a7;
-  --sh-white: #f9fafb;
+  --secondary-color: #011e4a;
+  --secondary-color-dimmed: #0a2e5a;
+  --main-color: #85170c;
+  --main-color-dimmed: #4d0e08;
+  --fw-red: #85170c;
+  --gray: #f0f2f4;
+  --darkgray: #4a4a4a;
+  --tag-color: #a4a6a7;
+  --alt-white: #f9fafb;
 
   --white: #fff;
   --black: #000;
@@ -21,87 +22,87 @@
 }
 
 body {
-  --bs-body-font-family: "PT Sans", system-ui, -apple-system, "Segoe UI", Roboto,
-    "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif,
+  --bs-body-font-family: "Maven Pro", system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
 }
 
-.bg-sh-blue {
-  background-color: var(--sh-blue) !important;
+.bg-secondary-color {
+  background-color: var(--secondary-color) !important;
 }
 
-.bg-sh-red {
-  background-color: var(--sh-red) !important;
+.bg-main-color {
+  background-color: var(--main-color) !important;
 }
 
-.bg-sh-gray {
-  background-color: var(--sh-gray) !important;
+.bg-gray-color {
+  background-color: var(--gray) !important;
 }
 
-.bg-sh-semigray {
-  background-color: var(--sh-tag-color) !important;
+.bg-semigray {
+  background-color: var(--tag-color) !important;
 }
 
-.bg-sh-darkgray {
-  background-color: var(--sh-darkgray) !important;
+.bg-darkgray {
+  background-color: var(--darkgray) !important;
 }
 
-.bg-sh-white {
-  background-color: var(--sh-white) !important;
+.bg-white-color {
+  background-color: var(--alt-white) !important;
 }
 
-.border-sh-red {
-  --bs-border-color: var(--sh-red) !important;
+.border-main-color {
+  --bs-border-color: var(--main-color) !important;
 }
 
-.border-sh-blue {
-  --bs-border-color: var(--sh-blue) !important;
+.border-secondary-color {
+  --bs-border-color: var(--secondary-color) !important;
 }
 
-.border-sh-gray {
-  --bs-border-color: var(--sh-gray) !important;
+.border-gray-color {
+  --bs-border-color: var(--gray) !important;
 }
 
-.border-sh-semigray {
-  --bs-border-color: var(--sh-tag-color) !important;
+.border-semigray {
+  --bs-border-color: var(--tag-color) !important;
 }
 
-.text-sh-gray {
-  color: var(--sh-gray) !important;
+.text-gray-color {
+  color: var(--gray) !important;
 }
 
-.text-sh-red {
-  color: var(--sh-red) !important;
+.text-main-color {
+  color: var(--main-color) !important;
 }
 
-a.text-sh-red:hover {
-  color: var(--sh-red-dimmed) !important;
+a.text-main-color:hover {
+  color: var(--main-color-dimmed) !important;
 }
 
-.text-sh-blue {
-  color: var(--sh-blue) !important;
+.text-secondary-color {
+  color: var(--secondary-color) !important;
 }
 
-.btn-outline-sh-red {
-  --bs-btn-border-color: var(--sh-red) !important;
-  --bs-btn-color: var(--sh-red) !important;
-  --bs-btn-hover-bg: var(--sh-red) !important;
+.btn-outline-main-color {
+  --bs-btn-border-color: var(--main-color) !important;
+  --bs-btn-color: var(--main-color) !important;
+  --bs-btn-hover-bg: var(--main-color) !important;
   --bs-btn-hover-color: var(--white) !important;
-  --bs-btn-active-bg: var(--sh-red) !important;
-  --bs-btn-active-border-color: var(--sh-red) !important;
-  --bs-btn-disabled-color: var(--sh-red) !important;
-  --bs-btn-disabled-border-color: var(--sh-gray) !important;
+  --bs-btn-active-bg: var(--main-color) !important;
+  --bs-btn-active-border-color: var(--main-color) !important;
+  --bs-btn-disabled-color: var(--main-color) !important;
+  --bs-btn-disabled-border-color: var(--gray) !important;
 }
 
-.btn-outline-sh-blue {
-  --bs-btn-border-color: var(--sh-blue) !important;
-  --bs-btn-color: var(--sh-blue) !important;
-  --bs-btn-hover-bg: var(--sh-blue) !important;
+.btn-outline-secondary-color {
+  --bs-btn-border-color: var(--secondary-color) !important;
+  --bs-btn-color: var(--secondary-color) !important;
+  --bs-btn-hover-bg: var(--secondary-color) !important;
   --bs-btn-hover-color: var(--white) !important;
-  --bs-btn-active-bg: var(--sh-blue) !important;
-  --bs-btn-active-border-color: var(--sh-blue) !important;
-  --bs-btn-disabled-color: var(--sh-blue) !important;
-  --bs-btn-disabled-border-color: var(--sh-gray) !important;
+  --bs-btn-active-bg: var(--secondary-color) !important;
+  --bs-btn-active-border-color: var(--secondary-color) !important;
+  --bs-btn-disabled-color: var(--secondary-color) !important;
+  --bs-btn-disabled-border-color: var(--gray) !important;
 }
 
 .btn-tag-size {
@@ -111,76 +112,76 @@ a.text-sh-red:hover {
   cursor: default !important;
 }
 
-.btn-sh-red {
-  --bs-btn-bg: var(--sh-red) !important;
+.btn-main-color {
+  --bs-btn-bg: var(--main-color) !important;
   --bs-btn-color: var(--white) !important;
   --bs-btn-hover-bg: var(--bs-btn-bg) !important;
   --bs-btn-hover-color: var(--white) !important;
   --bs-btn-active-bg: var(--bs-btn-bg) !important;
   --bs-btn-active-color: var(--white) !important;
   --bs-btn-active-border-color: var(--bs-btn-bg) !important;
-  --bs-btn-disabled-bg: var(--sh-red) !important;
+  --bs-btn-disabled-bg: var(--main-color) !important;
   --bs-btn-disabled-color: var(--white) !important;
 }
 
-.btn-sh-blue {
-  --bs-btn-bg: var(--sh-blue) !important;
+.btn-secondary-color {
+  --bs-btn-bg: var(--secondary-color) !important;
   --bs-btn-color: var(--white) !important;
   --bs-btn-hover-bg: var(--bs-btn-bg) !important;
   --bs-btn-hover-color: var(--white) !important;
   --bs-btn-active-bg: var(--bs-btn-bg) !important;
   --bs-btn-active-color: var(--white) !important;
   --bs-btn-active-border-color: var(--bs-btn-bg) !important;
-  --bs-btn-disabled-bg: var(--sh-blue) !important;
+  --bs-btn-disabled-bg: var(--secondary-color) !important;
   --bs-btn-disabled-color: var(--white) !important;
 }
 
 .btn-sh-stt {
   --bs-btn-bg: var(--white) !important;
-  --bs-btn-color: var(--sh-blue) !important;
-  --bs-btn-hover-bg: var(--sh-blue) !important;
+  --bs-btn-color: var(--secondary-color) !important;
+  --bs-btn-hover-bg: var(--secondary-color) !important;
   --bs-btn-hover-color: var(--white) !important;
-  --bs-btn-active-bg: var(--sh-blue) !important;
+  --bs-btn-active-bg: var(--secondary-color) !important;
   --bs-btn-active-color: var(--white) !important;
-  --bs-btn-active-border-color: var(--sh-blue) !important;
-  --bs-btn-disabled-bg: var(--sh-blue) !important;
+  --bs-btn-active-border-color: var(--secondary-color) !important;
+  --bs-btn-disabled-bg: var(--secondary-color) !important;
   --bs-btn-disabled-color: var(--white) !important;
 }
 
 .btn-sh-stt-2 {
-  --bs-btn-bg: var(--sh-blue) !important;
+  --bs-btn-bg: var(--secondary-color) !important;
   --bs-btn-color: var(--white) !important;
-  --bs-btn-hover-bg: var(--sh-red) !important;
+  --bs-btn-hover-bg: var(--main-color) !important;
   --bs-btn-hover-color: var(--white) !important;
-  --bs-btn-active-bg: var(--sh-red) !important;
+  --bs-btn-active-bg: var(--main-color) !important;
   --bs-btn-active-color: var(--white) !important;
-  --bs-btn-active-border-color: var(--sh-blue) !important;
-  --bs-btn-disabled-bg: var(--sh-red) !important;
+  --bs-btn-active-border-color: var(--secondary-color) !important;
+  --bs-btn-disabled-bg: var(--main-color) !important;
   --bs-btn-disabled-color: var(--white) !important;
   --bs-btn-border-width: 2px !important;
 }
 
 .btn-sh-stt-3 {
-  --bs-btn-bg: var(--sh-gray) !important;
-  --bs-btn-color: var(--sh-blue) !important;
-  --bs-btn-hover-bg: var(--sh-blue) !important;
+  --bs-btn-bg: var(--gray) !important;
+  --bs-btn-color: var(--secondary-color) !important;
+  --bs-btn-hover-bg: var(--secondary-color) !important;
   --bs-btn-hover-color: var(--white) !important;
-  --bs-btn-active-bg: var(--sh-blue) !important;
+  --bs-btn-active-bg: var(--secondary-color) !important;
   --bs-btn-active-color: var(--white) !important;
-  --bs-btn-active-border-color: var(--sh-blue) !important;
-  --bs-btn-disabled-bg: var(--sh-blue) !important;
+  --bs-btn-active-border-color: var(--secondary-color) !important;
+  --bs-btn-disabled-bg: var(--secondary-color) !important;
   --bs-btn-disabled-color: var(--white) !important;
 }
 
 .btn-sh-tags {
-  --bs-btn-bg: var(--sh-tag-color) !important;
+  --bs-btn-bg: var(--tag-color) !important;
   --bs-btn-color: var(--black) !important;
-  --bs-btn-hover-bg: var(--sh-tag-color) !important;
+  --bs-btn-hover-bg: var(--tag-color) !important;
   --bs-btn-hover-color: var(--black) !important;
-  --bs-btn-active-bg: var(--sh-tag-color) !important;
+  --bs-btn-active-bg: var(--tag-color) !important;
   --bs-btn-active-color: var(--black) !important;
-  --bs-btn-active-border-color: var(--sh-tag-color) !important;
-  --bs-btn-disabled-bg: var(--sh-tag-color) !important;
+  --bs-btn-active-border-color: var(--tag-color) !important;
+  --bs-btn-disabled-bg: var(--tag-color) !important;
   --bs-btn-disabled-color: var(--black) !important;
 }
 
@@ -199,7 +200,7 @@ body#dashboard::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background: url(/assets/img/rdwp.png) no-repeat center center fixed;
+  background: url(/assets/img/wallpaper.png) no-repeat center center fixed;
   background-size: cover;
   filter: blur(5px); /* Adjust the value (5px) to control the amount of blur */
   z-index: -1;
@@ -215,12 +216,12 @@ body#dashboard::before {
 }
 
 #cards .card:hover {
-  background-color: var(--sh-gray) !important;
+  background-color: var(--gray) !important;
 }
 
 #cards .card .card-fa > i {
   font-size: 3rem;
-  background-color: var(--sh-blue);
+  background-color: var(--secondary-color);
   color: var(--white);
   border-radius: 50%;
   padding: 1rem;
@@ -228,7 +229,7 @@ body#dashboard::before {
 }
 
 #cards .card:hover .card-fa > i {
-  background-color: var(--sh-red);
+  background-color: var(--main-color);
 }
 
 #cards h2 {
@@ -288,36 +289,6 @@ body#dashboard footer {
       margin-left: -3px;
       padding: 4px 6px 3px 0;
       text-decoration: none;
-    }
-  }
-
-  .footerNN {
-    font-size: 10px;
-    font-weight: normal;
-    margin-bottom: -1px;
-    padding-top: 1px;
-    margin-left: -16px;
-
-    .nnText:hover {
-      background-color: #187ae9;
-      box-shadow: 0 0 10px 1px rgba(18, 104, 202, 0.5);
-      transition: 0s all;
-    }
-
-    span {
-      padding: 5px 0px;
-    }
-
-    a {
-      padding: 5px 8px;
-      text-decoration: none;
-    }
-
-    svg {
-      vertical-align: middle;
-      image-rendering: -webkit-optimize-contrast;
-      height: 28px;
-      width: auto;
     }
   }
 

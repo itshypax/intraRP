@@ -1,6 +1,7 @@
 <?php
 session_start();
-require_once '../../assets/php/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     // Store the current page's URL in a session variable
     $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
@@ -14,32 +15,16 @@ if ($notadmincheck && !$usdelete) {
     header("Location: /admin/users/list.php?message=error-2");
 }
 
-include '../../assets/php/mysql-con.php';
+require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 
 //Abfrage der Nutzer ID vom Login
 $userid = $_SESSION['userid'];
 
 $id = $_GET['id'];
 
-$sql = "DELETE FROM cirs_users WHERE id = $id";
-mysqli_query($conn, $sql);
-header('Location: /admin/users/list.php')
+$stmt = $pdo->prepare("DELETE FROM intra_users WHERE id = :id");
+$stmt->bindParam(':id', $id);
+$stmt->execute();
 
-?>
-
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-
-<body>
-
-
-</body>
-
-</html>
+header('Location: /admin/users/list.php');
+exit;

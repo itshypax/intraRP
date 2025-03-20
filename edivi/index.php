@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
 ?>
 <!DOCTYPE html>
 <html>
@@ -8,26 +9,37 @@ session_start();
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>eDIVI &rsaquo; intraRP</title>
+    <title>eDIVI &rsaquo; <?php echo SYSTEM_NAME ?></title>
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/assets/css/style.min.css" />
     <link rel="stylesheet" href="/assets/fonts/fontawesome/css/all.min.css" />
-    <link rel="stylesheet" href="/assets/fonts/ptsans/css/all.min.css" />
+    <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="/assets/bootstrap-5.3/css/bootstrap.min.css">
-    <script src="/assets/bootstrap-5.3/js/bootstrap.bundle.min.js"></script>
-    <script src="/assets/jquery/jquery-3.7.0.min.js"></script>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/jquery/jquery.min.js"></script>
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico" />
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="<?php echo SYSTEM_NAME ?>" />
     <link rel="manifest" href="/assets/favicon/site.webmanifest" />
-
+    <!-- Metas -->
+    <meta name="theme-color" content="<?php echo SYSTEM_COLOR ?>" />
+    <meta property="og:site_name" content="<?php echo SERVER_NAME ?>" />
+    <meta property="og:url" content="https://<?php echo SYSTEM_URL ?>/dash.php" />
+    <meta property="og:title" content="<?php echo SYSTEM_NAME ?> - Intranet <?php echo SERVER_CITY ?>" />
+    <meta property="og:image" content="<?php echo META_IMAGE_URL ?>" />
+    <meta property="og:description" content="Verwaltungsportal der <?php echo RP_ORGTYPE . " " .  SERVER_CITY ?>" />
 </head>
 
-<body id="dashboard" class="d-flex justify-content-center align-items-center">
+<body data-bs-theme="dark" id="dashboard" class="d-flex justify-content-center align-items-center">
     <div class="row">
         <div class="col">
             <div class="card px-4 py-3">
+                <h1 id="loginHeader"><?php echo SYSTEM_NAME ?></h1>
+                <p class="subtext">Das Intranet der Stadt <?php echo SERVER_CITY ?>!</p>
                 <form method="post">
                     <strong>Einsatznummer:</strong><br>
                     <input class="form-control" type="text" size="40" maxlength="250" id="enrInput" oninput="validateInput(this)"><br><br>
@@ -42,16 +54,16 @@ session_start();
     <footer>
         <div class="footerCopyright">
             <a href="https://hypax.wtf" target="_blank"><i class="fa-solid fa-code"></i> hypax</a>
-            <span>© 2023 | v0.1 WIP</span>
+            <span>© 2023-<?php echo date("Y"); ?> | Version <?php echo SYSTEM_VERSION ?></span>
         </div>
         <div class="footerLegal">
             <span>
-                <a href="#">
+                <a href="https://<?php echo SERVER_NAME ?>.eu/app/imprint/">
                     Impressum
                 </a>
             </span>
             <span>
-                <a href="#">
+                <a href="https://<?php echo SERVER_NAME ?>.eu/app/datenschutzerklaerung/">
                     Datenschutzerklärung
                 </a>
             </span>
@@ -67,16 +79,14 @@ session_start();
                 return;
             }
 
-            // Send an AJAX request to the server to handle the open/create logic
             $.ajax({
                 type: "POST",
-                url: "/assets/functions/f_enrprocess.php",
+                url: "/assets/functions/enrprocess.php",
                 data: {
                     action: "openOrCreate",
                     enr: inputValue
                 },
                 success: function(redirectUrl) {
-                    // Redirect to the specified URL
                     window.location.href = redirectUrl;
                 },
             });
@@ -84,13 +94,11 @@ session_start();
     </script>
     <script>
         function isNumber(event) {
-            // Check if the pressed key is a number (0-9) or a valid numeric character.
             const key = event.key;
             return /^[0-9_]+$/.test(key);
         }
 
         function validateInput(inputField) {
-            // Remove any non-numeric characters from the input value.
             inputField.value = inputField.value.replace(/[^0-9_]/g, '');
         }
     </script>

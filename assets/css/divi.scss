@@ -1,12 +1,12 @@
 :root {
-  --sh-blue: #011e4a;
-  --sh-blue-dimmed: #0a2e5a;
-  --sh-red: #d4004b;
-  --sh-red-dimmed: #95094b;
-  --sh-gray: #f0f2f4;
-  --sh-darkgray: #4a4a4a;
-  --sh-tag-color: #a4a6a7;
-  --sh-white: #f9fafb;
+  --secondary-color: #011e4a;
+  --secondary-color-dimmed: #0a2e5a;
+  --main-color: #85170c;
+  --main-color-dimmed: #4d0e08;
+  --gray: #f0f2f4;
+  --darkgray: #4a4a4a;
+  --tag-color: #a4a6a7;
+  --alt-white: #f9fafb;
 
   --white: #fff;
   --black: #000;
@@ -73,7 +73,7 @@ body #qm-quick-menu {
 }
 
 button#qm-quick-menu {
-  background: var(--sh-red);
+  background: var(--main-color);
   color: var(--white);
   border: none;
   transform: none;
@@ -81,7 +81,7 @@ button#qm-quick-menu {
   bottom: 32px;
 
   &:hover {
-    background: var(--sh-blue);
+    background: var(--secondary-color);
   }
 }
 
@@ -95,7 +95,7 @@ body #qm-log-menu {
 }
 
 button#qm-log-menu {
-  background: var(--sh-red);
+  background: var(--main-color);
   color: var(--white);
   border: none;
   transform: none;
@@ -103,7 +103,7 @@ button#qm-log-menu {
   bottom: 84px;
 
   &:hover {
-    background: var(--sh-blue);
+    background: var(--secondary-color);
   }
 }
 

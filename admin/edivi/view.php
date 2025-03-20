@@ -1,6 +1,8 @@
 <?php
 session_start();
-require_once '../../assets/php/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     // Store the current page's URL in a session variable
@@ -13,41 +15,46 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     header("Location: /admin/index.php");
 }
 
-include '../../assets/php/mysql-con.php';
+$stmt = $pdo->prepare("SELECT * FROM intra_edivi WHERE id = :id");
+$stmt->bindParam(':id', $_GET['id']);
+$stmt->execute();
+$row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-$result = mysqli_query($conn, "SELECT * FROM cirs_rd_protokolle WHERE id = " . $_GET['id']) or die(mysqli_error($conn));
-$row = mysqli_fetch_array($result);
-$rowamount = mysqli_num_rows($result);
-
-if ($rowamount == 0) {
+if (count($row) == 0) {
     header("Location: /admin/edivi/list.php");
 }
 
-if ($row['freigegeben'] == 1) {
-    $ist_freigegeben = true;
-} else {
-    $ist_freigegeben = false;
-}
+$ist_freigegeben = ($row['freigegeben'] == 1);
 
-$row['last_edit'] = date("d.m.Y H:i", strtotime($row['last_edit']));
+$row['last_edit'] = (!empty($row['last_edit']))
+    ? (new DateTime($row['last_edit']))->format('d.m.Y H:i')
+    : "Noch nicht bearbeitet";
 
 if (isset($_POST['new']) && $_POST['new'] == 1) {
     $bearbeiter = $_POST['bearbeiter'];
     $protokoll_status = $_POST['protokoll_status'];
     $qmkommentar = $_POST['qmkommentar'];
 
-    if ($qmkommentar != NULL) {
-        $queryins = "INSERT INTO cirs_rd_prot_kommentare (protokoll_id, kommentar, bearbeiter) VALUES (" . $_GET['id'] . ", '$qmkommentar', '$bearbeiter')";
+    if (!empty($qmkommentar)) {
+        $stmt = $pdo->prepare("INSERT INTO cirs_rd_prot_kommentare (protokoll_id, kommentar, bearbeiter) VALUES (:id, :kommentar, :bearbeiter)");
+        $stmt->execute([
+            'id' => $_GET['id'],
+            'kommentar' => $qmkommentar,
+            'bearbeiter' => $bearbeiter
+        ]);
     }
-    $query = "UPDATE cirs_rd_protokolle SET bearbeiter = '$bearbeiter', protokoll_status = '$protokoll_status' WHERE id = " . $_GET['id'];
-    if (isset($queryins)) {
-        mysqli_query($conn, $queryins);
-    }
-    mysqli_query($conn, $query);
+
+    $stmt = $pdo->prepare("UPDATE intra_edivi SET bearbeiter = :bearbeiter, protokoll_status = :status WHERE id = :id");
+    $stmt->execute([
+        'bearbeiter' => $bearbeiter,
+        'status' => $protokoll_status,
+        'id' => $_GET['id']
+    ]);
+
     header("Refresh: 0");
 }
 
-$prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
+$prot_url = "https://" . SYSTEM_URL . "/admin/edivi/view.php?id=" . $row['id'];
 
 ?>
 
@@ -58,27 +65,36 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>[#<?= $row['enr'] . "] " . $row['patname'] ?> &rsaquo; eDIVI &rsaquo; intraRP</title>
+    <title>[#<?= $row['enr'] . "] " . $row['patname'] ?> &rsaquo; Administration &rsaquo; <?php echo SYSTEM_NAME ?></title>
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/assets/css/divi.min.css" />
     <link rel="stylesheet" href="/assets/css/admin.min.css" />
     <link rel="stylesheet" href="/assets/fonts/fontawesome/css/all.min.css" />
-    <link rel="stylesheet" href="/assets/fonts/ptsans/css/all.min.css" />
+    <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="/assets/bootstrap-5.3/css/bootstrap.min.css">
-    <script src="/assets/bootstrap-5.3/js/bootstrap.bundle.min.js"></script>
-    <script src="/assets/jquery/jquery-3.7.0.min.js"></script>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/jquery/jquery.min.js"></script>
     <!-- html2canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico" />
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="<?php echo SYSTEM_NAME ?>" />
     <link rel="manifest" href="/assets/favicon/site.webmanifest" />
-
+    <!-- Metas -->
+    <meta name="theme-color" content="#ffaf2f" />
+    <meta property="og:site_name" content="<?php echo SERVER_NAME ?>" />
+    <meta property="og:url" content="<?= $prot_url ?>" />
+    <meta property="og:title" content="[#<?= $row['enr'] . "] " . $row['patname'] ?> &rsaquo; eDIVI &rsaquo; <?php echo SYSTEM_NAME ?>" />
+    <meta property="og:image" content="https://<?php echo SYSTEM_URL ?>/assets/img/aelrd.png" />
+    <meta property="og:description" content="Verwaltungsportal der <?php echo RP_ORGTYPE . " " .  SERVER_CITY ?>" />
 
 </head>
 
-<body>
+<body data-bs-theme="dark">
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
         <div class="container-fluid" id="edivi__container">
@@ -171,10 +187,10 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                             <div class="row my-2">
                                 <div class="col-4 edivi__description">Einsatzdatum u. -zeit</div>
                                 <div class="col">
-                                    <input type="date" name="edatum" id="edatum" class="w-100 form-control edivi__input-check" value="<?= $row['edatum'] ?>">
+                                    <input type="date" name="edatum" id="edatum" class="w-100 form-control " value="<?= $row['edatum'] ?>">
                                 </div>
                                 <div class="col">
-                                    <input type="time" name="ezeit" id="ezeit" class="w-100 form-control edivi__input-check" value="<?= $row['ezeit'] ?>">
+                                    <input type="time" name="ezeit" id="ezeit" class="w-100 form-control " value="<?= $row['ezeit'] ?>">
                                 </div>
                             </div>
                             <div class="row my-2">
@@ -183,7 +199,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <input type="text" name="enr" id="enr" class="w-100 form-control" placeholder="Einsatznummer" value="<?= $row['enr'] ?>">
                                 </div>
                                 <div class="col">
-                                    <input type="text" name="eort" id="eort" class="w-100 form-control edivi__input-check" placeholder="Einsatzort" value="<?= $row['eort'] ?>">
+                                    <input type="text" name="eort" id="eort" class="w-100 form-control " placeholder="Einsatzort" value="<?= $row['eort'] ?>">
                                 </div>
                             </div>
                         </div>
@@ -232,7 +248,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     } else {
                                     ?>
-                                        <select name="awsicherung_neu" id="awsicherung_neu" class="w-100 form-select edivi__input-check" autocomplete="off">
+                                        <select name="awsicherung_neu" id="awsicherung_neu" class="w-100 form-select " autocomplete="off">
                                             <option disabled hidden selected>---</option>
                                             <option value="0" <?php echo ($row['awsicherung_neu'] == 0 ? 'selected' : '') ?>>keine</option>
                                             <option value="1" <?php echo ($row['awsicherung_neu'] == 1 ? 'selected' : '') ?>>Endotrachealtubus</option>
@@ -282,7 +298,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     if ($row['b_symptome'] == NULL) {
                                     ?>
-                                        <select name="b_symptome" id="b_symptome" class="w-100 form-select edivi__input-check">
+                                        <select name="b_symptome" id="b_symptome" class="w-100 form-select ">
                                             <option disabled hidden selected>Symptomauswahl</option>
                                             <option value="0">unauffällig</option>
                                             <option value="1">Dyspnoe</option>
@@ -294,7 +310,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     } else {
                                     ?>
-                                        <select name="b_symptome" id="b_symptome" class="w-100 form-select edivi__input-check" autocomplete="off">
+                                        <select name="b_symptome" id="b_symptome" class="w-100 form-select " autocomplete="off">
                                             <option disabled hidden selected>Symptomauswahl</option>
                                             <option value="0" <?php echo ($row['b_symptome'] == 0 ? 'selected' : '') ?>>unauffällig</option>
                                             <option value="1" <?php echo ($row['b_symptome'] == 1 ? 'selected' : '') ?>>Dyspnoe</option>
@@ -314,7 +330,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     if ($row['b_auskult'] == NULL) {
                                     ?>
-                                        <select name="b_auskult" id="b_auskult" class="w-100 form-select edivi__input-check">
+                                        <select name="b_auskult" id="b_auskult" class="w-100 form-select ">
                                             <option disabled hidden selected>---</option>
                                             <option value="0">unauffällig</option>
                                             <option value="1">Spastik</option>
@@ -326,7 +342,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     } else {
                                     ?>
-                                        <select name="b_auskult" id="b_auskult" class="w-100 form-select edivi__input-check" autocomplete="off">
+                                        <select name="b_auskult" id="b_auskult" class="w-100 form-select " autocomplete="off">
                                             <option disabled hidden selected>---</option>
                                             <option value="0" <?php echo ($row['b_auskult'] == 0 ? 'selected' : '') ?>>unauffällig</option>
                                             <option value="1" <?php echo ($row['b_auskult'] == 1 ? 'selected' : '') ?>>Spastik</option>
@@ -346,7 +362,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     if ($row['b_beatmung'] == NULL) {
                                     ?>
-                                        <select name="b_beatmung" id="b_beatmung" class="w-100 form-select edivi__input-check">
+                                        <select name="b_beatmung" id="b_beatmung" class="w-100 form-select ">
                                             <option disabled hidden selected>---</option>
                                             <option value="4">keine</option>
                                             <option value="0">Spontanatmung</option>
@@ -357,7 +373,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     } else {
                                     ?>
-                                        <select name="b_beatmung" id="b_beatmung" class="w-100 form-select edivi__input-check" autocomplete="off">
+                                        <select name="b_beatmung" id="b_beatmung" class="w-100 form-select " autocomplete="off">
                                             <option disabled hidden selected>---</option>
                                             <option value="4" <?php echo ($row['b_beatmung'] == 4 ? 'selected' : '') ?>>keine</option>
                                             <option value="0" <?php echo ($row['b_beatmung'] == 0 ? 'selected' : '') ?>>Spontanatmung</option>
@@ -408,7 +424,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     if ($row['c_kreislauf'] == NULL) {
                                     ?>
-                                        <select name="c_kreislauf" id="c_kreislauf" class="w-100 form-select edivi__input-check">
+                                        <select name="c_kreislauf" id="c_kreislauf" class="w-100 form-select ">
                                             <option disabled hidden selected>---</option>
                                             <option value="0">stabil</option>
                                             <option value="1">instabil</option>
@@ -417,7 +433,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     } else {
                                     ?>
-                                        <select name="c_kreislauf" id="c_kreislauf" class="w-100 form-select edivi__input-check" autocomplete="off">
+                                        <select name="c_kreislauf" id="c_kreislauf" class="w-100 form-select " autocomplete="off">
                                             <option disabled hidden selected>---</option>
                                             <option value="0" <?php echo ($row['c_kreislauf'] == 0 ? 'selected' : '') ?>>stabil</option>
                                             <option value="1" <?php echo ($row['c_kreislauf'] == 1 ? 'selected' : '') ?>>instabil</option>
@@ -450,7 +466,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     if ($row['c_ekg'] == NULL) {
                                     ?>
-                                        <select name="c_ekg" id="c_ekg" class="w-100 form-select edivi__input-check">
+                                        <select name="c_ekg" id="c_ekg" class="w-100 form-select ">
                                             <option disabled hidden selected>---</option>
                                             <option value="0">Sinusrhythmus</option>
                                             <option value="1">STEMI</option>
@@ -467,7 +483,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     } else {
                                     ?>
-                                        <select name="c_ekg" id="c_ekg" class="w-100 form-select edivi__input-check" autocomplete="off">
+                                        <select name="c_ekg" id="c_ekg" class="w-100 form-select " autocomplete="off">
                                             <option disabled hidden selected>---</option>
                                             <option value="0" <?php echo ($row['c_ekg'] == 0 ? 'selected' : '') ?>>Sinusrhythmus</option>
                                             <option value="1" <?php echo ($row['c_ekg'] == 1 ? 'selected' : '') ?>>STEMI</option>
@@ -712,7 +728,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     if ($row['d_bewusstsein'] == NULL) {
                                     ?>
-                                        <select name="d_bewusstsein" id="d_bewusstsein" class="w-100 form-select edivi__input-check">
+                                        <select name="d_bewusstsein" id="d_bewusstsein" class="w-100 form-select ">
                                             <option disabled hidden selected>---</option>
                                             <option value="0">wach</option>
                                             <option value="1">somnolent</option>
@@ -722,7 +738,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     } else {
                                     ?>
-                                        <select name="d_bewusstsein" id="d_bewusstsein" class="w-100 form-select edivi__input-check" autocomplete="off">
+                                        <select name="d_bewusstsein" id="d_bewusstsein" class="w-100 form-select " autocomplete="off">
                                             <option disabled hidden selected>---</option>
                                             <option value="0" <?php echo ($row['d_bewusstsein'] == 0 ? 'selected' : '') ?>>wach</option>
                                             <option value="1" <?php echo ($row['d_bewusstsein'] == 1 ? 'selected' : '') ?>>somnolent</option>
@@ -739,7 +755,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                 <div class="col">
                                     <?Php if ($row['d_pupillenw_1'] == NULL) {
                                     ?>
-                                        <small>li</small> <select name="d_pupillenw_1" id="d_pupillenw_1" class="form-select edivi__input-check" style="display:inline; max-width: 150px">
+                                        <small>li</small> <select name="d_pupillenw_1" id="d_pupillenw_1" class="form-select " style="display:inline; max-width: 150px">
                                             <option disabled hidden selected>---</option>
                                             <option value="0">entrundet</option>
                                             <option value="1">weit</option>
@@ -750,7 +766,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     } else {
                                     ?>
-                                        <small>li</small> <select name="d_pupillenw_1" id="d_pupillenw_1" class="form-select edivi__input-check" style="display:inline; max-width: 150px" autocomplete="off">
+                                        <small>li</small> <select name="d_pupillenw_1" id="d_pupillenw_1" class="form-select " style="display:inline; max-width: 150px" autocomplete="off">
                                             <option disabled hidden selected>---</option>
                                             <option value="0" <?php echo ($row['d_pupillenw_1'] == 0 ? 'selected' : '') ?>>entrundet</option>
                                             <option value="1" <?php echo ($row['d_pupillenw_1'] == 1 ? 'selected' : '') ?>>weit</option>
@@ -765,7 +781,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                 <div class="col">
                                     <?Php if ($row['d_pupillenw_2'] == NULL) {
                                     ?>
-                                        <small>re</small> <select name="d_pupillenw_2" id="d_pupillenw_2" class="form-select edivi__input-check" style="display:inline; max-width: 150px">
+                                        <small>re</small> <select name="d_pupillenw_2" id="d_pupillenw_2" class="form-select " style="display:inline; max-width: 150px">
                                             <option disabled hidden selected>---</option>
                                             <option value="0">entrundet</option>
                                             <option value="1">weit</option>
@@ -776,7 +792,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     } else {
                                     ?>
-                                        <small>re</small> <select name="d_pupillenw_2" id="d_pupillenw_2" class="form-select edivi__input-check" style="display:inline; max-width: 150px" autocomplete="off">
+                                        <small>re</small> <select name="d_pupillenw_2" id="d_pupillenw_2" class="form-select " style="display:inline; max-width: 150px" autocomplete="off">
                                             <option disabled hidden selected>---</option>
                                             <option value="0" <?php echo ($row['d_pupillenw_2'] == 0 ? 'selected' : '') ?>>entrundet</option>
                                             <option value="1" <?php echo ($row['d_pupillenw_2'] == 1 ? 'selected' : '') ?>>weit</option>
@@ -795,7 +811,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     if ($row['d_lichtreakt_1'] == NULL) {
                                     ?>
-                                        <small>li</small> <select name="d_lichtreakt_1" id="d_lichtreakt_1" class="form-select edivi__input-check" style="display:inline; max-width: 150px">
+                                        <small>li</small> <select name="d_lichtreakt_1" id="d_lichtreakt_1" class="form-select " style="display:inline; max-width: 150px">
                                             <option disabled hidden selected>---</option>
                                             <option value="0">prompt</option>
                                             <option value="1">träge</option>
@@ -805,7 +821,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     } else {
                                     ?>
-                                        <small>li</small> <select name="d_lichtreakt_1" id="d_lichtreakt_1" class="form-select edivi__input-check" style="display:inline; max-width: 150px" autocomplete="off">
+                                        <small>li</small> <select name="d_lichtreakt_1" id="d_lichtreakt_1" class="form-select " style="display:inline; max-width: 150px" autocomplete="off">
                                             <option disabled hidden selected>---</option>
                                             <option value="0" <?php echo ($row['d_lichtreakt_1'] == 0 ? 'selected' : '') ?>>prompt</option>
                                             <option value="1" <?php echo ($row['d_lichtreakt_1'] == 1 ? 'selected' : '') ?>>träge</option>
@@ -820,7 +836,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     if ($row['d_lichtreakt_2'] == NULL) {
                                     ?>
-                                        <small>re</small> <select name="d_lichtreakt_2" id="d_lichtreakt_2" class="form-select edivi__input-check" style="display:inline; max-width: 150px">
+                                        <small>re</small> <select name="d_lichtreakt_2" id="d_lichtreakt_2" class="form-select " style="display:inline; max-width: 150px">
                                             <option disabled hidden selected>---</option>
                                             <option value="0">prompt</option>
                                             <option value="1">träge</option>
@@ -830,7 +846,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     } else {
                                     ?>
-                                        <small>re</small> <select name="d_lichtreakt_2" id="d_lichtreakt_2" class="form-select edivi__input-check" style="display:inline; max-width: 150px" autocomplete="off">
+                                        <small>re</small> <select name="d_lichtreakt_2" id="d_lichtreakt_2" class="form-select " style="display:inline; max-width: 150px" autocomplete="off">
                                             <option disabled hidden selected>---</option>
                                             <option value="0" <?php echo ($row['d_lichtreakt_2'] == 0 ? 'selected' : '') ?>>prompt</option>
                                             <option value="1" <?php echo ($row['d_lichtreakt_2'] == 1 ? 'selected' : '') ?>>träge</option>
@@ -853,7 +869,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                             <?php
                                             if ($row['d_gcs_1'] == NULL) {
                                             ?>
-                                                <select class="w-100 form-select edivi__input-check" name="d_gcs_1" id="d_gcs_1">
+                                                <select class="w-100 form-select " name="d_gcs_1" id="d_gcs_1">
                                                     <option disabled hidden selected>---</option>
                                                     <option value="0">spontan (4)</option>
                                                     <option value="1">auf Aufforderung (3)</option>
@@ -863,7 +879,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                             <?php
                                             } else {
                                             ?>
-                                                <select class="w-100 form-select edivi__input-check" name="d_gcs_1" id="d_gcs_1" autocomplete="off">
+                                                <select class="w-100 form-select " name="d_gcs_1" id="d_gcs_1" autocomplete="off">
                                                     <option disabled hidden selected>---</option>
                                                     <option value="0" <?php echo ($row['d_gcs_1'] == 0 ? 'selected' : '') ?>>spontan (4)</option>
                                                     <option value="1" <?php echo ($row['d_gcs_1'] == 1 ? 'selected' : '') ?>>auf Aufforderung (3)</option>
@@ -886,7 +902,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                             <?php
                                             if ($row['d_gcs_2'] == NULL) {
                                             ?>
-                                                <select class="w-100 form-select edivi__input-check" name="d_gcs_2" id="d_gcs_2">
+                                                <select class="w-100 form-select " name="d_gcs_2" id="d_gcs_2">
                                                     <option disabled hidden selected>---</option>
                                                     <option value="0">orientiert (5)</option>
                                                     <option value="1">desorientiert (4)</option>
@@ -897,7 +913,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                             <?php
                                             } else {
                                             ?>
-                                                <select class="w-100 form-select edivi__input-check" name="d_gcs_2" id="d_gcs_2" autocomplete="off">
+                                                <select class="w-100 form-select " name="d_gcs_2" id="d_gcs_2" autocomplete="off">
                                                     <option disabled hidden selected>---</option>
                                                     <option value="0" <?php echo ($row['d_gcs_2'] == 0 ? 'selected' : '') ?>>orientiert (5)</option>
                                                     <option value="1" <?php echo ($row['d_gcs_2'] == 1 ? 'selected' : '') ?>>desorientiert (4)</option>
@@ -921,7 +937,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                             <?php
                                             if ($row['d_gcs_3'] == NULL) {
                                             ?>
-                                                <select class="w-100 form-select edivi__input-check" name="d_gcs_3" id="d_gcs_3">
+                                                <select class="w-100 form-select " name="d_gcs_3" id="d_gcs_3">
                                                     <option disabled hidden selected>---</option>
                                                     <option value="0">folgt Aufforderung (6)</option>
                                                     <option value="1">gezielte Abwehrbewegungen (5)</option>
@@ -933,7 +949,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                             <?php
                                             } else {
                                             ?>
-                                                <select class="w-100 form-select edivi__input-check" name="d_gcs_3" id="d_gcs_3" autocomplete="off">
+                                                <select class="w-100 form-select " name="d_gcs_3" id="d_gcs_3" autocomplete="off">
                                                     <option disabled hidden selected>---</option>
                                                     <option value="0" <?php echo ($row['d_gcs_3'] == 0 ? 'selected' : '') ?>>folgt Aufforderung (6)</option>
                                                     <option value="1" <?php echo ($row['d_gcs_3'] == 1 ? 'selected' : '') ?>>gezielte Abwehrbewegungen (5)</option>
@@ -956,7 +972,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     if ($row['d_ex_1'] == NULL) {
                                     ?>
-                                        <select name="d_ex_1" id="d_ex_1" class="w-100 form-select edivi__input-check">
+                                        <select name="d_ex_1" id="d_ex_1" class="w-100 form-select ">
                                             <option disabled hidden selected>---</option>
                                             <option value="0">stark eingeschränkt</option>
                                             <option value="2">leicht eingeschränkt</option>
@@ -965,7 +981,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     } else {
                                     ?>
-                                        <select name="d_ex_1" id="d_ex_1" class="w-100 form-select edivi__input-check" autocomplete="off">
+                                        <select name="d_ex_1" id="d_ex_1" class="w-100 form-select " autocomplete="off">
                                             <option disabled hidden selected>---</option>
                                             <option value="0" <?php echo ($row['d_ex_1'] == 0 ? 'selected' : '') ?>>stark eingeschränkt</option>
                                             <option value="2" <?php echo ($row['d_ex_1'] == 2 ? 'selected' : '') ?>>leicht eingeschränkt</option>
@@ -999,7 +1015,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     if ($row['v_muster_k'] == NULL) {
                                     ?>
-                                        <select name="v_muster_k" id="v_muster_k" class="w-100 edivi__verletzungen form-select edivi__input-check">
+                                        <select name="v_muster_k" id="v_muster_k" class="w-100 edivi__verletzungen form-select ">
                                             <option disabled hidden selected>---</option>
                                             <option value="0">schwer</option>
                                             <option value="1">mittel</option>
@@ -1009,7 +1025,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     } else {
                                     ?>
-                                        <select name="v_muster_k" id="v_muster_k" class="w-100 edivi__verletzungen form-select edivi__input-check" autocomplete="off">
+                                        <select name="v_muster_k" id="v_muster_k" class="w-100 edivi__verletzungen form-select " autocomplete="off">
                                             <option disabled hidden selected>---</option>
                                             <option value="0" <?php echo ($row['v_muster_k'] == 0 ? 'selected' : '') ?>>schwer</option>
                                             <option value="1" <?php echo ($row['v_muster_k'] == 1 ? 'selected' : '') ?>>mittel</option>
@@ -1047,7 +1063,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     if ($row['v_muster_w'] == NULL) {
                                     ?>
-                                        <select name="v_muster_w" id="v_muster_w" class="w-100 edivi__verletzungen form-select edivi__input-check">
+                                        <select name="v_muster_w" id="v_muster_w" class="w-100 edivi__verletzungen form-select ">
                                             <option disabled hidden selected>---</option>
                                             <option value="0">schwer</option>
                                             <option value="1">mittel</option>
@@ -1057,7 +1073,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     } else {
                                     ?>
-                                        <select name="v_muster_w" id="v_muster_w" class="w-100 edivi__verletzungen form-select edivi__input-check" autocomplete="off">
+                                        <select name="v_muster_w" id="v_muster_w" class="w-100 edivi__verletzungen form-select " autocomplete="off">
                                             <option disabled hidden selected>---</option>
                                             <option value="0" <?php echo ($row['v_muster_w'] == 0 ? 'selected' : '') ?>>schwer</option>
                                             <option value="1" <?php echo ($row['v_muster_w'] == 1 ? 'selected' : '') ?>>mittel</option>
@@ -1095,7 +1111,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     if ($row['v_muster_t'] == NULL) {
                                     ?>
-                                        <select name="v_muster_t" id="v_muster_t" class="w-100 edivi__verletzungen form-select edivi__input-check">
+                                        <select name="v_muster_t" id="v_muster_t" class="w-100 edivi__verletzungen form-select ">
                                             <option disabled hidden selected>---</option>
                                             <option value="0">schwer</option>
                                             <option value="1">mittel</option>
@@ -1105,7 +1121,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     } else {
                                     ?>
-                                        <select name="v_muster_t" id="v_muster_t" class="w-100 edivi__verletzungen form-select edivi__input-check" autocomplete="off">
+                                        <select name="v_muster_t" id="v_muster_t" class="w-100 edivi__verletzungen form-select " autocomplete="off">
                                             <option disabled hidden selected>---</option>
                                             <option value="0" <?php echo ($row['v_muster_t'] == 0 ? 'selected' : '') ?>>schwer</option>
                                             <option value="1" <?php echo ($row['v_muster_t'] == 1 ? 'selected' : '') ?>>mittel</option>
@@ -1143,7 +1159,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     if ($row['v_muster_a'] == NULL) {
                                     ?>
-                                        <select name="v_muster_a" id="v_muster_a" class="w-100 edivi__verletzungen form-select edivi__input-check">
+                                        <select name="v_muster_a" id="v_muster_a" class="w-100 edivi__verletzungen form-select ">
                                             <option disabled hidden selected>---</option>
                                             <option value="0">schwer</option>
                                             <option value="1">mittel</option>
@@ -1153,7 +1169,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     } else {
                                     ?>
-                                        <select name="v_muster_a" id="v_muster_a" class="w-100 edivi__verletzungen form-select edivi__input-check" autocomplete="off">
+                                        <select name="v_muster_a" id="v_muster_a" class="w-100 edivi__verletzungen form-select " autocomplete="off">
                                             <option disabled hidden selected>---</option>
                                             <option value="0" <?php echo ($row['v_muster_a'] == 0 ? 'selected' : '') ?>>schwer</option>
                                             <option value="1" <?php echo ($row['v_muster_a'] == 1 ? 'selected' : '') ?>>mittel</option>
@@ -1191,7 +1207,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     if ($row['v_muster_al'] == NULL) {
                                     ?>
-                                        <select name="v_muster_al" id="v_muster_al" class="w-100 edivi__verletzungen form-select edivi__input-check">
+                                        <select name="v_muster_al" id="v_muster_al" class="w-100 edivi__verletzungen form-select ">
                                             <option disabled hidden selected>---</option>
                                             <option value="0">schwer</option>
                                             <option value="1">mittel</option>
@@ -1201,7 +1217,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     } else {
                                     ?>
-                                        <select name="v_muster_al" id="v_muster_al" class="w-100 edivi__verletzungen form-select edivi__input-check" autocomplete="off">
+                                        <select name="v_muster_al" id="v_muster_al" class="w-100 edivi__verletzungen form-select " autocomplete="off">
                                             <option disabled hidden selected>---</option>
                                             <option value="0" <?php echo ($row['v_muster_al'] == 0 ? 'selected' : '') ?>>schwer</option>
                                             <option value="1" <?php echo ($row['v_muster_al'] == 1 ? 'selected' : '') ?>>mittel</option>
@@ -1239,7 +1255,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     if ($row['v_muster_bl'] == NULL) {
                                     ?>
-                                        <select name="v_muster_bl" id="v_muster_bl" class="w-100 edivi__verletzungen form-select edivi__input-check">
+                                        <select name="v_muster_bl" id="v_muster_bl" class="w-100 edivi__verletzungen form-select ">
                                             <option disabled hidden selected>---</option>
                                             <option value="0">schwer</option>
                                             <option value="1">mittel</option>
@@ -1249,7 +1265,7 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                     <?php
                                     } else {
                                     ?>
-                                        <select name="v_muster_bl" id="v_muster_bl" class="w-100 edivi__verletzungen form-select edivi__input-check" autocomplete="off">
+                                        <select name="v_muster_bl" id="v_muster_bl" class="w-100 edivi__verletzungen form-select " autocomplete="off">
                                             <option disabled hidden selected>---</option>
                                             <option value="0" <?php echo ($row['v_muster_bl'] == 0 ? 'selected' : '') ?>>schwer</option>
                                             <option value="1" <?php echo ($row['v_muster_bl'] == 1 ? 'selected' : '') ?>>mittel</option>
@@ -1368,76 +1384,14 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                     </div>
                     <div class="row edivi__box">
                         <div class="col">
-                            <div class="row my-2">
-                                <div class="col">
-                                    <div class="row">
-                                        <div class="col">
-                                            <input type="checkbox" class="btn-check" id="notfallteam" name="notfallteam" value="1" <?php echo ($row['notfallteam'] == 1 ? 'checked' : '') ?> autocomplete="off">
-                                            <label class="btn btn-sm btn-outline-danger w-100" for="notfallteam">Übergabe Notfallteam</label>
-                                        </div>
-                                        <div class="col">
-                                            <input type="checkbox" class="btn-check" id="transportverw" name="transportverw" value="1" <?php echo ($row['transportverw'] == 1 ? 'checked' : '') ?> autocomplete="off">
-                                            <label class="btn btn-sm btn-outline-warning w-100" for="transportverw">Transportverweigerung</label>
-                                        </div>
-                                        <!-- <div class="col">
-                                            <button class="btn btn-sm btn-info w-100" type="button" data-bs-toggle="modal" data-bs-target="#myModal3">Voranmeldung</button>
-                                        </div> -->
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- MODAL -->
-                            <div class="modal fade" id="myModal3" tabindex="-1" aria-labelledby="myModalLabel3" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="myModalLabel3">Voranmeldung Klinik</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class="row mt-2 mb-1">
-                                                <div class="col">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio" value="10" name="nacascore" id="nacascore">
-                                                        <label class="form-check-label" for="nacascore">
-                                                            Schockraum
-                                                        </label>
-                                                    </div>
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio" value="11" name="nacascore" id="nacascore">
-                                                        <label class="form-check-label" for="nacascore">
-                                                            ZNA
-                                                        </label>
-                                                    </div>
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio" value="12" name="nacascore" id="nacascore">
-                                                        <label class="form-check-label" for="nacascore">
-                                                            Herzkatheter
-                                                        </label>
-                                                    </div>
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="radio" value="13" name="nacascore" id="nacascore">
-                                                        <label class="form-check-label" for="nacascore">
-                                                            Stroke-Unit
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- MODAL ENDE -->
                             <div class="row mt-3">
                                 <div class="col-3 fw-bold">Protokollant</div>
-                                <div class="col"><input type="text" name="pfname" id="pfname" class="w-100 form-control edivi__input-check" value="<?= $row['pfname'] ?>"></div>
+                                <div class="col"><input type="text" name="pfname" id="pfname" class="w-100 form-control " value="<?= $row['pfname'] ?>"></div>
                             </div>
                             <?php if ($row['naname'] != NULL) : ?>
                                 <div class="row mt-2">
                                     <div class="col-3 fw-bold">Bet. RM</div>
-                                    <div class="col"><input type="text" name="naname" id="naname" class="w-100 form-control edivi__input-check" value="<?= $row['naname'] ?>"></div>
+                                    <div class="col"><input type="text" name="naname" id="naname" class="w-100 form-control " value="<?= $row['naname'] ?>"></div>
                                 </div>
                             <?php else : ?>
                                 <div class="row mt-2">
@@ -1446,82 +1400,37 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                         <?php if ($row['fzg_transp'] == NULL) : ?>
                                             <select name="fzg_transp" id="fzg_transp" class="w-100 form-select">
                                                 <option selected value="NULL">Fzg. Transp.</option>
-                                                <option disabled>-- FuRw 1 --</option>
-                                                <option value="10-83-01">10-83-01</option>
-                                                <option value="10-83-02">10-83-02</option>
-                                                <option value="10-83-03">10-83-03</option>
-                                                <option value="10-83-04">10-83-04</option>
-                                                <option value="10-83-05">10-83-05</option>
-                                                <option value="10-83-06">10-83-06</option>
-                                                <option value="10-83-10">10-83-10</option>
-                                                <option value="10-85-01">10-85-01</option>
-                                                <option value="10-85-02">10-85-02</option>
-                                                <option value="10-85-03">10-85-03</option>
-                                                <option value="10-85-04">10-85-04</option>
-                                                <option value="10-85-05">10-85-05</option>
-                                                <option value="10-93-01">10-93-01</option>
-                                                <option disabled>-- RW 17 --</option>
-                                                <option value="17-83-01">17-83-01</option>
-                                                <option value="17-83-02">17-83-02</option>
-                                                <option value="17-83-03">17-83-03</option>
-                                                <option value="17-83-04">17-83-04</option>
-                                                <option value="17-83-05">17-83-05</option>
-                                                <option value="17-83-06">17-83-06</option>
-                                                <option value="17-85-01">17-85-01</option>
-                                                <option value="17-85-02">17-85-02</option>
-                                                <option value="17-85-03">17-85-03</option>
-                                                <option value="17-87-01">17-87-01</option>
-                                                <option disabled>-- SEG --</option>
-                                                <option value="42-83-01">42-83-01</option>
-                                                <option value="42-83-02">42-83-02</option>
-                                                <option value="42-90-01">42-90-01</option>
-                                                <option value="42-90-02">42-90-02</option>
-                                                <option value="42-90-03">42-90-03</option>
-                                                <option value="42-93-01">42-93-01</option>
-                                                <option disabled>-- Schule --</option>
-                                                <option value="50-83-01">50-83-01</option>
-                                                <option value="50-83-02">50-83-02</option>
+                                                <?php
+                                                require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+
+                                                $stmt = $pdo->prepare("SELECT * FROM intra_edivi_fahrzeuge WHERE doctor = 0 AND active = 1 ORDER BY priority ASC");
+                                                $stmt->execute();
+                                                $fahrzeuge = $stmt->fetchAll();
+                                                foreach ($fahrzeuge as $daten) {
+                                                    echo '<option value="' . $daten['identifier'] . '">' . $daten['name'] . '</option>';
+                                                }
+                                                ?>
                                             </select>
                                         <?php else : ?>
                                             <select name="fzg_transp" id="fzg_transp" class="w-100 form-select">
                                                 <option selected value="NULL">Fzg. Transp.</option>
-                                                <option disabled>-- FuRw 1 --</option>
-                                                <option value="10-83-01" <?php echo ($row['fzg_transp'] == "10-83-01" ? 'selected' : '') ?>>10-83-01</option>
-                                                <option value="10-83-02" <?php echo ($row['fzg_transp'] == "10-83-02" ? 'selected' : '') ?>>10-83-02</option>
-                                                <option value="10-83-03" <?php echo ($row['fzg_transp'] == "10-83-03" ? 'selected' : '') ?>>10-83-03</option>
-                                                <option value="10-83-04" <?php echo ($row['fzg_transp'] == "10-83-04" ? 'selected' : '') ?>>10-83-04</option>
-                                                <option value="10-83-05" <?php echo ($row['fzg_transp'] == "10-83-05" ? 'selected' : '') ?>>10-83-05</option>
-                                                <option value="10-83-06" <?php echo ($row['fzg_transp'] == "10-83-06" ? 'selected' : '') ?>>10-83-06</option>
-                                                <option value="10-83-10" <?php echo ($row['fzg_transp'] == "10-83-10" ? 'selected' : '') ?>>10-83-10</option>
-                                                <option value="10-85-01" <?php echo ($row['fzg_transp'] == "10-85-01" ? 'selected' : '') ?>>10-85-01</option>
-                                                <option value="10-85-02" <?php echo ($row['fzg_transp'] == "10-85-02" ? 'selected' : '') ?>>10-85-02</option>
-                                                <option value="10-85-03" <?php echo ($row['fzg_transp'] == "10-85-03" ? 'selected' : '') ?>>10-85-03</option>
-                                                <option value="10-85-04" <?php echo ($row['fzg_transp'] == "10-85-04" ? 'selected' : '') ?>>10-85-04</option>
-                                                <option value="10-85-05" <?php echo ($row['fzg_transp'] == "10-85-05" ? 'selected' : '') ?>>10-85-05</option>
-                                                <option value="10-93-01" <?php echo ($row['fzg_transp'] == "10-93-01" ? 'selected' : '') ?>>10-93-01</option>
-                                                <option disabled>-- RW 17 --</option>
-                                                <option value="17-83-01" <?php echo ($row['fzg_transp'] == "17-83-01" ? 'selected' : '') ?>>17-83-01</option>
-                                                <option value="17-83-02" <?php echo ($row['fzg_transp'] == "17-83-02" ? 'selected' : '') ?>>17-83-02</option>
-                                                <option value="17-83-03" <?php echo ($row['fzg_transp'] == "17-83-03" ? 'selected' : '') ?>>17-83-03</option>
-                                                <option value="17-83-04" <?php echo ($row['fzg_transp'] == "17-83-04" ? 'selected' : '') ?>>17-83-04</option>
-                                                <option value="17-83-05" <?php echo ($row['fzg_transp'] == "17-83-05" ? 'selected' : '') ?>>17-83-05</option>
-                                                <option value="17-83-06" <?php echo ($row['fzg_transp'] == "17-83-06" ? 'selected' : '') ?>>17-83-06</option>
-                                                <option value="17-85-01" <?php echo ($row['fzg_transp'] == "17-85-01" ? 'selected' : '') ?>>17-85-01</option>
-                                                <option value="17-85-02" <?php echo ($row['fzg_transp'] == "17-85-02" ? 'selected' : '') ?>>17-85-02</option>
-                                                <option value="17-85-03" <?php echo ($row['fzg_transp'] == "17-85-03" ? 'selected' : '') ?>>17-85-03</option>
-                                                <option value="17-87-01" <?php echo ($row['fzg_transp'] == "17-87-01" ? 'selected' : '') ?>>17-87-01</option>
-                                                <option disabled>-- SEG --</option>
-                                                <option value="42-83-01" <?php echo ($row['fzg_transp'] == "42-83-01" ? 'selected' : '') ?>>42-83-01</option>
-                                                <option value="42-83-02" <?php echo ($row['fzg_transp'] == "42-83-02" ? 'selected' : '') ?>>42-83-02</option>
-                                                <option value="42-83-03" <?php echo ($row['fzg_transp'] == "42-83-03" ? 'selected' : '') ?>>42-83-03</option>
-                                                <option value="42-83-04" <?php echo ($row['fzg_transp'] == "42-83-04" ? 'selected' : '') ?>>42-83-04</option>
-                                                <option value="42-90-01" <?php echo ($row['fzg_transp'] == "42-90-01" ? 'selected' : '') ?>>42-90-01</option>
-                                                <option value="42-90-02" <?php echo ($row['fzg_transp'] == "42-90-02" ? 'selected' : '') ?>>42-90-02</option>
-                                                <option value="42-90-03" <?php echo ($row['fzg_transp'] == "42-90-03" ? 'selected' : '') ?>>42-90-03</option>
-                                                <option value="42-93-01" <?php echo ($row['fzg_transp'] == "42-93-01" ? 'selected' : '') ?>>42-93-01</option>
-                                                <option disabled>-- Schule --</option>
-                                                <option value="50-83-01" <?php echo ($row['fzg_transp'] == "50-83-01" ? 'selected' : '') ?>>50-83-01</option>
-                                                <option value="50-83-02" <?php echo ($row['fzg_transp'] == "50-83-02" ? 'selected' : '') ?>>50-83-02</option>
+                                                <?php
+                                                require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+
+                                                $stmt = $pdo->prepare("SELECT * FROM intra_edivi_fahrzeuge WHERE doctor = 0 ORDER BY priority ASC");
+                                                $stmt->execute();
+                                                $fahrzeuge = $stmt->fetchAll();
+
+                                                foreach ($fahrzeuge as $daten) {
+                                                    if ($daten['identifier'] == $row['fzg_transp'] && $daten['active'] == 1) {
+                                                        echo '<option value="' . $daten['identifier'] . '" selected>' . $daten['name'] . '</option>';
+                                                    } elseif ($daten['identifier'] == $row['fzg_transp'] && $daten['active'] == 0) {
+                                                        echo '<option value="' . $daten['identifier'] . '" selected disabled>' . $daten['name'] . '</option>';
+                                                    } else {
+                                                        echo '<option value="' . $daten['identifier'] . '">' . $daten['name'] . '</option>';
+                                                    }
+                                                }
+                                                ?>
                                             </select>
                                         <?php endif; ?>
                                     </div>
@@ -1535,40 +1444,37 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                         <?php if ($row['fzg_na'] == NULL) : ?>
                                             <select name="fzg_na" id="fzg_na" class="w-100 form-select">
                                                 <option selected value="NULL">Fzg. NA</option>
-                                                <option disabled>-- Andere --</option>
-                                                <option value="01-10-01">01-10-01</option>
-                                                <option value="04-82-01">04-82-01</option>
-                                                <option value="CHX">CHX</option>
-                                                <option disabled>-- FuRw 1 --</option>
-                                                <option value="10-80-01">10-80-01</option>
-                                                <option value="10-81-01">10-81-01</option>
-                                                <option value="10-82-01">10-82-01</option>
-                                                <option value="10-82-02">10-82-02</option>
-                                                <option value="10-82-03">10-82-03</option>
-                                                <option value="10-86-01">10-86-01</option>
-                                                <option disabled>-- RW 17 --</option>
-                                                <option value="17-81-01">17-81-01</option>
-                                                <option value="17-82-01">17-82-01</option>
-                                                <option value="17-82-02">17-82-02</option>
+                                                <?php
+                                                require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+
+                                                $stmt = $pdo->prepare("SELECT * FROM intra_edivi_fahrzeuge WHERE doctor = 1 AND active = 1 ORDER BY priority ASC");
+                                                $stmt->execute();
+                                                $fahrzeuge = $stmt->fetchAll();
+                                                foreach ($fahrzeuge as $daten) {
+                                                    echo '<option value="' . $daten['identifier'] . '">' . $daten['name'] . '</option>';
+                                                }
+                                                ?>
                                             </select>
                                         <?php else : ?>
                                             <select name="fzg_na" id="fzg_na" class="w-100 form-select">
                                                 <option selected value="NULL">Fzg. NA</option>
-                                                <option disabled>-- Andere --</option>
-                                                <option value="01-10-01" <?php echo ($row['fzg_na'] == "01-10-01" ? 'selected' : '') ?>>01-10-01</option>
-                                                <option value="04-82-01" <?php echo ($row['fzg_na'] == "04-82-01" ? 'selected' : '') ?>>04-82-01</option>
-                                                <option value="CHX" <?php echo ($row['fzg_na'] == "CHX" ? 'selected' : '') ?>>CHX</option>
-                                                <option disabled>-- FuRw 1 --</option>
-                                                <option value="10-80-01" <?php echo ($row['fzg_na'] == "10-80-01" ? 'selected' : '') ?>>10-80-01</option>
-                                                <option value="10-81-01" <?php echo ($row['fzg_na'] == "10-81-01" ? 'selected' : '') ?>>10-81-01</option>
-                                                <option value="10-82-01" <?php echo ($row['fzg_na'] == "10-82-01" ? 'selected' : '') ?>>10-82-01</option>
-                                                <option value="10-82-02" <?php echo ($row['fzg_na'] == "10-82-02" ? 'selected' : '') ?>>10-82-02</option>
-                                                <option value="10-82-03" <?php echo ($row['fzg_na'] == "10-82-03" ? 'selected' : '') ?>>10-82-03</option>
-                                                <option value="10-86-01" <?php echo ($row['fzg_na'] == "10-86-01" ? 'selected' : '') ?>>10-86-01</option>
-                                                <option disabled>-- RW 17 --</option>
-                                                <option value="17-81-01" <?php echo ($row['fzg_na'] == "17-81-01" ? 'selected' : '') ?>>17-81-01</option>
-                                                <option value="17-82-01" <?php echo ($row['fzg_na'] == "17-82-01" ? 'selected' : '') ?>>17-82-01</option>
-                                                <option value="17-82-02" <?php echo ($row['fzg_na'] == "17-82-02" ? 'selected' : '') ?>>17-82-02</option>
+                                                <?php
+                                                require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+
+                                                $stmt = $pdo->prepare("SELECT * FROM intra_edivi_fahrzeuge WHERE doctor = 1 AND active = 1 ORDER BY priority ASC");
+                                                $stmt->execute();
+                                                $fahrzeuge = $stmt->fetchAll();
+
+                                                foreach ($fahrzeuge as $daten) {
+                                                    if ($daten['identifier'] == $row['fzg_na'] && $daten['active'] == 1) {
+                                                        echo '<option value="' . $daten['identifier'] . '" selected>' . $daten['name'] . '</option>';
+                                                    } elseif ($daten['identifier'] == $row['fzg_na'] && $daten['active'] == 0) {
+                                                        echo '<option value="' . $daten['identifier'] . '" selected disabled>' . $daten['name'] . '</option>';
+                                                    } else {
+                                                        echo '<option value="' . $daten['identifier'] . '">' . $daten['name'] . '</option>';
+                                                    }
+                                                }
+                                                ?>
                                             </select>
                                         <?php endif; ?>
                                     </div>
@@ -1584,25 +1490,46 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
                                 </div>
                             <?php endif; ?>
                             <div class="row mt-2">
-                                <div class="col-3 fw-bold">Transportziel</div>
+                                <div class="col-3 fw-bold">Transportart/-ziel</div>
                                 <div class="col">
                                     <?php
-                                    if ($row['transportziel2'] == NULL) {
+                                    if ($row['transportziel'] == NULL) {
                                     ?>
-                                        <select name="transportziel2" id="transportziel2" class="w-100 form-select edivi__input-check">
-                                            <option disabled hidden selected>---</option>
-                                            <option value="0" selected>Kein Transport</option>
-                                            <!-- <option value="1">Uniklinik SB</option> -->
-                                            <option value="2">Städtisches Klinikum</option>
+                                        <select name="transportziel" id="transportziel" class="w-100 form-select " required>
+                                            <option disabled hidden selected value="NULL">---</option>
+                                            <?php
+                                            require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+
+                                            $stmt = $pdo->prepare("SELECT * FROM intra_edivi_ziele ORDER BY priority ASC");
+                                            $stmt->execute();
+                                            $ziele = $stmt->fetchAll();
+                                            foreach ($ziele as $daten) {
+                                                echo '<option value="' . $daten['identifier'] . '">' . $daten['name'] . '</option>';
+                                            }
+                                            ?>
                                         </select>
                                     <?php
                                     } else {
                                     ?>
-                                        <select name="transportziel2" id="transportziel2" class="w-100 mb-2 form-select edivi__input-check" autocomplete="off">
-                                            <option disabled hidden selected>---</option>
-                                            <option value="0" <?php echo ($row['transportziel2'] == 0 ? 'selected' : '') ?>>Kein Transport</option>
-                                            <!-- <option value="1" <?php echo ($row['transportziel2'] == 1 ? 'selected' : '') ?>>Uniklinik SB</option> -->
-                                            <option value="2" <?php echo ($row['transportziel2'] == 2 ? 'selected' : '') ?>>Städtisches Klinikum</option>
+                                        <select name="transportziel" id="transportziel" class="w-100 mb-2 form-select " autocomplete="off">
+                                            <option disabled hidden selected value="NULL">---</option>
+                                            <?php
+                                            require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+
+                                            $stmt = $pdo->prepare("SELECT * FROM intra_edivi_ziele ORDER BY priority ASC");
+                                            $stmt->execute();
+                                            $fahrzeuge = $stmt->fetchAll();
+
+                                            foreach ($fahrzeuge as $daten) {
+                                                if ($daten['identifier'] == $row['transportziel'] && $daten['active'] == 1) {
+                                                    echo '<option value="' . $daten['identifier'] . '" selected>' . $daten['name'] . '</option>';
+                                                } elseif ($daten['identifier'] == $row['transportziel'] && $daten['active'] == 0) {
+                                                    echo '<option value="' . $daten['identifier'] . '" selected disabled>' . $daten['name'] . '</option>';
+                                                } else {
+                                                    echo '<option value="' . $daten['identifier'] . '">' . $daten['name'] . '</option>';
+                                                }
+                                            }
+                                            ?>
                                         </select>
                                     <?php
                                     }
@@ -1667,49 +1594,6 @@ $prot_url = "https://intra.muster.de/admin/edivi/divi" . $row['id'];
 
         selectElements.forEach((selectElement) => {
             selectElement.addEventListener("change", setSelectElementStyles);
-        });
-    </script>
-    <script>
-        // Get all input elements with the class "edivi__input-check"
-        const inputElements = document.querySelectorAll('.edivi__input-check');
-
-        // Function to add or remove the class based on input value
-        function handleInputChange(event) {
-            const inputElement = event.target;
-
-            // Check if the input is a select element
-            if (inputElement.tagName === 'SELECT') {
-                const selectedOption = inputElement.querySelector('option:checked');
-                if (selectedOption && !selectedOption.disabled) {
-                    inputElement.classList.add('edivi__input-checked');
-                } else {
-                    inputElement.classList.remove('edivi__input-checked');
-                }
-            } else {
-                // Check if the input has a value (excluding select elements)
-                if (inputElement.value.trim() === '') {
-                    inputElement.classList.remove('edivi__input-checked');
-                } else {
-                    inputElement.classList.add('edivi__input-checked');
-                }
-            }
-        }
-
-        // Check the initial state of the input elements and add "edivi__input-checked" if not empty (excluding select elements with disabled options)
-        inputElements.forEach(inputElement => {
-            if (inputElement.tagName === 'SELECT') {
-                const selectedOption = inputElement.querySelector('option:checked');
-                if (selectedOption && !selectedOption.disabled) {
-                    inputElement.classList.add('edivi__input-checked');
-                }
-            } else if (inputElement.value.trim() !== '') {
-                inputElement.classList.add('edivi__input-checked');
-            }
-        });
-
-        // Add an event listener for the "input" event on each input element
-        inputElements.forEach(inputElement => {
-            inputElement.addEventListener('input', handleInputChange);
         });
     </script>
     <script>

@@ -13,11 +13,11 @@
     height: 100%;
     width: 100%;
     padding: 8px;
-    background-color: var(--sh-blue);
+    background-color: var(--secondary-color);
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
 
     &:hover {
-      background-color: var(--sh-red);
+      background-color: var(--main-color);
     }
   }
 
@@ -29,7 +29,7 @@
     padding: 25px;
 
     > a {
-      color: var(--sh-darkgray);
+      color: var(--darkgray);
       font-weight: bold;
     }
   }
@@ -39,7 +39,7 @@
   }
 
   h6 {
-    color: var(--sh-darkgray);
+    color: var(--darkgray);
     font-weight: bold;
     letter-spacing: 2px;
     text-transform: uppercase;
@@ -63,7 +63,7 @@
 }
 
 .cirs-login a:hover {
-  color: var(--sh-red) !important;
+  color: var(--main-color) !important;
 }
 
 .cirs-login a {

@@ -1,33 +1,32 @@
 <?php
 
 session_start();
-
-include("../assets/php/mysql-con.php");
+require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require $_SERVER['DOCUMENT_ROOT'] . "/assets/config/database.php";
 
 if (isset($_POST['new']) && $_POST['new'] == 1) {
-    // Antragsdaten
     $name_dn = $_REQUEST['name_dn'];
     $dienstgrad = $_REQUEST['dienstgrad'];
-    // Freitext
     $freitext = $_REQUEST['freitext'];
-    // Unique ID
-    // generate a random number
-    $random_number = mt_rand(100000, 999999);
-    // check if the number already exists in the database
-    $rncheck = "SELECT * FROM cirs_antraege_be WHERE uniqueid = $random_number";
-    $rnres = $conn->query($rncheck);
 
-    while ($rnres->num_rows > 0) {
-        // if the number already exists, generate a new number and check again
+    do {
         $random_number = mt_rand(100000, 999999);
-        $rncheck = "SELECT * FROM cirs_antraege_be WHERE uniqueid = $random_number";
-        $rnres = $conn->query($rncheck);
-    }
-    // store the new number in a variable
-    $new_number = $random_number;
-    // MYSQL QUERY
-    mysqli_query($conn, "INSERT INTO cirs_antraege_be (`name_dn`, `dienstgrad`, `freitext`, `uniqueid`) VALUES ('$name_dn', '$dienstgrad', '$freitext', '$new_number')") or die();
-    header('Location: view.php?antrag=' . $new_number . '');
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM intra_antrag_bef WHERE uniqueid = ?");
+        $stmt->execute([$random_number]);
+        $count = $stmt->fetchColumn();
+    } while ($count > 0);
+
+    $stmt = $pdo->prepare("INSERT INTO intra_antrag_bef (`name_dn`, `dienstgrad`, `freitext`, `uniqueid`) VALUES (:name_dn, :dienstgrad, :freitext, :uniqueid)");
+
+    $stmt->execute([
+        ':name_dn' => $name_dn,
+        ':dienstgrad' => $dienstgrad,
+        ':freitext' => $freitext,
+        ':uniqueid' => $random_number
+    ]);
+
+    header('Location: view.php?antrag=' . $random_number . '');
 }
 
 ?>
@@ -39,29 +38,43 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Anträge &rsaquo; intraRP</title>
+    <title>Anträge &rsaquo; <?php echo SYSTEM_NAME ?></title>
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/assets/css/style.min.css" />
     <link rel="stylesheet" href="/assets/css/cirs.min.css" />
     <link rel="stylesheet" href="/assets/fonts/fontawesome/css/all.min.css" />
-    <link rel="stylesheet" href="/assets/fonts/ptsans/css/all.min.css" />
+    <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="/assets/bootstrap-5.3/css/bootstrap.min.css">
-    <script src="/assets/bootstrap-5.3/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico" />
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="<?php echo SYSTEM_NAME ?>" />
     <link rel="manifest" href="/assets/favicon/site.webmanifest" />
-
+    <!-- Metas -->
+    <meta name="theme-color" content="<?php echo SYSTEM_COLOR ?>" />
+    <meta property="og:site_name" content="<?php echo SERVER_NAME ?>" />
+    <meta property="og:url" content="https://<?php echo SYSTEM_URL ?>/dash.php" />
+    <meta property="og:title" content="<?php echo SYSTEM_NAME ?> - Intranet <?php echo SERVER_CITY ?>" />
+    <meta property="og:image" content="<?php echo META_IMAGE_URL ?>" />
+    <meta property="og:description" content="Verwaltungsportal der <?php echo RP_ORGTYPE . " " .  SERVER_CITY ?>" />
 
 </head>
 
 <body>
     <!-- NAVIGATION -->
-    <nav class="navbar bg-sh-red" id="cirs-nav">
+    <nav class="navbar bg-main-color" id="cirs-nav">
         <div class="container-fluid">
             <div class="container">
                 <div class="row w-100">
+                    <div class="col d-flex align-items-center justify-content-start">
+                        <a id="sb-logo" href="#">
+                            <img src="/assets/img/schriftzug_stadt_weiss.png" alt="Stadt <?php echo SERVER_CITY ?>" width="auto" height="64px">
+                        </a>
+                    </div>
                     <div class="col d-flex align-items-center justify-content-end text-light" id="pageTitle">
                         Antragsmanagement
                     </div>
@@ -74,9 +87,9 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
     <!-- ------------ -->
     <div class="container-fluid">
         <div class="row">
-            <div class="col-2 border-2 border-top border-sh-semigray bg-sh-gray" id="cirs-links">
-                <hr class="text-sh-gray my-3">
-                <?php include '../assets/php/antrag-nav.php' ?>
+            <div class="col-2 border-2 border-top border-semigray bg-gray-color" id="cirs-links">
+                <hr class="text-gray-color my-3">
+                <?php include '../assets/components/navbar_antraege.php' ?>
             </div>
             <div class="col"></div>
             <div class="col-6 my-5">
@@ -87,13 +100,13 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
                     <input type="hidden" name="new" value="1" />
                     <div class="row">
                         <div class="col mb-3">
-                            <label for="name_dn" class="form-label fw-bold">Name und Dienstnummer <span class="text-sh-red">*</span></label>
+                            <label for="name_dn" class="form-label fw-bold">Name und Dienstnummer <span class="text-main-color">*</span></label>
                             <input type="text" class="form-control" id="name_dn" name="name_dn" placeholder="" required>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col mb-3">
-                            <label for="dienstgrad" class="form-label fw-bold">Aktueller Dienstgrad <span class="text-sh-red">*</span></label>
+                            <label for="dienstgrad" class="form-label fw-bold">Aktueller Dienstgrad <span class="text-main-color">*</span></label>
                             <input type="text" class="form-control" id="dienstgrad" name="dienstgrad" placeholder="" required>
                         </div>
                     </div>
@@ -103,7 +116,7 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
                         <textarea class="form-control" id="freitext" name="freitext" rows="5"></textarea>
                     </div>
                     <!-- <div class="text-danger fw-bold"><i class="fa-solid fa-triangle-exclamation" style="margin-right:10px"></i>Um Bilder zu Meldung hinzuzufügen kann die Upload-Funktion des CIRS verwendet werden: abc.de</div> -->
-                    <p><input class="mt-4 btn btn-lg rounded-3 btn-sh-red btn-sm" name="submit" type="submit" value="Absenden" /></p>
+                    <p><input class="mt-4 btn btn-main-color" name="submit" type="submit" value="Absenden" /></p>
                 </form>
             </div>
             <div class="col"></div>

@@ -1,12 +1,14 @@
 <?php
+require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
+require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+
 ini_set('session.gc_maxlifetime', 604800);
 ini_set('session.cookie_path', '/');  // Set the cookie path to the root directory
-ini_set('session.cookie_domain', '.muster.de');  // Set the cookie domain to your domain
+ini_set('session.cookie_domain', SYSTEM_URL);  // Set the cookie domain to your domain
 ini_set('session.cookie_lifetime', 604800);  // Set the cookie lifetime (in seconds)
 ini_set('session.cookie_secure', true);  // Set to true if using HTTPS, false otherwise
 
 session_start();
-require $_SERVER['DOCUMENT_ROOT'] . '/assets/php/mysql-con.php';
 
 if (isset($_SESSION['userid']) && isset($_SESSION['permissions'])) {
     header('Location: /admin/index.php');
@@ -16,7 +18,7 @@ if (isset($_GET['login'])) {
     $username = $_POST['username'];
     $passwort = $_POST['passwort'];
 
-    $statement = $pdo->prepare("SELECT * FROM cirs_users WHERE username = :username");
+    $statement = $pdo->prepare("SELECT * FROM intra_users WHERE username = :username");
     $result = $statement->execute(array('username' => $username));
     $user = $statement->fetch();
 
@@ -24,11 +26,12 @@ if (isset($_GET['login'])) {
     if ($user !== false && password_verify($passwort, $user['passwort'])) {
         $_SESSION['userid'] = $user['id'];
         $_SESSION['cirs_user'] = $user['fullname'];
+        $_SESSION['cirs_username'] = $user['username'];
         $permissions = json_decode($user['permissions'], true) ?? [];
         $_SESSION['permissions'] = $permissions;
 
         if ($user['aktenid'] != null) {
-            $statement = $pdo->prepare("SELECT * FROM personal_profile WHERE id = :id");
+            $statement = $pdo->prepare("SELECT * FROM intra_mitarbeiter WHERE id = :id");
             $result = $statement->execute(array('id' => $user['aktenid']));
             $profile = $statement->fetch();
 
@@ -56,27 +59,36 @@ if (isset($_GET['login'])) {
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login &rsaquo; intraRP</title>
+    <title>Login &rsaquo; <?php echo SYSTEM_NAME ?></title>
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/assets/css/style.min.css" />
     <link rel="stylesheet" href="/assets/fonts/fontawesome/css/all.min.css" />
-    <link rel="stylesheet" href="/assets/fonts/ptsans/css/all.min.css" />
+    <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="/assets/bootstrap-5.3/css/bootstrap.min.css">
-    <script src="/assets/bootstrap-5.3/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico" />
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="<?php echo SYSTEM_NAME ?>" />
     <link rel="manifest" href="/assets/favicon/site.webmanifest" />
-
+    <!-- Metas -->
+    <meta name="theme-color" content="<?php echo SYSTEM_COLOR ?>" />
+    <meta property="og:site_name" content="<?php echo SERVER_NAME ?>" />
+    <meta property="og:url" content="https://<?php echo SYSTEM_URL ?>/dash.php" />
+    <meta property="og:title" content="<?php echo SYSTEM_NAME ?> - Intranet <?php echo SERVER_CITY ?>" />
+    <meta property="og:image" content="<?php echo META_IMAGE_URL ?>" />
+    <meta property="og:description" content="Verwaltungsportal der <?php echo RP_ORGTYPE . " " .  SERVER_CITY ?>" />
 </head>
 
-<body id="dashboard" class="d-flex justify-content-center align-items-center">
+<body data-bs-theme="dark" id="dashboard" class="d-flex justify-content-center align-items-center">
     <div class="row">
         <div class="col">
             <div class="card px-4 py-3">
-                <h1 id="loginHeader">intra<span class="text-sh-red">SB</span></h1>
-                <p class="subtext">Das Intranet der Hansestadt!</p>
+                <h1 id="loginHeader"><?php echo SYSTEM_NAME ?></h1>
+                <p class="subtext">Das Intranet der Stadt <?php echo SERVER_CITY ?>!</p>
                 <?php
                 if (isset($errorMessage)) {
                     echo '<div class="alert alert-danger mb-5" role="alert">';
@@ -100,16 +112,16 @@ if (isset($_GET['login'])) {
     <footer>
         <div class="footerCopyright">
             <a href="https://hypax.wtf" target="_blank"><i class="fa-solid fa-code"></i> hypax</a>
-            <span>© 2023 | v0.1 WIP</span>
+            <span>© 2023-<?php echo date("Y"); ?> | Version <?php echo SYSTEM_VERSION ?></span>
         </div>
         <div class="footerLegal">
             <span>
-                <a href="#">
+                <a href="https://">
                     Impressum
                 </a>
             </span>
             <span>
-                <a href="#">
+                <a href="https://">
                     Datenschutzerklärung
                 </a>
             </span>

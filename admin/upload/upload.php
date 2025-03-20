@@ -4,7 +4,8 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 session_start();
-require_once '../../assets/php/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
 // Set the upload directory path
 $upload_dir = '../../assets/upload/';
 // Get the file details
@@ -22,12 +23,19 @@ if (!in_array($file_type, array('image/png', 'image/jpeg', 'image/gif', 'applica
 // Move the uploaded file to the upload directory
 if (move_uploaded_file($file_tmp_name, $upload_dir . $file_name)) {
     // Store the file details in the database
-    include '../../assets/php/mysql-con.php';
-    $sql = "INSERT INTO cirs_uploads (file_name, file_type, file_size, user_name, upload_time) 
-            VALUES ('$file_name', '$file_type', '$file_size', '$user_name', '$upload_time')";
-    $result = mysqli_query($conn, $sql);
+    require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+    $sql = "INSERT INTO intra_uploads (file_name, file_type, file_size, user_name, upload_time) 
+        VALUES (:file_name, :file_type, :file_size, :user_name, :upload_time)";
+    $stmt = $pdo->prepare($sql);
+    $result = $stmt->execute([
+        'file_name' => $file_name,
+        'file_type' => $file_type,
+        'file_size' => $file_size,
+        'user_name' => $user_name,
+        'upload_time' => $upload_time
+    ]);
+
     if ($result) {
-        // Display a success message
         echo $upload_dir . $file_name;
     } else {
         echo 'Fehler beim Speichern der Datei in der Datenbank.';

@@ -1,42 +1,57 @@
 <?php
 session_start();
-require_once '../../assets/php/permissions.php';
-require '../../assets/php/mysql-con.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $response = ['success' => false, 'message' => ''];
 
     try {
-        // Required fields
         $fullname = $_POST['fullname'] ?? '';
         $gebdatum = $_POST['gebdatum'] ?? '';
         $charakterid = $_POST['charakterid'] ?? '';
         $dienstgrad = $_POST['dienstgrad'] ?? '';
         $forumprofil = $_POST['forumprofil'] ?? '';
+        $geschlecht = $_POST['geschlecht'] ?? '';
         $discordtag = $_POST['discordtag'] ?? '';
         $telefonnr = $_POST['telefonnr'] ?? '';
         $dienstnr = $_POST['dienstnr'] ?? '';
         $einstdatum = $_POST['einstdatum'] ?? '';
 
-        // Ensure required fields are not empty
         if (empty($fullname) || empty($gebdatum) || empty($charakterid) || empty($dienstgrad)) {
             $response['message'] = "Bitte alle erforderlichen Felder ausfüllen.";
             echo json_encode($response);
             exit;
         }
 
-        // Insert user into database
-        $stmt = mysqli_prepare($conn, "INSERT INTO personal_profile (fullname, gebdatum, charakterid, dienstgrad, forumprofil, discordtag, telefonnr, dienstnr, einstdatum) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        mysqli_stmt_bind_param($stmt, "ssssssiss", $fullname, $gebdatum, $charakterid, $dienstgrad, $forumprofil, $discordtag, $telefonnr, $dienstnr, $einstdatum);
-        mysqli_stmt_execute($stmt);
-        $savedId = mysqli_insert_id($conn);
+        $stmt = $pdo->prepare("INSERT INTO intra_mitarbeiter 
+            (fullname, gebdatum, charakterid, dienstgrad, forumprofil, geschlecht, discordtag, telefonnr, dienstnr, einstdatum) 
+            VALUES (:fullname, :gebdatum, :charakterid, :dienstgrad, :forumprofil, :geschlecht, :discordtag, :telefonnr, :dienstnr, :einstdatum)");
+        $stmt->execute([
+            'fullname' => $fullname,
+            'gebdatum' => $gebdatum,
+            'charakterid' => $charakterid,
+            'dienstgrad' => $dienstgrad,
+            'forumprofil' => $forumprofil,
+            'geschlecht' => $geschlecht,
+            'discordtag' => $discordtag,
+            'telefonnr' => $telefonnr,
+            'dienstnr' => $dienstnr,
+            'einstdatum' => $einstdatum
+        ]);
 
-        // Log the action
+        $savedId = $pdo->lastInsertId();
+
         $edituser = $_SESSION['cirs_user'] ?? 'Unknown';
         $logContent = 'Mitarbeiter wurde angelegt.';
-        $logStmt = mysqli_prepare($conn, "INSERT INTO personal_log (profilid, type, content, paneluser) VALUES (?, '6', ?, ?)");
-        mysqli_stmt_bind_param($logStmt, "iss", $savedId, $logContent, $edituser);
-        mysqli_stmt_execute($logStmt);
+        $logStmt = $pdo->prepare("INSERT INTO intra_mitarbeiter_log (profilid, type, content, paneluser) 
+                                  VALUES (:id, '6', :content, :paneluser)");
+        $logStmt->execute([
+            'id' => $savedId,
+            'content' => $logContent,
+            'paneluser' => $edituser
+        ]);
 
         $response['success'] = true;
         $response['message'] = "Benutzer erfolgreich erstellt!";
@@ -50,6 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
+
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
 
@@ -57,33 +73,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Administration &rsaquo; intraRP</title>
+    <title>Administration &rsaquo; <?php echo SYSTEM_NAME ?></title>
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/assets/css/style.min.css" />
     <link rel="stylesheet" href="/assets/css/admin.min.css" />
     <link rel="stylesheet" href="/assets/css/personal.min.css" />
     <link rel="stylesheet" href="/assets/fonts/fontawesome/css/all.min.css" />
-    <link rel="stylesheet" href="/assets/fonts/ptsans/css/all.min.css" />
+    <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="/assets/bootstrap-5.3/css/bootstrap.min.css">
-    <script src="/assets/bootstrap-5.3/js/bootstrap.bundle.min.js"></script>
-    <script src="/assets/jquery/jquery-3.7.0.min.js"></script>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/jquery/jquery.min.js"></script>
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico" />
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="<?php echo SYSTEM_NAME ?>" />
     <link rel="manifest" href="/assets/favicon/site.webmanifest" />
-
+    <!-- Metas -->
+    <meta name="theme-color" content="<?php echo SYSTEM_COLOR ?>" />
+    <meta property="og:site_name" content="<?php echo SERVER_NAME ?>" />
+    <meta property="og:url" content="https://<?php echo SYSTEM_URL ?>/dash.php" />
+    <meta property="og:title" content="<?php echo SYSTEM_NAME ?> - Intranet <?php echo SERVER_CITY ?>" />
+    <meta property="og:image" content="<?php echo META_IMAGE_URL ?>" />
+    <meta property="og:description" content="Verwaltungsportal der <?php echo RP_ORGTYPE . " " .  SERVER_CITY ?>" />
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
 
-<body data-page="mitarbeiter">
-    <!-- PRELOAD -->
-    <?php include "../../assets/php/preload.php"; ?>
-    <?php include "../../assets/components/c_topnav.php"; ?>
-    <!-- NAVIGATION -->
-    <div class="container shadow rounded-3 position-relative bg-light mb-3" style="margin-top:-50px;z-index:10" id="mainpageContainer">
-        <?php include '../../assets/php/admin-nav-v2.php' ?>
+<body data-bs-theme="dark" data-page="mitarbeiter">
+    <?php include "../../assets/components/navbar.php"; ?>
+    <div class="container-full position-relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
@@ -114,82 +135,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <div class="w-100 text-center">
                                     <i class="fa-solid fa-circle-user" style="font-size:94px"></i>
                                     <?php
-                                    $options = [
-                                        16 => "Ehrenamtliche/-r",
-                                        0 => "Angestellte/-r",
-                                        1 => "Brandmeisteranwärter/-in",
-                                        2 => "Brandmeister/-in",
-                                        3 => "Oberbrandmeister/-in",
-                                        4 => "Hauptbrandmeister/-in",
-                                        5 => "Hauptbrandmeister/-in mit AZ",
-                                        17 => "Brandinspektoranwärter/-in",
-                                        6 => "Brandinspektor/-in",
-                                        7 => "Oberbrandinspektor/-in",
-                                        8 => "Brandamtmann/frau",
-                                        9 => "Brandamtsrat/rätin",
-                                        10 => "Brandoberamtsrat/rätin",
-                                        19 => "Ärztliche/-r Leiter/-in Rettungsdienst",
-                                        15 => "Brandreferendar/in",
-                                        11 => "Brandrat/rätin",
-                                        12 => "Oberbrandrat/rätin",
-                                        13 => "Branddirektor/-in",
-                                        14 => "Leitende/-r Branddirektor/-in",
-                                    ];
+                                    require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+                                    $stmt = $pdo->prepare("SELECT id,name,priority FROM intra_mitarbeiter_dienstgrade WHERE archive = 0 ORDER BY priority ASC");
+                                    $stmt->execute();
+                                    $dgsel = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     ?>
-                                    <select class="form-select mt-3" name="dienstgrad" id="dienstgrad" required>
-                                        <option value="" selected hidden>Dienstgrad wählen</option>
-                                        <?php foreach ($options as $value => $label) : ?>
-                                            <option value="<?php echo $value; ?>">
-                                                <?php echo $label; ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
+
+                                    <div class="form-floating">
+                                        <select class="form-select mt-3" name="dienstgrad" id="dienstgrad">
+                                            <option value="" selected hidden>Dienstgrad wählen</option>
+                                            <?php foreach ($dgsel as $data) {
+                                                if ($dg == $data['id']) {
+                                                    echo "<option value='{$data['id']}' selected='selected'>{$data['name']}</option>";
+                                                } else {
+                                                    echo "<option value='{$data['id']}'>{$data['name']}</option>";
+                                                }
+                                            } ?>
+                                        </select>
+                                        <label for="dienstgrad">Dienstgrad</label>
+                                    </div>
+                                    <div class="invalid-feedback">Bitte wähle einen Dienstgrad aus.</div>
                                     <hr class="my-3">
                                     <input type="hidden" name="new" value="1" />
-                                    <table class="mx-auto">
+                                    <table class="mx-auto" style="width: 100%;">
                                         <tbody class="text-start">
                                             <tr>
-                                                <td class="fw-bold" style="width:33%">Vor- und Zuname</td>
-                                                <td><span class="mx-1"></span></td>
-                                                <td style="width:66%">
+                                                <td class="fw-bold text-center" style="width:15%">Vor- und Zuname</td>
+                                                <td style="width:35%">
                                                     <input class="form-control w-100" type="text" name="fullname" id="fullname" value="" required>
                                                     <div class="invalid-feedback">Bitte gebe einen Namen ein.</div>
                                                 </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-bold">Geburtsdatum</td>
-                                                <td><span class="mx-1"></span></td>
-                                                <td>
+                                                <td class="fw-bold text-center" style="width: 15%;">Geburtsdatum</td>
+                                                <td style="width:35%">
                                                     <input class="form-control" type="date" name="gebdatum" id="gebdatum" value="" min="1900-01-01" required>
                                                     <div class="invalid-feedback">Bitte gebe ein Geburtsdatum ein.</div>
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold">Charakter-ID</td>
-                                                <td><span class="mx-1"></span></td>
-                                                <td>
+                                                <td class="fw-bold text-center" style="width: 15%">Charakter-ID</td>
+                                                <td style="width: 35%;">
                                                     <input class="form-control" type="text" name="charakterid" id="charakterid" value="" pattern="[a-zA-Z]{3}[0-9]{5}" required>
                                                     <div class="invalid-feedback">Bitte gebe eine charakter-ID ein.</div>
                                                 </td>
+                                                <td class="fw-bold text-center" style="width: 15%;">Geschlecht</td>
+                                                <td style="width: 35%;">
+                                                    <select name="geschlecht" id="geschlecht" class="form-select" required>
+                                                        <option value="" selected hidden>Bitte wählen</option>
+                                                        <option value="0">Männlich</option>
+                                                        <option value="1">Weiblich</option>
+                                                        <option value="2">Divers</option>
+                                                    </select>
+                                                    <div class="invalid-feedback">Bitte wähle ein Geschlecht aus.</div>
+                                                </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold">Foren-Profil</td>
-                                                <td><span class="mx-1"></span></td>
-                                                <td><input class="form-control" type="number" name="forumprofil" id="forumprofil" value=""></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-bold">Discord-Tag</td>
-                                                <td><span class="mx-1"></span></td>
+                                                <td class="fw-bold text-center">Discord</td>
                                                 <td><input class="form-control" type="text" name="discordtag" id="discordtag" value=""></td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold">Telefonnummer</td>
-                                                <td><span class="mx-1"></span></td>
+                                                <td class="fw-bold text-center">Telefonnummer</td>
                                                 <td><input class="form-control" type="text" name="telefonnr" id="telefonnr" value="0176 00 00 00 0"></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-bold">Dienstnummer</td>
-                                                <td><span class="mx-1"></span></td>
+                                                <td class="fw-bold text-center">Dienstnummer</td>
                                                 <td>
                                                     <input class="form-control" type="number" name="dienstnr" id="dienstnr" value="" oninput="checkDienstnrAvailability()" required>
                                                     <div class="invalid-feedback">Bitte gebe eine Dienstnummer ein.</div>
@@ -197,7 +203,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             </tr>
                                             <tr>
                                                 <td class="fw-bold">Einstellungsdatum</td>
-                                                <td><span class="mx-1"></span></td>
                                                 <td>
                                                     <input class="form-control" type="date" name="einstdatum" id="einstdatum" value="" min="2022-01-01" required>
                                                     <div class="invalid-feedback">Bitte gebe ein Einstellungsdatum ein.</div>
@@ -213,45 +218,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
     </div>
-    <div class="floating-button">
-        <button id="dark-mode-toggle" class="btn btn-primary">
-            <i id="mode-icon" class="fa-solid fa-lightbulb"></i>
-        </button>
-    </div>
-    <script>
-        // Function to toggle dark mode
-        function toggleDarkMode() {
-            const html = document.querySelector('html');
-            const isDarkMode = html.getAttribute('data-bs-theme') === 'dark';
 
-            if (isDarkMode) {
-                html.setAttribute('data-bs-theme', 'light');
-                localStorage.setItem('darkMode', 'false');
-            } else {
-                html.setAttribute('data-bs-theme', 'dark');
-                localStorage.setItem('darkMode', 'true');
-            }
-        }
-
-        // Function to check and set the theme based on user preference
-        function checkThemePreference() {
-            const savedDarkMode = localStorage.getItem('darkMode');
-            const html = document.querySelector('html');
-
-            if (savedDarkMode === 'true') {
-                html.setAttribute('data-bs-theme', 'dark');
-            } else {
-                html.setAttribute('data-bs-theme', 'light');
-            }
-        }
-
-        // Event listener for dark mode toggle
-        const darkModeToggle = document.getElementById('dark-mode-toggle');
-        darkModeToggle.addEventListener('click', toggleDarkMode);
-
-        // Initialize theme preference
-        checkThemePreference();
-    </script>
     <script>
         var delayTimer; // Variable to hold the timer
 
@@ -262,7 +229,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 var dienstnr = $('#dienstnr').val(); // Get the entered dienstnr value
 
                 $.ajax({
-                    url: 'check_dienstnr_availability.php', // PHP file to handle the AJAX request
+                    url: '/assets/functions/checkdnr.php', // PHP file to handle the AJAX request
                     method: 'POST',
                     data: {
                         dienstnr: dienstnr

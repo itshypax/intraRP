@@ -1,6 +1,7 @@
 <?php
 session_start();
-require_once '../assets/php/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     // Store the current page's URL in a session variable
     $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
@@ -19,31 +20,38 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Administration &rsaquo; intraRP</title>
+    <title>Administration &rsaquo; <?php echo SYSTEM_NAME ?></title>
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/assets/css/style.min.css" />
     <link rel="stylesheet" href="/assets/css/admin.min.css" />
     <link rel="stylesheet" href="/assets/fonts/fontawesome/css/all.min.css" />
-    <link rel="stylesheet" href="/assets/fonts/ptsans/css/all.min.css" />
+    <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="/assets/bootstrap-5.3/css/bootstrap.min.css">
-    <script src="/assets/bootstrap-5.3/js/bootstrap.bundle.min.js"></script>
-    <script src="/assets/jquery/jquery-3.7.0.min.js"></script>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/jquery/jquery.min.js"></script>
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico" />
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="<?php echo SYSTEM_NAME ?>" />
     <link rel="manifest" href="/assets/favicon/site.webmanifest" />
-
+    <!-- Metas -->
+    <meta name="theme-color" content="<?php echo SYSTEM_COLOR ?>" />
+    <meta property="og:site_name" content="<?php echo SERVER_NAME ?>" />
+    <meta property="og:url" content="https://<?php echo SYSTEM_URL ?>/dash.php" />
+    <meta property="og:title" content="<?php echo SYSTEM_NAME ?> - Intranet <?php echo SERVER_CITY ?>" />
+    <meta property="og:image" content="<?php echo META_IMAGE_URL ?>" />
+    <meta property="og:description" content="Verwaltungsportal der <?php echo RP_ORGTYPE . " " .  SERVER_CITY ?>" />
 
 </head>
 
-<body data-page="dashboard">
+<body data-bs-theme="dark" data-page="dashboard">
     <!-- PRELOAD -->
-    <?php include "../assets/php/preload.php"; ?>
-    <?php include "../assets/components/c_topnav.php"; ?>
-    <!-- NAVIGATION -->
-    <div class="container shadow rounded-3 position-relative bg-light mb-3" style="margin-top:-50px;z-index:10" id="mainpageContainer">
-        <?php include '../assets/php/admin-nav-v2.php' ?>
+
+    <?php include "../assets/components/navbar.php"; ?>
+    <div class="container-full position-relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
@@ -60,15 +68,16 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                     <?php } ?>
                     <div class="alert alert-primary" role="alert">
                         <h3>Hallo, <?= $_SESSION['cirs_user'] ?>!</h3>
-                        Willkommen im Schweizer Taschenmesser der Berufsfeuerwehr.
+                        <span id="quote-of-the-day"></span>
+                        <br>
                     </div>
                     <div class="row">
-                        <div class="col-6 bg-sh-gray me-2">
-                            <?php include "../assets/php/mysql-con.php";
-                            $query3 = "SELECT cirs_status, COUNT(*) as count FROM cirs_antraege_be GROUP BY cirs_status";
-                            $result3 = $conn->query($query3);
+                        <div class="col-6 me-2 intra__tile">
+                            <?php require $_SERVER['DOCUMENT_ROOT'] . "/assets/config/database.php";
+                            $stmt = $pdo->prepare("SELECT cirs_status, COUNT(*) as count FROM intra_antrag_bef GROUP BY cirs_status");
+                            $stmt->execute();
+                            $result3 = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                            // Create empty arrays to store the data
                             $data3 = [];
                             $labels3 = [];
 
@@ -79,9 +88,8 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                 3 => "Angenommen",
                             ];
 
-                            // Process the query result
-                            if ($result3->num_rows > 0) {
-                                while ($row = $result3->fetch_assoc()) {
+                            if (!empty($result3)) {
+                                foreach ($result3 as $row) {
                                     $status = $row['cirs_status'];
                                     $rankLabel = isset($antragStatus[$status]) ? $antragStatus[$status] : 'Unbekannt';
 
@@ -117,7 +125,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                 });
                             </script>
                         </div>
-                        <div class="col bg-sh-gray">
+                        <div class="col intra__tile">
 
                             <?php
                             $statusMapping = [
@@ -127,14 +135,15 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                 3 => 'Ungenügend',
                             ];
 
-                            $query2 = "SELECT protokoll_status, COUNT(*) as count FROM cirs_rd_protokolle GROUP BY protokoll_status";
-                            $result2 = $conn->query($query2);
+                            $stmt = $pdo->prepare("SELECT protokoll_status, COUNT(*) as count FROM intra_edivi GROUP BY protokoll_status");
+                            $stmt->execute();
+                            $result2 = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                             $data2 = [];
                             $labels2 = [];
 
-                            if ($result2->num_rows > 0) {
-                                while ($row = $result2->fetch_assoc()) {
+                            if (!empty($result2)) {
+                                foreach ($result2 as $row) {
                                     $status = $row['protokoll_status'];
                                     $statusLabel = isset($statusMapping[$status]) ? $statusMapping[$status] : 'Unbekannt';
 
@@ -170,12 +179,12 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                         </div>
                     </div>
                     <div class="row mt-4">
-                        <div class="col bg-sh-gray px-auto">
+                        <div class="col px-auto intra__tile">
                             <?php
-                            $query = "SELECT dienstgrad, COUNT(*) as count FROM personal_profile GROUP BY dienstgrad";
-                            $result = $conn->query($query);
+                            $stmt = $pdo->prepare("SELECT dienstgrad, COUNT(*) as count FROM intra_mitarbeiter GROUP BY dienstgrad");
+                            $stmt->execute();
+                            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                            // Create empty arrays to store the data
                             $data = [];
                             $labels = [];
 
@@ -200,19 +209,16 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                 14 => "LBD",
                             ];
 
-                            // Process the query result
-                            $temp = []; // Temporary array to hold dienstgrad => count mapping
+                            $temp = [];
 
-                            if ($result->num_rows > 0) {
-                                while ($row = $result->fetch_assoc()) {
+                            if (!empty($result)) {
+                                foreach ($result as $row) {
                                     $temp[$row['dienstgrad']] = $row['count'];
                                 }
                             }
 
-                            // Custom sort order
                             $customOrder = [16, 0, 1, 2, 3, 4, 5, 17, 6, 7, 8, 9, 10, 15, 11, 12, 13, 14];
 
-                            // Populate $data and $labels based on the custom sort order
                             foreach ($customOrder as $rank) {
                                 if (isset($temp[$rank])) {
                                     $data[] = $temp[$rank];
@@ -220,7 +226,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                 }
                             }
                             ?>
-                            <canvas id="rankChart"></canvas>
+                            <canvas id="rankChart" style="width:100%"></canvas>
 
                             <script>
                                 var ctx = document.getElementById('rankChart').getContext('2d');
@@ -231,7 +237,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                         datasets: [{
                                             label: 'Mitarbeiter pro Dienstgrad',
                                             data: <?php echo json_encode($data); ?>,
-                                            backgroundColor: 'rgba(212, 0, 75, .7)', // Example color
+                                            backgroundColor: 'rgba(255, 255, 255, .7)', // Example color
                                             borderWidth: 1
                                         }]
                                     },
@@ -245,51 +251,27 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                     }
                                 });
                             </script>
+                            <script>
+                                document.addEventListener("DOMContentLoaded", function() {
+                                    const quotes = [
+                                        "Willkommen im Intranet der <?php echo RP_ORGTYPE . " " . SERVER_CITY ?>.",
+                                        "Fun Fact: Die ersten Rettungswagen waren Leichenwagen. Manchmal kamen Bestatter an und mussten feststellen, dass die Person noch gar nicht gestorben war.",
+                                        "Das Schweizer Taschenmesser der <?php echo SERVER_CITY ?>er <?php echo RP_ORGTYPE ?>.",
+                                        "Die <?php echo RP_ORGTYPE . " " . SERVER_CITY ?> - Immer für Sie da.",
+                                        "<?php echo SYSTEM_NAME ?> powered by hypax."
+                                    ];
+
+                                    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+
+                                    document.getElementById("quote-of-the-day").textContent = randomQuote;
+                                });
+                            </script>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="floating-button">
-        <button id="dark-mode-toggle" class="btn btn-primary">
-            <i id="mode-icon" class="fa-solid fa-lightbulb"></i>
-        </button>
-    </div>
-    <script>
-        // Function to toggle dark mode
-        function toggleDarkMode() {
-            const html = document.querySelector('html');
-            const isDarkMode = html.getAttribute('data-bs-theme') === 'dark';
-
-            if (isDarkMode) {
-                html.setAttribute('data-bs-theme', 'light');
-                localStorage.setItem('darkMode', 'false');
-            } else {
-                html.setAttribute('data-bs-theme', 'dark');
-                localStorage.setItem('darkMode', 'true');
-            }
-        }
-
-        // Function to check and set the theme based on user preference
-        function checkThemePreference() {
-            const savedDarkMode = localStorage.getItem('darkMode');
-            const html = document.querySelector('html');
-
-            if (savedDarkMode === 'true') {
-                html.setAttribute('data-bs-theme', 'dark');
-            } else {
-                html.setAttribute('data-bs-theme', 'light');
-            }
-        }
-
-        // Event listener for dark mode toggle
-        const darkModeToggle = document.getElementById('dark-mode-toggle');
-        darkModeToggle.addEventListener('click', toggleDarkMode);
-
-        // Initialize theme preference
-        checkThemePreference();
-    </script>
 </body>
 
 </html>

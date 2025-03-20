@@ -1,6 +1,7 @@
 <?php
 session_start();
-require_once '../../assets/php/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     // Store the current page's URL in a session variable
     $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
@@ -12,7 +13,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     header("Location: /admin/users/list.php?message=error-2");
 }
 
-include '../../assets/php/mysql-con.php';
+require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 
 //Abfrage der Nutzer ID vom Login
 $userid = $_SESSION['userid'];
@@ -29,7 +30,18 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
     $permissions_json = json_encode($selected_permissions);
     $jetzt = date("Y-m-d H:i:s");
 
-    mysqli_query($conn, "INSERT INTO cirs_users (username, fullname, aktenid, passwort, created_at, permissions) VALUES ('$username', '$fullname', '$aktenid', '$password', '$jetzt', '$permissions_json')") or die(mysqli_error($conn));
+    $sql = "INSERT INTO intra_users (username, fullname, aktenid, passwort, created_at, permissions) 
+        VALUES (:username, :fullname, :aktenid, :passwort, :created_at, :permissions)";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        'username' => $username,
+        'fullname' => $fullname,
+        'aktenid' => $aktenid,
+        'passwort' => $password,
+        'created_at' => $jetzt,
+        'permissions' => $permissions_json
+    ]);
     header("Location: /admin/users/list.php");
 }
 ?>
@@ -41,31 +53,36 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Administration &rsaquo; intraRP</title>
+    <title>Administration &rsaquo; <?php echo SYSTEM_NAME ?></title>
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/assets/css/style.min.css" />
     <link rel="stylesheet" href="/assets/css/admin.min.css" />
     <link rel="stylesheet" href="/assets/fonts/fontawesome/css/all.min.css" />
-    <link rel="stylesheet" href="/assets/fonts/ptsans/css/all.min.css" />
+    <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="/assets/bootstrap-5.3/css/bootstrap.min.css">
-    <script src="/assets/bootstrap-5.3/js/bootstrap.bundle.min.js"></script>
-    <script src="/assets/jquery/jquery-3.7.0.min.js"></script>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/jquery/jquery.min.js"></script>
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico" />
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="<?php echo SYSTEM_NAME ?>" />
     <link rel="manifest" href="/assets/favicon/site.webmanifest" />
-
+    <!-- Metas -->
+    <meta name="theme-color" content="<?php echo SYSTEM_COLOR ?>" />
+    <meta property="og:site_name" content="<?php echo SERVER_NAME ?>" />
+    <meta property="og:url" content="https://<?php echo SYSTEM_URL ?>/dash.php" />
+    <meta property="og:title" content="<?php echo SYSTEM_NAME ?> - Intranet <?php echo SERVER_CITY ?>" />
+    <meta property="og:image" content="<?php echo META_IMAGE_URL ?>" />
+    <meta property="og:description" content="Verwaltungsportal der <?php echo RP_ORGTYPE . " " .  SERVER_CITY ?>" />
 
 </head>
 
-<body data-page="benutzer">
-    <!-- PRELOAD -->
-    <?php include "../../assets/php/preload.php"; ?>
-    <?php include "../../assets/components/c_topnav.php"; ?>
-    <!-- NAVIGATION -->
-    <div class="container shadow rounded-3 position-relative bg-light mb-3" style="margin-top:-50px;z-index:10" id="mainpageContainer">
-        <?php include '../../assets/php/admin-nav-v2.php' ?>
+<body data-bs-theme="dark" data-page="benutzer">
+    <?php include "../../assets/components/navbar.php"; ?>
+    <div class="container-full position-relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
@@ -78,15 +95,15 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
                         <input type="hidden" name="new" value="1" />
                         <div class="row">
                             <div class="col mb-3">
-                                <label for="username" class="form-label fw-bold">Benutzername <span class="text-sh-red">*</span></label>
+                                <label for="username" class="form-label fw-bold">Benutzername <span class="text-main-color">*</span></label>
                                 <input type="text" class="form-control" id="username" name="username" placeholder="" required>
                             </div>
                             <div class="col mb-3">
-                                <label for="fullname" class="form-label fw-bold">Vor- und Zuname <span class="text-sh-red">*</span></label>
+                                <label for="fullname" class="form-label fw-bold">Vor- und Zuname <span class="text-main-color">*</span></label>
                                 <input type="text" class="form-control" id="fullname" name="fullname" placeholder="" required>
                             </div>
                             <div class="col mb-3">
-                                <label for="password" class="form-label fw-bold">Passwort <span class="text-sh-red">*</span></label>
+                                <label for="password" class="form-label fw-bold">Passwort <span class="text-main-color">*</span></label>
                                 <div class="input-group">
                                     <input type="password" class="form-control" id="password" name="password" placeholder="" required>
                                     <button title="Passwort anzeigen" class="btn btn-outline-warning" type="button" id="show-password-btn"><i class="fa-solid fa-eye"></i></button>
@@ -116,7 +133,7 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
                                 <div class="fw-bold">Mitarbeiterverwaltung</div>
                                 <label><input type="checkbox" name="permissions[]" value="personal_view" <?php if (!$perview && $notadmincheck) echo 'disabled'; ?>> Mitarbeiter ansehen</label><br>
                                 <label><input type="checkbox" name="permissions[]" value="personal_edit" <?php if (!$peredit && $notadmincheck) echo 'disabled'; ?>> Mitarbeiter bearbeiten</label><br>
-                                <label><input type="checkbox" name="permissions[]" value="personal_dokumente" <?php if (!$perdoku && $notadmincheck) echo 'disabled'; ?>> Dokumente verwalten</label><br>
+                                <label><input type="checkbox" name="permissions[]" value="intra_mitarbeiter_dokumente" <?php if (!$perdoku && $notadmincheck) echo 'disabled'; ?>> Dokumente verwalten</label><br>
                                 <label><input type="checkbox" name="permissions[]" value="personal_delete" <?php if (!$perdelete && $notadmincheck) echo 'disabled'; ?>> Mitarbeiter löschen</label><br>
                                 <label><input type="checkbox" name="permissions[]" value="personal_kommentar_delete" <?php if (!$perkomdelete && $notadmincheck) echo 'disabled'; ?>> Notizen löschen</label>
                                 <div class="fw-bold">FRS - RD</div>
@@ -146,45 +163,7 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
             </div>
         </div>
     </div>
-    <div class="floating-button">
-        <button id="dark-mode-toggle" class="btn btn-primary">
-            <i id="mode-icon" class="fa-solid fa-lightbulb"></i>
-        </button>
-    </div>
-    <script>
-        // Function to toggle dark mode
-        function toggleDarkMode() {
-            const html = document.querySelector('html');
-            const isDarkMode = html.getAttribute('data-bs-theme') === 'dark';
 
-            if (isDarkMode) {
-                html.setAttribute('data-bs-theme', 'light');
-                localStorage.setItem('darkMode', 'false');
-            } else {
-                html.setAttribute('data-bs-theme', 'dark');
-                localStorage.setItem('darkMode', 'true');
-            }
-        }
-
-        // Function to check and set the theme based on user preference
-        function checkThemePreference() {
-            const savedDarkMode = localStorage.getItem('darkMode');
-            const html = document.querySelector('html');
-
-            if (savedDarkMode === 'true') {
-                html.setAttribute('data-bs-theme', 'dark');
-            } else {
-                html.setAttribute('data-bs-theme', 'light');
-            }
-        }
-
-        // Event listener for dark mode toggle
-        const darkModeToggle = document.getElementById('dark-mode-toggle');
-        darkModeToggle.addEventListener('click', toggleDarkMode);
-
-        // Initialize theme preference
-        checkThemePreference();
-    </script>
     <script>
         // Get a reference to the generate password button
         const generatePasswordBtn = document.getElementById('generate-password-btn');

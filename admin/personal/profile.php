@@ -1,6 +1,7 @@
 <?php
 session_start();
-require_once '../../assets/php/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     header("Location: /admin/login.php");
 } elseif ($notadmincheck) {
@@ -20,18 +21,44 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     $canEdit = true;
 }
 
-include '../../assets/php/mysql-con.php';
+require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 
 //Abfrage der Nutzer ID vom Login
 $userid = $_SESSION['userid'];
 
-$result = mysqli_query($conn, "SELECT * FROM personal_profile WHERE id = " . $_GET['id']) or die(mysqli_error($conn));
-$row = mysqli_fetch_array($result);
+$stmt = $pdo->prepare("SELECT * FROM intra_mitarbeiter WHERE id = :id");
+$stmt->execute(['id' => $_GET['id']]);
+$row = $stmt->fetch(PDO::FETCH_ASSOC);
 
 $openedID = $_GET['id'];
 $edituser = $_SESSION['cirs_user'];
 $edituseric = $_SESSION['ic_name'];
 $editdg = $_SESSION['cirs_dg'];
+
+$stmtg = $pdo->prepare("SELECT * FROM intra_mitarbeiter_dienstgrade WHERE id = :id");
+$stmtg->execute(['id' => $row['dienstgrad']]);
+$dginfo = $stmtg->fetch();
+
+$stmtr = $pdo->prepare("SELECT * FROM intra_mitarbeiter_rdquali WHERE id = :id");
+$stmtr->execute(['id' => $row['qualird']]);
+$rdginfo = $stmtr->fetch();
+
+$stmtf = $pdo->prepare("SELECT * FROM intra_mitarbeiter_fwquali WHERE id = :id");
+$stmtf->execute(['id' => $row['qualifw2']]);
+$fwginfo = $stmtf->fetch();
+
+$bfqualtext = $fwginfo['shortname'];
+
+if ($row['geschlecht'] == 0) {
+    $dienstgradText = $dginfo['name_m'];
+    $rdqualtext = $rdginfo['name_m'];
+} elseif ($row['geschlecht'] ==  1) {
+    $dienstgradText = $dginfo['name_w'];
+    $rdqualtext = $rdginfo['name_w'];
+} else {
+    $dienstgradText = $dginfo['name'];
+    $rdqualtext = $rdginfo['name'];
+}
 
 if (isset($_POST['new'])) {
     if ($_POST['new'] == 1) {
@@ -41,300 +68,252 @@ if (isset($_POST['new'])) {
         $gebdatum = $_POST['gebdatum'];
         $charakterid = $_POST['charakterid'];
         $dienstgrad = $_POST['dienstgrad'];
-        $forumprofil = $_POST['forumprofil'];
         $discordtag = $_POST['discordtag'];
         $telefonnr = $_POST['telefonnr'];
         $dienstnr = $_POST['dienstnr'];
+        $qualird = $_POST['qualird'];
+        $qualifw2 = $_POST['qualifw2'];
+        $geschlecht = $_POST['geschlecht'];
 
-        // Retrieve the current dienstgrad and other data from the database
-        $stmt = mysqli_prepare($conn, "SELECT dienstgrad, fullname, gebdatum, charakterid, forumprofil, discordtag, telefonnr, dienstnr FROM personal_profile WHERE id = ?");
-        mysqli_stmt_bind_param($stmt, "i", $id);
-        mysqli_stmt_execute($stmt);
-        mysqli_stmt_bind_result($stmt, $currentDienstgrad, $currentFullname, $currentGebdatum, $currentCharakterid, $currentForumprofil, $currentDiscordtag, $currentTelefonnr, $currentDienstnr);
-        mysqli_stmt_fetch($stmt);
-        mysqli_stmt_close($stmt);
+        $stmt = $pdo->prepare("SELECT dienstgrad, fullname, gebdatum, charakterid, discordtag, telefonnr, dienstnr, qualird, qualifw2, geschlecht FROM intra_mitarbeiter WHERE id = :id");
+        $stmt->execute(['id' => $id]);
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $dienstgradMapping = array(
-            18 => "Entlassen/Archiv",
-            16 => "Ehrenamtliche/-r",
-            0 => "Angestellte/-r",
-            1 => "Brandmeisteranwärter/-in",
-            2 => "Brandmeister/-in",
-            3 => "Oberbrandmeister/-in",
-            4 => "Hauptbrandmeister/-in",
-            5 => "Hauptbrandmeister/-in mit AZ",
-            17 => "Brandinspektoranwärter/-in",
-            6 => "Brandinspektor/-in",
-            7 => "Oberbrandinspektor/-in",
-            8 => "Brandamtmann/frau",
-            9 => "Brandamtsrat/rätin",
-            10 => "Brandoberamtsrat/rätin",
-            19 => "Ärztliche/-r Leiter/-in Rettungsdienst",
-            15 => "Brandreferendar/in",
-            11 => "Brandrat/rätin",
-            12 => "Oberbrandrat/rätin",
-            13 => "Branddirektor/-in",
-            14 => "Leitende/-r Branddirektor/-in",
-        );
-
-        // Update the dienstgrad only if it has changed
-        if ($currentDienstgrad != $dienstgrad) {
-            // Update the database using prepared statements
-            $stmt = mysqli_prepare($conn, "UPDATE personal_profile SET dienstgrad = ? WHERE id = ?");
-            mysqli_stmt_bind_param($stmt, "ii", $dienstgrad, $id);
-            mysqli_stmt_execute($stmt);
-
-            // Retrieve the text representations for the current and new dienstgrad
-            $currentDienstgradText = isset($dienstgradMapping[$currentDienstgrad]) ? $dienstgradMapping[$currentDienstgrad] : 'Unknown';
-            $newDienstgradText = isset($dienstgradMapping[$dienstgrad]) ? $dienstgradMapping[$dienstgrad] : 'Unknown';
-
-            // Insert a log entry for dienstgrad modification
-            $logContent = 'Dienstgrad wurde von <strong>' . $currentDienstgradText . '</strong> auf <strong>' . $newDienstgradText . '</strong> geändert.';
-            $logStmt = mysqli_prepare($conn, "INSERT INTO personal_log (profilid, type, content, paneluser) VALUES (?, '4', ?, ?)");
-            mysqli_stmt_bind_param($logStmt, "iss", $id, $logContent, $edituser);
-            mysqli_stmt_execute($logStmt);
+        if ($data) {
+            $currentDienstgrad = $data['dienstgrad'];
+            $currentFullname = $data['fullname'];
+            $currentGebdatum = $data['gebdatum'];
+            $currentCharakterid = $data['charakterid'];
+            $currentDiscordtag = $data['discordtag'];
+            $currentTelefonnr = $data['telefonnr'];
+            $currentDienstnr = $data['dienstnr'];
+            $currentQualird = $data['qualird'];
+            $currentQualifw = $data['qualifw2'];
+            $currentGeschlecht = $data['geschlecht'];
+        } else {
+            die("Kein Datensatz gefunden.");
         }
 
-        // Update other profile data if it has changed
-        $dataChanged = false;
-        if (
+        $rdMapping = array(
+            0 => "Keine",
+            1 => "Rettungssanitäter/-in i. A.",
+            2 => "Rettungssanitäter/-in",
+            3 => "Notfallsanitäter/-in",
+            4 => "Notarzt/ärztin",
+            5 => "Ärztliche/-r Leiter/-in RD"
+        );
+
+        $bfqualiMapping = array(
+            0 => "Keine",
+            1 => "B1 - Grundausbildung",
+            2 => "B2 - Maschinist/-in",
+            3 => "B3 - Gruppenführer/-in",
+            4 => "B4 - Zugführer/-in",
+            5 => "B5 - B-Dienst",
+            6 => "B6 - A-Dienst"
+        );
+
+        if ($currentDienstgrad != $dienstgrad) {
+            $stmt = $pdo->prepare("UPDATE intra_mitarbeiter SET dienstgrad = :dienstgrad WHERE id = :id");
+            $stmt->execute([
+                'dienstgrad' => $dienstgrad,
+                'id' => $id
+            ]);
+
+            $stmtcdg = $pdo->prepare("SELECT id,name FROM intra_mitarbeiter_dienstgrade WHERE id = :id");
+            $stmtcdg->execute(['id' => $currentDienstgrad]);
+            $cdginfo = $stmtcdg->fetch();
+
+            $stmtndg = $pdo->prepare("SELECT id,name FROM intra_mitarbeiter_dienstgrade WHERE id = :id");
+            $stmtndg->execute(['id' => $dienstgrad]);
+            $ndginfo = $stmtndg->fetch();
+
+            $logContent = 'Dienstgrad wurde von <strong>' . $cdginfo['name'] . '</strong> auf <strong>' . $ndginfo['name'] . '</strong> geändert.';
+            $logStmt = $pdo->prepare("INSERT INTO intra_mitarbeiter_log (profilid, type, content, paneluser) VALUES (:id, '4', :content, :paneluser)");
+            $logStmt->execute([
+                'id' => $id,
+                'content' => $logContent,
+                'paneluser' => $edituser
+            ]);
+        }
+
+        if ($currentQualird != $qualird) {
+            $stmt = $pdo->prepare("UPDATE intra_mitarbeiter SET qualird = :qualird WHERE id = :id");
+            $stmt->execute([
+                'qualird' => $qualird,
+                'id' => $id
+            ]);
+
+            $stmtcrg = $pdo->prepare("SELECT id,name FROM intra_mitarbeiter_rdquali WHERE id = :id");
+            $stmtcrg->execute(['id' => $currentQualird]);
+            $crginfo = $stmtcrg->fetch();
+
+            $stmtnrg = $pdo->prepare("SELECT id,name FROM intra_mitarbeiter_rdquali WHERE id = :id");
+            $stmtnrg->execute(['id' => $qualird]);
+            $nrginfo = $stmtnrg->fetch();
+
+            $logContent = 'Qualifikation (RD) wurde von <strong>' . $crginfo['name'] . '</strong> auf <strong>' . $nrginfo['name'] . '</strong> geändert.';
+            $logStmt = $pdo->prepare("INSERT INTO intra_mitarbeiter_log (profilid, type, content, paneluser) VALUES (:id, '4', :content, :paneluser)");
+            $logStmt->execute([
+                'id' => $id,
+                'content' => $logContent,
+                'paneluser' => $edituser
+            ]);
+        }
+
+        if ($currentQualifw != $qualifw2) {
+            $stmt = $pdo->prepare("UPDATE intra_mitarbeiter SET qualifw2 = :qualifw2 WHERE id = :id");
+            $stmt->execute([
+                'qualifw2' => $qualifw2,
+                'id' => $id
+            ]);
+
+            $currentFWQText = isset($bfqualiMapping[$currentQualifw]) ? $bfqualiMapping[$currentQualifw] : 'Unknown';
+            $newFWQText = isset($bfqualiMapping[$qualifw2]) ? $bfqualiMapping[$qualifw2] : 'Unknown';
+
+            $logContent = 'Qualifikation (FW) wurde von <strong>' . $currentFWQText . '</strong> auf <strong>' . $newFWQText . '</strong> geändert.';
+            $logStmt = $pdo->prepare("INSERT INTO intra_mitarbeiter_log (profilid, type, content, paneluser) VALUES (:id, '5', :content, :paneluser)");
+            $logStmt->execute([
+                'id' => $id,
+                'content' => $logContent,
+                'paneluser' => $edituser
+            ]);
+        }
+
+        $dataChanged = (
             $currentFullname != $fullname ||
             $currentGebdatum != $gebdatum ||
             $currentCharakterid != $charakterid ||
-            $currentForumprofil != $forumprofil ||
             $currentDiscordtag != $discordtag ||
             $currentTelefonnr != $telefonnr ||
-            $currentDienstnr != $dienstnr
-        ) {
-            $dataChanged = true;
-            // Update the database using prepared statements
-            $stmt = mysqli_prepare($conn, "UPDATE personal_profile SET fullname = ?, gebdatum = ?, charakterid = ?, forumprofil = ?, discordtag = ?, telefonnr = ?, dienstnr = ? WHERE id = ?");
-            mysqli_stmt_bind_param($stmt, "ssssssii", $fullname, $gebdatum, $charakterid, $forumprofil, $discordtag, $telefonnr, $dienstnr, $id);
-            mysqli_stmt_execute($stmt);
-        }
+            $currentDienstnr != $dienstnr ||
+            $currentGeschlecht != $geschlecht
+        );
 
-        // Insert a log entry for profile data modification if dienstgrad and/or other data changed
         if ($dataChanged) {
-            $logContent = 'Profilangaben wurden bearbeitet.';
-            $logStmt = mysqli_prepare($conn, "INSERT INTO personal_log (profilid, type, content, paneluser) VALUES (?, '5', ?, ?)");
-            mysqli_stmt_bind_param($logStmt, "iss", $id, $logContent, $edituser);
-            mysqli_stmt_execute($logStmt);
+            $stmt = $pdo->prepare("UPDATE intra_mitarbeiter 
+                           SET fullname = :fullname, 
+                               gebdatum = :gebdatum, 
+                               charakterid = :charakterid, 
+                               discordtag = :discordtag, 
+                               telefonnr = :telefonnr, 
+                               dienstnr = :dienstnr, 
+                               geschlecht = :geschlecht 
+                           WHERE id = :id");
+
+            $stmt->execute([
+                'fullname' => $fullname,
+                'gebdatum' => $gebdatum,
+                'charakterid' => $charakterid,
+                'discordtag' => $discordtag,
+                'telefonnr' => $telefonnr,
+                'dienstnr' => $dienstnr,
+                'geschlecht' => $geschlecht,
+                'id' => $id
+            ]);
+
+            $logContent = 'Profildaten wurden bearbeitet.';
+            $logStmt = $pdo->prepare("INSERT INTO intra_mitarbeiter_log (profilid, type, content, paneluser) 
+                              VALUES (:id, '5', :content, :paneluser)");
+            $logStmt->execute([
+                'id' => $id,
+                'content' => $logContent,
+                'paneluser' => $edituser
+            ]);
         }
 
-        // Redirect to the modified URL
         $currentURL = $_SERVER['REQUEST_URI'];
         $parsedURL = parse_url($currentURL);
         parse_str($parsedURL['query'], $queryParams);
         unset($queryParams['edit']);
         $newQuery = http_build_query($queryParams);
-        $modifiedURL = $parsedURL['path'] . '?' . $newQuery;
+        $modifiedURL = $parsedURL['path'] . ($newQuery ? '?' . $newQuery : '');
+
         header("Location: $modifiedURL");
         exit();
-    } elseif ($_POST['new'] == 2) {
-        if (isset($_POST['qualifw']) && is_array($_POST['qualifw'])) {
-            $qualifikationen_fw = $_POST['qualifw'];
-            $qualifw = json_encode($qualifikationen_fw);
-
-            // Retrieve the current value of qualifw from the database
-            $stmt = mysqli_prepare($conn, "SELECT qualifw FROM personal_profile WHERE id = ?");
-            mysqli_stmt_bind_param($stmt, "i", $openedID);
-            mysqli_stmt_execute($stmt);
-            mysqli_stmt_bind_result($stmt, $currentQualifw);
-            mysqli_stmt_fetch($stmt);
-            mysqli_stmt_close($stmt); // Close the statement
-
-            // Compare the new value with the current value
-            if ($qualifw != $currentQualifw) {
-                // Update the database using prepared statements
-                $updateStmt = mysqli_prepare($conn, "UPDATE personal_profile SET qualifw = ? WHERE id = ?");
-                if ($updateStmt) {
-                    mysqli_stmt_bind_param($updateStmt, "si", $qualifw, $openedID);
-                    mysqli_stmt_execute($updateStmt);
-                    mysqli_stmt_close($updateStmt); // Close the statement
-
-                    // Insert a log entry for qualifw modification
-                    $logContent = 'Feuerwehr Qualifikationen wurden bearbeitet.';
-                    $logStmt = mysqli_prepare($conn, "INSERT INTO personal_log (profilid, type, content, paneluser) VALUES (?, '5', ?, ?)");
-                    if ($logStmt) {
-                        mysqli_stmt_bind_param($logStmt, "iss", $openedID, $logContent, $edituser);
-                        mysqli_stmt_execute($logStmt);
-                        mysqli_stmt_close($logStmt); // Close the statement
-                    }
-                }
-            }
-        }
-        header('Refresh: 0');
-    } elseif ($_POST['new'] == 3) {
-        if (isset($_POST['qualird'])) {
-            $qualird = $_POST['qualird'];
-
-            // Retrieve the current value of qualird from the database
-            $stmt = mysqli_prepare($conn, "SELECT qualird FROM personal_profile WHERE id = ?");
-            mysqli_stmt_bind_param($stmt, "i", $openedID);
-            mysqli_stmt_execute($stmt);
-            mysqli_stmt_bind_result($stmt, $currentQualird);
-            mysqli_stmt_fetch($stmt);
-            mysqli_stmt_close($stmt); // Close the statement
-
-            // Compare the new value with the current value
-            if ($qualird != $currentQualird) {
-                // Update the database using prepared statements
-                $updateStmt = mysqli_prepare($conn, "UPDATE personal_profile SET qualird = ? WHERE id = ?");
-                if ($updateStmt) {
-                    mysqli_stmt_bind_param($updateStmt, "si", $qualird, $openedID);
-                    $updateResult = mysqli_stmt_execute($updateStmt);
-                    mysqli_stmt_close($updateStmt); // Close the statement
-
-                    if ($updateResult) {
-                        // Insert a log entry for qualird modification
-                        $logContent = 'Rettungsdienst Qualifikationen wurden bearbeitet.';
-                        $logStmt = mysqli_prepare($conn, "INSERT INTO personal_log (profilid, type, content, paneluser) VALUES (?, '5', ?, ?)");
-                        if ($logStmt) {
-                            mysqli_stmt_bind_param($logStmt, "iss", $openedID, $logContent, $edituser);
-                            mysqli_stmt_execute($logStmt);
-                            mysqli_stmt_close($logStmt); // Close the statement
-                        }
-                    }
-                }
-            }
-        }
-        header('Refresh: 0');
     } elseif ($_POST['new'] == 4) {
-        if (isset($_POST['fachdienste']) && is_array($_POST['fachdienste'])) {
-            $qualifikationen_fd = $_POST['fachdienste'];
-            $qualifd = json_encode($qualifikationen_fd);
+        $qualifikationen_fd = isset($_POST['fachdienste']) && is_array($_POST['fachdienste']) ? $_POST['fachdienste'] : [];
+        $qualifd = json_encode($qualifikationen_fd);
 
-            // Retrieve the current value of fachdienste from the database
-            $stmt = mysqli_prepare($conn, "SELECT fachdienste FROM personal_profile WHERE id = ?");
-            mysqli_stmt_bind_param($stmt, "i", $openedID);
-            mysqli_stmt_execute($stmt);
-            mysqli_stmt_bind_result($stmt, $currentQualifd);
-            mysqli_stmt_fetch($stmt);
-            mysqli_stmt_close($stmt); // Close the statement
+        $stmt = $pdo->prepare("SELECT fachdienste FROM intra_mitarbeiter WHERE id = :id");
+        $stmt->execute(['id' => $openedID]);
+        $currentQualifd = $stmt->fetchColumn();
 
-            // Compare the new value with the current value
-            if ($qualifd != $currentQualifd) {
-                // Update the database using prepared statements
-                $updateStmt = mysqli_prepare($conn, "UPDATE personal_profile SET fachdienste = ? WHERE id = ?");
-                if ($updateStmt) {
-                    mysqli_stmt_bind_param($updateStmt, "si", $qualifd, $openedID);
-                    $updateResult = mysqli_stmt_execute($updateStmt);
-                    mysqli_stmt_close($updateStmt); // Close the statement
+        if ($qualifd !== $currentQualifd) {
+            $updateStmt = $pdo->prepare("UPDATE intra_mitarbeiter SET fachdienste = :fachdienste WHERE id = :id");
+            $updateStmt->execute([
+                'fachdienste' => $qualifd,
+                'id' => $openedID
+            ]);
 
-                    if ($updateResult) {
-                        // Insert a log entry for fachdienste modification
-                        $logContent = 'Fachdienste wurden bearbeitet.';
-                        $logStmt = mysqli_prepare($conn, "INSERT INTO personal_log (profilid, type, content, paneluser) VALUES (?, '5', ?, ?)");
-                        if ($logStmt) {
-                            mysqli_stmt_bind_param($logStmt, "iss", $openedID, $logContent, $edituser);
-                            mysqli_stmt_execute($logStmt);
-                            mysqli_stmt_close($logStmt); // Close the statement
-                        }
-                    }
-                }
-            }
+            $logContent = 'Fachdienste wurden bearbeitet.';
+            $logStmt = $pdo->prepare("INSERT INTO intra_mitarbeiter_log (profilid, type, content, paneluser) 
+                              VALUES (:id, '5', :content, :paneluser)");
+            $logStmt->execute([
+                'id' => $openedID,
+                'content' => $logContent,
+                'paneluser' => $edituser
+            ]);
         }
-        header('Refresh: 0');
-    } elseif ($_POST['new'] == 5) {
-        // Insert a log entry for qualifw modification
-        $logContent = $_POST['content'];
-        $logType = $_POST['noteType'];
-        $logStmt = mysqli_prepare($conn, "INSERT INTO personal_log (profilid, type, content, paneluser) VALUES (?, ?, ?, ?)");
-        mysqli_stmt_bind_param($logStmt, "isss", $openedID, $logType, $logContent, $edituser);
-        mysqli_stmt_execute($logStmt);
-        header('Refresh: 0');
+
+        header('Location: ' . $_SERVER['REQUEST_URI']);
+        exit;
     } elseif ($_POST['new'] == 6) {
         $erhalter = $_POST['erhalter'];
-        $erhalter_gebdat =  $_POST['erhalter_gebdat'];
+        $inhalt = $_POST['inhalt'] ?? NULL;
+        $suspendtime = $_POST['suspendtime'] ?? NULL;
+        $erhalter_gebdat = $_POST['erhalter_gebdat'];
+        $erhalter_rang = $_POST['erhalter_rang'] ?? NULL;
+        $erhalter_rang_rd = $_POST['erhalter_rang_rd'] ?? NULL;
         $ausstellerid = $_POST['ausstellerid'];
         $aussteller_name = $_POST['aussteller_name'];
         $aussteller_rang = $_POST['aussteller_rang'];
         $profileid = $_POST['profileid'];
         $docType = $_POST['docType'];
+        $anrede = $_POST['anrede'];
+        $ausstellungsdatum = date('Y-m-d', strtotime($_POST['ausstellungsdatum_' . $docType] ?? $_POST['ausstellungsdatum_0']));
 
-        $random_number = mt_rand(1000000, 9999999);
-        $rncheck = "SELECT * FROM personal_dokumente WHERE docid = $random_number";
-        $rnres = $conn->query($rncheck);
-        while ($rnres->num_rows > 0) {
+        do {
             $random_number = mt_rand(1000000, 9999999);
-            $rncheck = "SELECT * FROM personal_dokumente WHERE docid = $random_number";
-            $rnres = $conn->query($rncheck);
-        }
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM intra_mitarbeiter_dokumente WHERE docid = :docid");
+            $stmt->execute(['docid' => $random_number]);
+            $exists = $stmt->fetchColumn();
+        } while ($exists > 0);
+
         $new_number = $random_number;
 
-        if ($docType <= 1) {
-            $anrede = $_POST['anrede'];
-            $erhalter_rang = $_POST['erhalter_rang'];
-            $ausstelungsdatum = date('Y-m-d', strtotime($_POST['ausstelungsdatum_0']));
+        $docStmt = $pdo->prepare("INSERT INTO intra_mitarbeiter_dokumente 
+        (docid, type, anrede, erhalter, inhalt, suspendtime, erhalter_gebdat, erhalter_rang, erhalter_rang_rd, ausstellungsdatum, ausstellerid, profileid, aussteller_name, aussteller_rang) 
+        VALUES (:docid, :type, :anrede, :erhalter, :inhalt, :suspendtime, :erhalter_gebdat, :erhalter_rang, :erhalter_rang_rd, :ausstellungsdatum, :ausstellerid, :profileid, :aussteller_name, :aussteller_rang)");
 
-            $docStmt = mysqli_prepare($conn, "INSERT INTO personal_dokumente (docid, type, anrede, erhalter, erhalter_gebdat, erhalter_rang, ausstelungsdatum, ausstellerid, profileid, aussteller_name, aussteller_rang) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            mysqli_stmt_bind_param($docStmt, "iisssssiisi", $new_number, $docType, $anrede, $erhalter, $erhalter_gebdat, $erhalter_rang, $ausstelungsdatum, $ausstellerid, $profileid, $aussteller_name, $aussteller_rang);
-            header('Location: /dokumente/02/' . $new_number, true, 302);
-            $logContent = 'Ein neues Dokument (<a href="/dokumente/02/' . $new_number . '" target="_blank">' . $new_number . '</a>) wurde erstellt.';
-        } elseif ($docType == 2) {
-            $anrede = $_POST['anrede'];
-            $ausstelungsdatum = date('Y-m-d', strtotime($_POST['ausstelungsdatum_' . $docType]));
+        $docStmt->execute([
+            'docid' => $new_number,
+            'type' => $docType,
+            'anrede' => $anrede,
+            'erhalter' => $erhalter,
+            'inhalt' => $inhalt,
+            'suspendtime' => $suspendtime,
+            'erhalter_gebdat' => $erhalter_gebdat,
+            'erhalter_rang' => $erhalter_rang,
+            'erhalter_rang_rd' => $erhalter_rang_rd,
+            'ausstellungsdatum' => $ausstellungsdatum,
+            'ausstellerid' => $ausstellerid,
+            'profileid' => $profileid,
+            'aussteller_name' => $aussteller_name,
+            'aussteller_rang' => $aussteller_rang
+        ]);
 
-            $docStmt = mysqli_prepare($conn, "INSERT INTO personal_dokumente (docid, type, anrede, erhalter, erhalter_gebdat, ausstelungsdatum, ausstellerid, profileid, aussteller_name, aussteller_rang) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            mysqli_stmt_bind_param($docStmt, "iissssiisi", $new_number, $docType, $anrede, $erhalter, $erhalter_gebdat, $ausstelungsdatum, $ausstellerid, $profileid, $aussteller_name, $aussteller_rang);
-            header('Location: /dokumente/02/' . $new_number, true, 302);
-            $logContent = 'Ein neues Dokument (<a href="/dokumente/02/' . $new_number . '" target="_blank">' . $new_number . '</a>) wurde erstellt.';
-        } elseif ($docType == 3) {
-            $anrede = $_POST['anrede'];
-            $erhalter_rang_rd_2 = $_POST['erhalter_rang_rd_2'];
-            $ausstelungsdatum = date('Y-m-d', strtotime($_POST['ausstelungsdatum_' . $docType]));
+        $logContent = 'Ein neues Dokument (<a href="/assets/functions/docredir.php?docid=' . $new_number . '" target="_blank">#' . $new_number . '</a>) wurde erstellt.';
+        $logStmt = $pdo->prepare("INSERT INTO intra_mitarbeiter_log (profilid, type, content, paneluser) 
+                              VALUES (:id, '7', :content, :paneluser)");
+        $logStmt->execute([
+            'id' => $profileid,
+            'content' => $logContent,
+            'paneluser' => $edituser
+        ]);
 
-            $docStmt = mysqli_prepare($conn, "INSERT INTO personal_dokumente (docid, type, anrede, erhalter, erhalter_gebdat, erhalter_rang_rd, ausstelungsdatum, ausstellerid, profileid, aussteller_name, aussteller_rang) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            mysqli_stmt_bind_param($docStmt, "iisssssiisi", $new_number, $docType, $anrede, $erhalter, $erhalter_gebdat, $erhalter_rang_rd_2, $ausstelungsdatum, $ausstellerid, $profileid, $aussteller_name, $aussteller_rang);
-            header('Location: /dokumente/04/' . $new_number, true, 302);
-            $logContent = 'Ein neues Dokument (<a href="/dokumente/04/' . $new_number . '" target="_blank">' . $new_number . '</a>) wurde erstellt.';
-        } elseif ($docType == 5) {
-            $anrede = $_POST['anrede'];
-            $erhalter_rang_rd = $_POST['erhalter_rang_rd'];
-            $ausstelungsdatum = date('Y-m-d', strtotime($_POST['ausstelungsdatum_' . $docType]));
-
-            $docStmt = mysqli_prepare($conn, "INSERT INTO personal_dokumente (docid, type, anrede, erhalter, erhalter_gebdat, erhalter_rang_rd, ausstelungsdatum, ausstellerid, profileid, aussteller_name, aussteller_rang) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            mysqli_stmt_bind_param($docStmt, "iisssssiisi", $new_number, $docType, $anrede, $erhalter, $erhalter_gebdat, $erhalter_rang_rd, $ausstelungsdatum, $ausstellerid, $profileid, $aussteller_name, $aussteller_rang);
-            header('Location: /dokumente/03/' . $new_number, true, 302);
-            $logContent = 'Ein neues Dokument (<a href="/dokumente/03/' . $new_number . '" target="_blank">' . $new_number . '</a>) wurde erstellt.';
-        } elseif ($docType == 6 || $docType == 7) {
-            $anrede = $_POST['anrede'];
-            $erhalter_quali = $_POST['erhalter_quali'];
-            $ausstelungsdatum = date('Y-m-d', strtotime($_POST['ausstelungsdatum_' . $docType]));
-
-            $docStmt = mysqli_prepare($conn, "INSERT INTO personal_dokumente (docid, type, anrede, erhalter, erhalter_gebdat, erhalter_quali, ausstelungsdatum, ausstellerid, profileid, aussteller_name, aussteller_rang) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            mysqli_stmt_bind_param($docStmt, "iisssssiisi", $new_number, $docType, $anrede, $erhalter, $erhalter_gebdat, $erhalter_quali, $ausstelungsdatum, $ausstellerid, $profileid, $aussteller_name, $aussteller_rang);
-            header('Location: /dokumente/03/' . $new_number, true, 302);
-            $logContent = 'Ein neues Dokument (<a href="/dokumente/03/' . $new_number . '" target="_blank">' . $new_number . '</a>) wurde erstellt.';
-        } elseif ($docType == 10 || $docType == 12 || $docType == 13) {
-            $anrede = $_POST['anrede'];
-            $inhalt = $_POST['inhalt'];
-            $ausstelungsdatum = date('Y-m-d', strtotime($_POST['ausstelungsdatum_10']));
-
-            $docStmt = mysqli_prepare($conn, "INSERT INTO personal_dokumente (docid, type, anrede, erhalter, erhalter_gebdat, inhalt, ausstelungsdatum, ausstellerid, profileid, aussteller_name, aussteller_rang) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            mysqli_stmt_bind_param($docStmt, "iisssssiisi", $new_number, $docType, $anrede, $erhalter, $erhalter_gebdat, $inhalt, $ausstelungsdatum, $ausstellerid, $profileid, $aussteller_name, $aussteller_rang);
-            header('Location: /dokumente/01/' . $new_number, true, 302);
-            $logContent = 'Ein neues Dokument (<a href="/dokumente/01/' . $new_number . '" target="_blank">' . $new_number . '</a>) wurde erstellt.';
-        } elseif ($docType == 11) {
-            $anrede = $_POST['anrede'];
-            $inhalt = $_POST['inhalt'];
-            $suspendtime = $_POST['suspendtime'];
-            $ausstelungsdatum = date('Y-m-d', strtotime($_POST['ausstelungsdatum_10']));
-
-            $docStmt = mysqli_prepare($conn, "INSERT INTO personal_dokumente (docid, type, anrede, erhalter, erhalter_gebdat, inhalt, suspendtime, ausstelungsdatum, ausstellerid, profileid, aussteller_name, aussteller_rang) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            mysqli_stmt_bind_param($docStmt, "iissssssiisi", $new_number, $docType, $anrede, $erhalter, $erhalter_gebdat, $inhalt, $suspendtime, $ausstelungsdatum, $ausstellerid, $profileid, $aussteller_name, $aussteller_rang);
-            header('Location: /dokumente/01/' . $new_number, true, 302);
-            $logContent = 'Ein neues Dokument (<a href="/dokumente/01/' . $new_number . '" target="_blank">' . $new_number . '</a>) wurde erstellt.';
-        }
-
-        mysqli_stmt_execute($docStmt);
-        $logStmt = mysqli_prepare($conn, "INSERT INTO personal_log (profilid, type, content, paneluser) VALUES (?, '7', ?, ?)");
-        if ($logStmt) {
-            mysqli_stmt_bind_param($logStmt, "iss", $openedID, $logContent, $edituser);
-            mysqli_stmt_execute($logStmt);
-            mysqli_stmt_close($logStmt); // Close the statement
-        }
-        header('Refresh: 0');
+        header('Location: /assets/functions/docredir.php?docid=' . $new_number, true, 302);
+        exit();
     }
 }
 
@@ -347,33 +326,38 @@ if (isset($_POST['new'])) {
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Administration &rsaquo; intraRP</title>
+    <title><?= $row['fullname'] ?> &rsaquo; Administration &rsaquo; <?php echo SYSTEM_NAME ?></title>
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/assets/css/style.min.css" />
     <link rel="stylesheet" href="/assets/css/admin.min.css" />
     <link rel="stylesheet" href="/assets/css/personal.min.css" />
     <link rel="stylesheet" href="/assets/fonts/fontawesome/css/all.min.css" />
-    <link rel="stylesheet" href="/assets/fonts/ptsans/css/all.min.css" />
+    <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
     <link rel="stylesheet" href="/assets/redactorx/redactorx.min.css" />
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="/assets/bootstrap-5.3/css/bootstrap.min.css">
-    <script src="/assets/bootstrap-5.3/js/bootstrap.bundle.min.js"></script>
-    <script src="/assets/jquery/jquery-3.7.0.min.js"></script>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/assets/jquery/jquery.min.js"></script>
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico" />
+    <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="<?php echo SYSTEM_NAME ?>" />
     <link rel="manifest" href="/assets/favicon/site.webmanifest" />
-
+    <!-- Metas -->
+    <meta name="theme-color" content="<?php echo SYSTEM_COLOR ?>" />
+    <meta property="og:site_name" content="<?php echo SERVER_NAME ?>" />
+    <meta property="og:url" content="https://<?php echo SYSTEM_URL ?>/dash.php" />
+    <meta property="og:title" content="<?php echo SYSTEM_NAME ?> - Intranet <?php echo SERVER_CITY ?>" />
+    <meta property="og:image" content="<?php echo META_IMAGE_URL ?>" />
+    <meta property="og:description" content="Verwaltungsportal der <?php echo RP_ORGTYPE . " " .  SERVER_CITY ?>" />
 
 </head>
 
-<body data-page="mitarbeiter">
-    <!-- PRELOAD -->
-    <?php include "../../assets/php/preload.php"; ?>
-    <?php include "../../assets/components/c_topnav.php"; ?>
-    <!-- NAVIGATION -->
-    <div class="container shadow rounded-3 position-relative bg-light mb-3" style="margin-top:-50px;z-index:10" id="mainpageContainer">
-        <?php include '../../assets/php/admin-nav-v2.php' ?>
+<body data-bs-theme="dark" data-page="mitarbeiter">
+    <?php include "../../assets/components/navbar.php"; ?>
+    <div class="container-full position-relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
@@ -383,9 +367,11 @@ if (isset($_POST['new'])) {
                     <hr class="text-light my-3">
                     <h1 class="mb-3">Mitarbeiterprofil</h1>
                     <?php
-                    $panelakten = mysqli_query($conn, "SELECT id, username, fullname, aktenid FROM cirs_users WHERE aktenid = '$openedID'") or die(mysqli_error($conn));
-                    $num = mysqli_num_rows($panelakten);
-                    $panelakte = mysqli_fetch_assoc($panelakten);
+                    require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+                    $stmt = $pdo->prepare("SELECT id, username, fullname, aktenid FROM intra_users WHERE aktenid = :aktenid");
+                    $stmt->execute([':aktenid' => $openedID]);
+                    $num = $stmt->rowCount();
+                    $panelakte = $stmt->fetch(PDO::FETCH_ASSOC);
 
                     if ($num != 0) {
                     ?>
@@ -400,12 +386,19 @@ if (isset($_POST['new'])) {
                         </div>
                     <?php
                     }
-                    include('../../assets/php/personal-checks.php') ?>
+                    include $_SERVER['DOCUMENT_ROOT'] . '/assets/components/profiles/checks.php' ?>
                     <div class="row">
                         <div class="col-5 p-3 shadow-sm border ma-basedata">
                             <form id="profil" method="post">
+                                <?php if (!isset($_GET['edit']) && $canView) { ?>
+                                    <div class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalNewComment" title="Notiz anlegen"><i class="fa-solid fa-notes"></i></div>
+                                <?php } ?>
+                                <?php if (!isset($_GET['edit']) && $admincheck || !isset($_GET['edit']) && $perdoku) { ?>
+                                    <div class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalDokuCreate" title="Dokument erstellen"><i class="fa-solid fa-print"></i></div>
+                                <?php } ?>
                                 <?php if (!isset($_GET['edit']) && $canEdit) { ?>
-                                    <a href="?id=<?= $_GET['id'] . (isset($_GET['page']) ? '&page=' . $_GET['page'] : '') ?>&edit" class="btn btn-dark btn-sm" id="personal-edit"><i class="fa-solid fa-edit"></i></a>
+                                    <a href="?id=<?= $_GET['id'] . (isset($_GET['page']) ? '&page=' . $_GET['page'] : '') ?>&edit" class="btn btn-dark btn-sm" id="personal-edit" title="Profil bearbeiten"><i class="fa-solid fa-edit"></i></a>
+                                    <div class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalFDQuali" title="Fachdienste bearbeiten"><i class="fa-solid fa-graduation-cap"></i></div>
                                 <?php } elseif (isset($_GET['edit']) && $canEdit) { ?>
                                     <a href="#" class="btn btn-success btn-sm" id="personal-save" onclick="document.getElementById('profil').submit()"><i class="fa-solid fa-floppy-disk"></i></a>
                                     <a href="<?php echo removeEditParamFromURL(); ?>" class="btn btn-dark btn-sm"><i class="fa-solid fa-arrow-left"></i></a>
@@ -425,161 +418,118 @@ if (isset($_POST['new'])) {
                                     $modifiedURL = $parsedURL['path'] . '?' . $newQuery;
                                     return $modifiedURL;
                                 }
-
-                                $dienstgradMapping = array(
-                                    16 => "Ehrenamtliche/-r",
-                                    0 => "Angestellte/-r",
-                                    1 => "Brandmeisteranwärter/-in",
-                                    2 => "Brandmeister/-in",
-                                    3 => "Oberbrandmeister/-in",
-                                    4 => "Hauptbrandmeister/-in",
-                                    5 => "Hauptbrandmeister/-in mit AZ",
-                                    17 => "Brandinspektoranwärter/-in",
-                                    6 => "Brandinspektor/-in",
-                                    7 => "Oberbrandinspektor/-in",
-                                    8 => "Brandamtmann/frau",
-                                    9 => "Brandamtsrat/rätin",
-                                    10 => "Brandoberamtsrat/rätin",
-                                    19 => "Ärztliche/-r Leiter/-in Rettungsdienst",
-                                    15 => "Brandreferendar/in",
-                                    11 => "Brandrat/rätin",
-                                    12 => "Oberbrandrat/rätin",
-                                    13 => "Branddirektor/-in",
-                                    14 => "Leitende/-r Branddirektor/-in",
-                                );
-
-                                $rankIcons = [
-                                    1 => '/assets/img/dienstgrade/bf/1.png',
-                                    2 => '/assets/img/dienstgrade/bf/2.png',
-                                    3 => '/assets/img/dienstgrade/bf/3.png',
-                                    4 => '/assets/img/dienstgrade/bf/4.png',
-                                    5 => '/assets/img/dienstgrade/bf/5.png',
-                                    17 => '/assets/img/dienstgrade/bf/17_2.png',
-                                    6 => '/assets/img/dienstgrade/bf/6.png',
-                                    7 => '/assets/img/dienstgrade/bf/7.png',
-                                    8 => '/assets/img/dienstgrade/bf/8.png',
-                                    9 => '/assets/img/dienstgrade/bf/9.png',
-                                    10 => '/assets/img/dienstgrade/bf/10.png',
-                                    15 => '/assets/img/dienstgrade/bf/15.png',
-                                    11 => '/assets/img/dienstgrade/bf/11.png',
-                                    12 => '/assets/img/dienstgrade/bf/12.png',
-                                    13 => '/assets/img/dienstgrade/bf/13.png',
-                                    14 => '/assets/img/dienstgrade/bf/14.png',
-                                ];
-
                                 ?>
                                 <div class="w-100 text-center">
                                     <i class="fa-solid fa-user-circle" style="font-size:94px"></i>
                                     <?php if (!isset($_GET['edit']) || !$canEdit) { ?>
-                                        <p class="mt-3" style="text-transform:uppercase">
-                                            <?php
-                                            $rank = $row['dienstgrad'];
-                                            if (isset($rankIcons[$rank])) {
+                                        <p class="mt-3">
+                                            <?php if ($row['geschlecht'] == 0) {
+                                                $geschlechtText = "Herr";
+                                            } elseif ($row['geschlecht'] == 1) {
+                                                $geschlechtText = "Frau";
+                                            } else {
+                                                $geschlechtText = "Divers";
+                                            }
+                                            $profileName = $geschlechtText . " " . $row['fullname'];
                                             ?>
-                                                <img src="<?= $rankIcons[$rank] ?>" height='16px' width='auto' alt='Dienstgrad' />
-                                            <?php } ?>
-                                            <?= $dienstgrad ?>
-                                            <?php if ($row['qualird'] > 0) { ?>
-                                                <br><span style="text-transform:none" class="badge bg-warning"><?= $rdqualtext ?></span>
-                                            <?php } ?>
+                                        <h4 class="mt-0"><?= $profileName ?></h4>
+                                        <?php
+                                        if ($dginfo['badge']) {
+                                        ?>
+                                            <img src="<?= $dginfo['badge'] ?>" height='16px' width='auto' alt='Dienstgrad' />
+                                        <?php } ?>
+                                        <?= $dienstgradText ?><br>
+                                        <?php if (!$rdginfo['none']) { ?>
+                                            <span style="text-transform:none; color:var(--black)" class="badge bg-warning"><?= $rdqualtext ?></span>
+                                        <?php }
+                                        if (!$fwginfo['none'] || $row['qualifw'] > 0) { ?>
+                                            <span style="text-transform:none" class="badge bg-danger"><?= $bfqualtext ?></span>
+                                        <?php } ?>
                                         </p>
                                     <?php } else {
-                                        include('../../assets/php/personal-dg-select.php');
+                                        include $_SERVER['DOCUMENT_ROOT'] . '/assets/components/profiles/dienstgradselector_bf.php';
+                                        include $_SERVER['DOCUMENT_ROOT'] . '/assets/components/profiles/dienstgradselector_rd.php';
+                                        include $_SERVER['DOCUMENT_ROOT'] . '/assets/components/profiles/qualiselector.php';
                                     } ?>
                                     <hr class="my-3">
                                     <?php if (!isset($_GET['edit']) || !$canEdit) { ?>
-                                        <table class="mx-auto">
+                                        <table class="mx-auto w-100">
                                             <tbody class="text-start">
                                                 <tr>
-                                                    <td class="fw-bold">Vor- und Zuname</td>
-                                                    <td><span class="mx-1"></span></td>
-                                                    <td><?= $row['fullname'] ?></td>
-                                                </tr>
-                                                <tr>
                                                     <td class="fw-bold">Geburtsdatum</td>
-                                                    <td><span class="mx-1"></span></td>
                                                     <td><?= $geburtstag ?></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="fw-bold">Charakter-ID</td>
-                                                    <td><span class="mx-1"></span></td>
                                                     <td><?= $row['charakterid'] ?></td>
                                                 </tr>
                                                 <tr>
-                                                    <td class="fw-bold">Discord-Tag</td>
-                                                    <td><span class="mx-1"></span></td>
+                                                    <td class="fw-bold">Discord</td>
                                                     <td><?= $row['discordtag'] ?></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="fw-bold">Telefonnummer</td>
-                                                    <td><span class="mx-1"></span></td>
                                                     <td><?= $row['telefonnr'] ?></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="fw-bold">Dienstnummer</td>
-                                                    <td><span class="mx-1"></span></td>
                                                     <td><?= $row['dienstnr'] ?></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="fw-bold">Einstellungsdatum</td>
-                                                    <td><span class="mx-1"></span></td>
                                                     <td><?= $einstellungsdatum ?></td>
                                                 </tr>
                                             </tbody>
                                         </table>
+                                        <hr class="my-3">
+                                        <div id="fd-container">
+                                            <?php include $_SERVER['DOCUMENT_ROOT'] . "/assets/components/profiles/anzeige_fachdienste.php" ?>
+                                        </div>
                                     <?php } elseif (isset($_GET['edit']) && $canEdit) { ?>
                                         <input type="hidden" name="id" id="id" value="<?= $_GET['id'] ?>" />
                                         <input type="hidden" name="new" value="1" />
-                                        <table class="mx-auto">
+                                        <table class="mx-auto w-100">
                                             <tbody class="text-start">
                                                 <tr>
                                                     <td class="fw-bold">Vor- und Zuname</td>
-                                                    <td><span class="mx-1"></span></td>
-                                                    <td><input class="form-control" type="text" name="fullname" id="fullname" value="<?= $row['fullname'] ?>"></td>
+                                                    <td class="col-8"><input class="form-control" type="text" name="fullname" id="fullname" value="<?= $row['fullname'] ?>"></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="fw-bold">Geburtsdatum</td>
-                                                    <td><span class="mx-1"></span></td>
                                                     <td><input class="form-control" type="date" name="gebdatum" id="gebdatum" value="<?= $row['gebdatum'] ?>"></td>
                                                 </tr>
                                                 <tr>
+                                                    <td class="fw-bold">Geschlecht</td>
+                                                    <td>
+                                                        <select name="geschlecht" id="geschlecht" class="form-select">
+                                                            <option value="0" <?php if ($row['geschlecht'] == 0) echo 'selected' ?>>Männlich</option>
+                                                            <option value="1" <?php if ($row['geschlecht'] == 1) echo 'selected' ?>>Weiblich</option>
+                                                            <option value="2" <?php if ($row['geschlecht'] == 2) echo 'selected' ?>>Divers</option>
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                                <tr>
                                                     <td class="fw-bold">Charakter-ID</td>
-                                                    <td><span class="mx-1"></span></td>
                                                     <td><input class="form-control" type="text" name="charakterid" id="charakterid" value="<?= $row['charakterid'] ?>"></td>
                                                 </tr>
                                                 <tr>
-                                                    <td class="fw-bold">Discord-Tag</td>
-                                                    <td><span class="mx-1"></span></td>
+                                                    <td class="fw-bold">Discord</td>
                                                     <td><input class="form-control" type="text" name="discordtag" id="discordtag" value="<?= $row['discordtag'] ?>"></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="fw-bold">Telefonnummer</td>
-                                                    <td><span class="mx-1"></span></td>
                                                     <td><input class="form-control" type="text" name="telefonnr" id="telefonnr" value="<?= $row['telefonnr'] ?>"></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="fw-bold">Dienstnummer</td>
-                                                    <td><span class="mx-1"></span></td>
                                                     <td><input class="form-control" type="number" name="dienstnr" id="dienstnr" value="<?= $row['dienstnr'] ?>"></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="fw-bold">Einstellungsdatum</td>
-                                                    <td><span class="mx-1"></span></td>
                                                     <td><input class="form-control" type="date" name="einstdatum" id="einstdatum" value="<?= $row['einstdatum'] ?>" readonly disabled></td>
                                                 </tr>
                                             </tbody>
                                         </table>
-                                    <?php } ?>
-                                    <hr class="my-3">
-                                    <div class="btn btn-secondary mb-2" style="border-radius:0;max-width:80%;width:80%" data-bs-toggle="modal" data-bs-target="#modalFWQuali">FW Qualifikationen einsehen</div>
-                                    <div class="btn btn-secondary mb-2" style="border-radius:0;max-width:80%;width:80%" data-bs-toggle="modal" data-bs-target="#modalRDQuali">RD Qualifikationen einsehen</div>
-                                    <div class="btn btn-secondary mb-2" style="border-radius:0;max-width:80%;width:80%" data-bs-toggle="modal" data-bs-target="#modalFDQuali">Fachdienste einsehen</div>
-
-                                    <?php if ($canView) { ?>
-                                        <div class="btn btn-primary mb-2" style="border-radius:0;max-width:80%;width:80%" data-bs-toggle="modal" data-bs-target="#modalNewComment">Notiz anlegen</div>
-                                    <?php } ?>
-                                    <?php if ($admincheck || $perdoku) { ?>
-                                        <div class="btn btn-primary mb-2" style="border-radius:0;max-width:80%;width:80%" data-bs-toggle="modal" data-bs-target="#modalDokuCreate">Dokument erstellen</div>
                                     <?php } ?>
                                 </div>
                             </form>
@@ -589,60 +539,22 @@ if (isset($_POST['new'])) {
                                 <h4>Kommentare/Notizen</h4>
                             </div>
                             <div class="comment-container">
-                                <?php include('../../assets/php/personal-comments.php') ?>
+                                <?php include $_SERVER['DOCUMENT_ROOT'] . '/assets/components/profiles/comments/main.php' ?>
                             </div>
                         </div>
                     </div>
                     <div class="row mt-3 mb-4">
                         <div class="col p-3 shadow-sm border ma-documents">
                             <h4>Dokumente</h4>
-                            <?php include('../../assets/php/personal-documents.php') ?>
+                            <?php include $_SERVER['DOCUMENT_ROOT'] . '/assets/components/profiles/documents/main.php' ?>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <?php include('../../assets/php/personal-modals.php') ?>
-    <div class="floating-button">
-        <button id="dark-mode-toggle" class="btn btn-primary">
-            <i id="mode-icon" class="fa-solid fa-lightbulb"></i>
-        </button>
-    </div>
-    <script>
-        // Function to toggle dark mode
-        function toggleDarkMode() {
-            const html = document.querySelector('html');
-            const isDarkMode = html.getAttribute('data-bs-theme') === 'dark';
+    <?php include $_SERVER['DOCUMENT_ROOT'] . '/assets/components/profiles/modals.php' ?>
 
-            if (isDarkMode) {
-                html.setAttribute('data-bs-theme', 'light');
-                localStorage.setItem('darkMode', 'false');
-            } else {
-                html.setAttribute('data-bs-theme', 'dark');
-                localStorage.setItem('darkMode', 'true');
-            }
-        }
-
-        // Function to check and set the theme based on user preference
-        function checkThemePreference() {
-            const savedDarkMode = localStorage.getItem('darkMode');
-            const html = document.querySelector('html');
-
-            if (savedDarkMode === 'true') {
-                html.setAttribute('data-bs-theme', 'dark');
-            } else {
-                html.setAttribute('data-bs-theme', 'light');
-            }
-        }
-
-        // Event listener for dark mode toggle
-        const darkModeToggle = document.getElementById('dark-mode-toggle');
-        darkModeToggle.addEventListener('click', toggleDarkMode);
-
-        // Initialize theme preference
-        checkThemePreference();
-    </script>
 </body>
 
 </html>
