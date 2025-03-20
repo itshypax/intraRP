@@ -1,4 +1,4 @@
-![intraRP Logo](https://raw.githubusercontent.com/itshypax/GTA-Roleplay-BF-Intranet/refs/heads/main/assets/img/defaultLogo.png?token=GHSAT0AAAAAAC5AAOQJGTJ6RHII2JTYEK3IZ63TQPQ)
+![intraRP Logo](/assets/img/defaultLogo.png)
 
 # intraRP - Roleplay Intranet für fiktive Fraktionen
 
