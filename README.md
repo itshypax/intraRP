@@ -1,4 +1,6 @@
-# Roleplay Intranet für fiktive Berufsfeuerwehren
+![intraRP Logo](https://raw.githubusercontent.com/itshypax/GTA-Roleplay-BF-Intranet/refs/heads/main/assets/img/defaultLogo.png?token=GHSAT0AAAAAAC5AAOQJGTJ6RHII2JTYEK3IZ63TQPQ)
+
+# intraRP - Roleplay Intranet für fiktive Fraktionen
 
 MYSQL-Datei wurde **nicht** gesynct.
 Diese unter `/assets/php/` mit dem Namen `mysql-con.php` erstellen.
