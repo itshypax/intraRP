@@ -35,10 +35,8 @@
 }
 
 .divi-content textarea {
-  resize: vertical;
-  /* Make the textarea resizable only vertically */
-  max-height: 250px;
-  /* Set the maximum height to 200 pixels */
+  resize: vertical; /* Make the textarea resizable only vertically */
+  max-height: 250px; /* Set the maximum height to 200 pixels */
   background-color: #fff;
   border-top: none;
   border-left: none;
@@ -164,10 +162,12 @@ body {
 #edivi__container .edivi__box select.form-select option {
   background-color: #191919;
   color: #fff;
-  padding: 10px;
-  /* Add padding to options */
-  margin: 0;
-  /* Remove margins */
+  padding: 10px; /* Add padding to options */
+  margin: 0; /* Remove margins */
+}
+
+#edivi__container .edivi__box input.form-control::-moz-placeholder, #edivi__container .edivi__box textarea.form-control::-moz-placeholder {
+  color: #a2a2a2;
 }
 
 #edivi__container .edivi__box input.form-control::placeholder,
@@ -254,7 +254,7 @@ body {
 
 #edivi__container .edivi__notice.edivi__notice-qm {
   background: #fbf9e4;
-  color: #8a6d3b;
+  color: rgb(138, 109, 59);
 }
 
 #edivi__container .edivi__notice.edivi__notice-qm i {

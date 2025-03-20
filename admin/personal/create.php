@@ -4,6 +4,19 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
 require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 
+if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
+    // Store the current page's URL in a session variable
+    $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
+
+    // Redirect the user to the login page
+    header("Location: /admin/login.php");
+    exit();
+}
+
+if (!$admincheck && !$peredit) {
+    header("Location: /admin/index.php");
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $response = ['success' => false, 'message' => ''];
 

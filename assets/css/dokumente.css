@@ -29,10 +29,8 @@ table.docheader td {
 }
 
 .subtext {
-  display: block;
-  /* Display the sub-version as a block-level element */
-  margin-top: -5px;
-  /* Adjust the margin-top value to eliminate the distance */
+  display: block; /* Display the sub-version as a block-level element */
+  margin-top: -5px; /* Adjust the margin-top value to eliminate the distance */
 }
 
 .firstpage-logos {

@@ -71,7 +71,6 @@
   .mobile-hide {
     display: none !important;
   }
-
   #admin-links {
     min-width: 33% !important;
     width: 33%;
@@ -132,7 +131,6 @@
   #adminnav-new .navbar-nav {
     flex-wrap: wrap;
   }
-
   #adminnav-new .navbar-nav .nav-link {
     margin-bottom: 10px;
   }
