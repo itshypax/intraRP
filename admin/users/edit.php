@@ -39,8 +39,6 @@ if ($rowrole['priority'] <= $_SESSION['role_priority']) {
     header("Location: /admin/users/list.php?message=error-3");
 }
 
-$user_permissions = json_decode($row['permissions'], true) ?? [];
-
 if (isset($_POST['new']) && $_POST['new'] == 1) {
     $id = $_REQUEST['id'];
     $username = $_REQUEST['username'];
