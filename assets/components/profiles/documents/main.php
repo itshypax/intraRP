@@ -31,16 +31,13 @@
         foreach ($dokuresult as $doks) {
             $austdatum = date("d.m.Y", strtotime($doks['ausstellungsdatum']));
             $docart = isset($arten[$doks['type']]) ? $arten[$doks['type']] : '';
-            $path = '';
+            $path = "/assets/functions/docredir.php?docid=" . $doks['docid'];
 
             if ($doks['type'] <= 3) {
-                $path = "/assets/functions/docredir.php?docid=" . $doks['docid'];
                 $bg = "bg-secondary";
             } elseif ($doks['type'] == 5 || $doks['type'] == 6 || $doks['type'] == 7) {
-                $path = "/assets/functions/docredir.php?docid=" . $doks['docid'];
                 $bg = "bg-dark";
             } elseif ($doks['type'] >= 10 && $doks['type'] <= 12) {
-                $path = "/assets/functions/docredir.php?docid=" . $doks['docid'];
                 $bg = "bg-danger";
             }
 
@@ -51,7 +48,6 @@
             echo "<td>" . $doks['docid'] .  "</td>";
             echo "<td>" . $doks['fullname'] . "</td>";
             echo "<td>" . $austdatum . "</td>";
-
             echo "<td>";
             echo "<a href='$path' class='btn btn-sm btn-primary' target='_blank'>Ansehen</a>";
 

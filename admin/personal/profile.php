@@ -74,8 +74,9 @@ if (isset($_POST['new'])) {
         $qualird = $_POST['qualird'];
         $qualifw2 = $_POST['qualifw2'];
         $geschlecht = $_POST['geschlecht'];
+        $zusatzqual = $_POST['zusatzqual'];
 
-        $stmt = $pdo->prepare("SELECT dienstgrad, fullname, gebdatum, charakterid, discordtag, telefonnr, dienstnr, qualird, qualifw2, geschlecht FROM intra_mitarbeiter WHERE id = :id");
+        $stmt = $pdo->prepare("SELECT dienstgrad, fullname, gebdatum, charakterid, discordtag, telefonnr, dienstnr, qualird, qualifw2, geschlecht, zusatz FROM intra_mitarbeiter WHERE id = :id");
         $stmt->execute(['id' => $id]);
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -90,6 +91,7 @@ if (isset($_POST['new'])) {
             $currentQualird = $data['qualird'];
             $currentQualifw = $data['qualifw2'];
             $currentGeschlecht = $data['geschlecht'];
+            $currentZusatzqual = $data['zusatz'];
         } else {
             die("Kein Datensatz gefunden.");
         }
@@ -187,7 +189,8 @@ if (isset($_POST['new'])) {
             $currentDiscordtag != $discordtag ||
             $currentTelefonnr != $telefonnr ||
             $currentDienstnr != $dienstnr ||
-            $currentGeschlecht != $geschlecht
+            $currentGeschlecht != $geschlecht ||
+            $currentZusatzqual != $zusatzqual
         );
 
         if ($dataChanged) {
@@ -198,7 +201,8 @@ if (isset($_POST['new'])) {
                                discordtag = :discordtag, 
                                telefonnr = :telefonnr, 
                                dienstnr = :dienstnr, 
-                               geschlecht = :geschlecht 
+                               geschlecht = :geschlecht,
+                               zusatz = :zusatzqual 
                            WHERE id = :id");
 
             $stmt->execute([
@@ -209,6 +213,7 @@ if (isset($_POST['new'])) {
                 'telefonnr' => $telefonnr,
                 'dienstnr' => $dienstnr,
                 'geschlecht' => $geschlecht,
+                'zusatzqual' => $zusatzqual,
                 'id' => $id
             ]);
 
@@ -481,7 +486,7 @@ if (isset($_POST['new'])) {
                                                 </tr>
                                                 <tr>
                                                     <td class="fw-bold">Discord</td>
-                                                    <td><?= $row['discordtag'] ?></td>
+                                                    <td><?= $row['discordtag'] ?? 'N. hinterlegt' ?></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="fw-bold">Telefonnummer</td>
@@ -490,6 +495,10 @@ if (isset($_POST['new'])) {
                                                 <tr>
                                                     <td class="fw-bold">Dienstnummer</td>
                                                     <td><?= $row['dienstnr'] ?></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Position</td>
+                                                    <td><?= $row['zusatz'] ?? 'Keine' ?></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="fw-bold">Einstellungsdatum</td>
@@ -539,6 +548,10 @@ if (isset($_POST['new'])) {
                                                 <tr>
                                                     <td class="fw-bold">Dienstnummer</td>
                                                     <td><input class="form-control" type="number" name="dienstnr" id="dienstnr" value="<?= $row['dienstnr'] ?>"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Position</td>
+                                                    <td><input class="form-control" type="text" name="zusatzqual" id="zusatzqual" maxlength="255" value="<?= $row['zusatz'] ?>"></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="fw-bold">Einstellungsdatum</td>

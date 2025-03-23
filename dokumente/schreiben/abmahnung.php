@@ -67,7 +67,7 @@ $splitname = explode(" ", $fullname);
 $lastname = end($splitname);
 
 if ($adata['aktenid'] > 0) {
-    $stmt3 = $pdo->prepare("SELECT id, fullname, dienstgrad, qualird, geschlecht FROM intra_mitarbeiter WHERE id = :id");
+    $stmt3 = $pdo->prepare("SELECT id, fullname, dienstgrad, qualird, geschlecht, zusatz FROM intra_mitarbeiter WHERE id = :id");
     $stmt3->execute(['id' => $adata['aktenid']]);
     $rdata = $stmt3->fetch(PDO::FETCH_ASSOC);
     if ($row['aussteller_rang'] != NULL) {
@@ -173,7 +173,8 @@ $own_url = "https://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
                                 <td class="signature"><?= $lastname ?></td>
                             </tr>
                             <tr>
-                                <td><span class="fw-bold"><?= $fullname ?></span><?php if (isset($dginfo[$bfrang]['badge'])) { ?> | <img src="<?= $dginfo[$bfrang]['badge'] ?>" height='12px' width='auto' alt='Dienstgrad' /><?php } ?> <?= $dienstgrad2 ?></td>
+                                <td><span class="fw-bold"><?= $fullname ?></span><?php if (isset($dginfo[$bfrang]['badge'])) { ?><br><img src="<?= $dginfo[$bfrang]['badge'] ?>" height='12px' width='auto' alt='Dienstgrad' /><?php } ?> <?= $dienstgrad2 ?>
+                                    <?= $rdata['zusatz'] !== null ? '<br>' . $rdata['zusatz'] : '' ?></td>
                             </tr>
                         </tbody>
                     </table>
