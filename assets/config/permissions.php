@@ -5,14 +5,33 @@ function retrievePermissionsFromDatabase($userId)
         require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $statement = $pdo->prepare("SELECT permissions FROM intra_users WHERE id = :userId");
-        $statement->execute(['userId' => $userId]);
-        $result = $statement->fetch(PDO::FETCH_ASSOC);
+        $userStmt = $pdo->prepare("SELECT role, full_admin FROM intra_users WHERE id = :userId");
+        $userStmt->execute(['userId' => $userId]);
+        $user = $userStmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($result !== false) {
-            $permissions = json_decode($result['permissions'], true);
-            if ($permissions !== null) {
-                return $permissions;
+        if ($user) {
+            if (!empty($user['full_admin'])) {
+                $_SESSION['role_id'] = '99';
+                $_SESSION['role_name'] = 'Admin+';
+                $_SESSION['role_color'] = 'danger';
+                $_SESSION['role_priority'] = '0';
+                return ['full_admin'];
+            }
+
+            $roleStmt = $pdo->prepare("SELECT permissions, name, color, priority FROM intra_users_roles WHERE id = :roleId");
+            $roleStmt->execute(['roleId' => $user['role']]);
+            $role = $roleStmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($role && isset($role['permissions'])) {
+                $_SESSION['role_id'] = $user['role'];
+                $_SESSION['role_name'] = $role['name'];
+                $_SESSION['role_color'] = $role['color'];
+                $_SESSION['role_priority'] = $role['priority'];
+
+                $permissions = json_decode($role['permissions'], true);
+                if (is_array($permissions)) {
+                    return $permissions;
+                }
             }
         }
     } catch (PDOException $e) {

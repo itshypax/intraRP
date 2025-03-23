@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS `intra_edivi` (
   `last_edit` timestamp NULL DEFAULT NULL,
   `hidden` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2493 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2494 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 -- Daten-Export vom Benutzer nicht ausgewählt
 
@@ -182,6 +182,7 @@ CREATE TABLE IF NOT EXISTS `intra_mitarbeiter` (
   `qualifw` longtext NOT NULL,
   `qualifw2` tinyint(1) NOT NULL DEFAULT 0,
   `qualird` tinyint(1) NOT NULL DEFAULT 0,
+  `zusatz` varchar(255) DEFAULT NULL,
   `fachdienste` longtext NOT NULL,
   `createdate` datetime NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
@@ -226,7 +227,7 @@ CREATE TABLE IF NOT EXISTS `intra_mitarbeiter_dokumente` (
   `profileid` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `docid` (`docid`)
-) ENGINE=InnoDB AUTO_INCREMENT=2281 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2284 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 -- Daten-Export vom Benutzer nicht ausgewählt
 
@@ -254,7 +255,7 @@ CREATE TABLE IF NOT EXISTS `intra_mitarbeiter_log` (
   `datetime` datetime NOT NULL DEFAULT current_timestamp(),
   `paneluser` varchar(255) NOT NULL,
   PRIMARY KEY (`logid`)
-) ENGINE=InnoDB AUTO_INCREMENT=6388 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6398 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 -- Daten-Export vom Benutzer nicht ausgewählt
 
@@ -293,11 +294,24 @@ CREATE TABLE IF NOT EXISTS `intra_users` (
   `fullname` varchar(255) DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `passwort` varchar(255) NOT NULL,
-  `permissions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '[]',
   `aktenid` int(11) DEFAULT NULL,
   `role` int(11) NOT NULL DEFAULT 3,
+  `full_admin` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=113 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=114 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+-- Daten-Export vom Benutzer nicht ausgewählt
+
+-- Exportiere Struktur von Tabelle intradev.intra_users_roles
+CREATE TABLE IF NOT EXISTS `intra_users_roles` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `priority` int(11) NOT NULL DEFAULT 0,
+  `name` varchar(255) NOT NULL,
+  `color` varchar(255) DEFAULT NULL,
+  `permissions` longtext DEFAULT '[]',
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 -- Daten-Export vom Benutzer nicht ausgewählt
 

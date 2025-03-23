@@ -25,8 +25,18 @@ $stmt->bindParam(':id', $_GET['id']);
 $stmt->execute();
 $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
+$roleID = $row['role'];
+
+$stmt2 = $pdo->prepare("SELECT* FROM intra_users_roles WHERE id = :roleID");
+$stmt2->execute(['roleID' => $row['role']]);
+$rowrole = $stmt2->fetch(PDO::FETCH_ASSOC);
+
 if ($row['id'] == $userid) {
     header("Location: /admin/users/list.php?message=error-1");
+}
+
+if ($rowrole['priority'] <= $_SESSION['role_priority']) {
+    header("Location: /admin/users/list.php?message=error-3");
 }
 
 $user_permissions = json_decode($row['permissions'], true) ?? [];
@@ -36,20 +46,19 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
     $username = $_REQUEST['username'];
     $fullname = $_REQUEST['fullname'];
     $aktenid = $_REQUEST['aktenid'];
-    $selected_permissions = $_POST['permissions'];
-    $permissions_json = json_encode($selected_permissions);
+    $role = $_REQUEST['role'];
 
     $sql = "UPDATE intra_users 
         SET fullname = :fullname, 
             aktenid = :aktenid, 
-            permissions = :permissions 
+            role = :role 
         WHERE id = :id";
 
     $stmti = $pdo->prepare($sql);
     $stmti->execute([
         'fullname' => $fullname,
         'aktenid' => $aktenid,
-        'permissions' => $permissions_json,
+        'role' => $role,
         'id' => $id
     ]);
 
@@ -121,44 +130,27 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
                         <div class="row">
                             <div class="col-6 mb-3">
                                 <label for="aktenid" class="form-label fw-bold">Mitarbeiterakten-ID</label>
-                                <input type="number" class="form-control" id="aktenid" name="aktenid" placeholder="" value="<?= $row['aktenid'] ?>">
+                                <input type="number" class="form-control" id="aktenid" name="aktenid" placeholder="" value="<?= $row['aktenid'] ?? NULL ?>">
                             </div>
-                        </div>
-                        <div class="row">
-                            <h5>Berechtigungen</h5>
-                            <div class="col mb-3">
-                                <div class="fw-bold">CIRS</div>
-                                <label><input type="checkbox" name="permissions[]" value="cirs_team" <?php if (in_array('cirs_team', $user_permissions)) echo 'checked'; ?> <?php if (!$cteam && $notadmincheck) echo 'disabled'; ?>> CIRS Team</label><br><br>
-                                <div class="fw-bold">Antragsverwaltung</div>
-                                <label><input type="checkbox" name="permissions[]" value="antraege_view" <?php if (in_array('antraege_view', $user_permissions)) echo 'checked'; ?> <?php if (!$anview && $notadmincheck) echo 'disabled'; ?>> Anträge ansehen</label><br>
-                                <label><input type="checkbox" name="permissions[]" value="antraege_edit" <?php if (in_array('antraege_edit', $user_permissions)) echo 'checked'; ?> <?php if (!$anedit && $notadmincheck) echo 'disabled'; ?>> Anträge bearbeiten</label><br><br>
-                                <div class="fw-bold">eDIVI Verwaltung</div>
-                                <label><input type="checkbox" name="permissions[]" value="edivi_view" <?php if (in_array('edivi_view', $user_permissions)) echo 'checked'; ?> <?php if (!$edview && $notadmincheck) echo 'disabled'; ?>> Protokolle ansehen</label><br>
-                                <label><input type="checkbox" name="permissions[]" value="edivi_edit" <?php if (in_array('edivi_edit', $user_permissions)) echo 'checked'; ?> <?php if (!$ededit && $notadmincheck) echo 'disabled'; ?>> Protokolle prüfen</label>
+                            <div class="col-6 mb-3">
+                                <label for="role" class="form-label fw-bold">Rolle/Gruppe <span class="text-main-color">*</span></label>
+                                <select name="role" id="role" class="form-select" required>
+                                    <?php
+                                    require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+                                    $stmt = $pdo->prepare("SELECT * FROM intra_users_roles WHERE priority > :own_prio");
+                                    $stmt->execute(['own_prio' => $_SESSION['role_priority']]);
+                                    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                                    foreach ($result as $rr) {
+                                        if ($rr['id'] == $roleID) {
+                                            echo "<option value ='{$rr['id']}' selected='selected'>{$rr['name']}</option>";
+                                        } else {
+                                            echo "<option value ='{$rr['id']}'>{$rr['name']}</option>";
+                                        }
+                                    }
+                                    ?>
+                                </select>
                             </div>
-                            <div class="col mb-3">
-                                <div class="fw-bold">Mitarbeiterverwaltung</div>
-                                <label><input type="checkbox" name="permissions[]" value="personal_view" <?php if (in_array('personal_view', $user_permissions)) echo 'checked'; ?> <?php if (!$perview && $notadmincheck) echo 'disabled'; ?>> Mitarbeiter ansehen</label><br>
-                                <label><input type="checkbox" name="permissions[]" value="personal_edit" <?php if (in_array('personal_edit', $user_permissions)) echo 'checked'; ?> <?php if (!$peredit && $notadmincheck) echo 'disabled'; ?>> Mitarbeiter bearbeiten</label><br>
-                                <label><input type="checkbox" name="permissions[]" value="intra_mitarbeiter_dokumente" <?php if (in_array('intra_mitarbeiter_dokumente', $user_permissions)) echo 'checked'; ?> <?php if (!$perdoku && $notadmincheck) echo 'disabled'; ?>> Dokumente verwalten</label><br>
-                                <label><input type="checkbox" name="permissions[]" value="personal_delete" <?php if (in_array('personal_delete', $user_permissions)) echo 'checked'; ?> <?php if (!$perdelete && $notadmincheck) echo 'disabled'; ?>> Mitarbeiter löschen</label><br>
-                                <label><input type="checkbox" name="permissions[]" value="personal_kommentar_delete" <?php if (in_array('personal_kommentar_delete', $user_permissions)) echo 'checked'; ?> <?php if (!$perkomdelete && $notadmincheck) echo 'disabled'; ?>> Notizen löschen</label><br>
-                                <div class="fw-bold">FRS - RD</div>
-                                <label><input type="checkbox" name="permissions[]" value="frs_rd" <?php if (in_array('frs_rd', $user_permissions)) echo 'checked'; ?> <?php if (!$frsrd && $notadmincheck) echo 'disabled'; ?>> FRS Rettungsdienst</label><br>
-                            </div>
-                            <div class="col mb-3">
-                                <div class="fw-bold">Intranet - Admin</div>
-                                <label><input type="checkbox" name="permissions[]" value="admin" <?php if (in_array('admin', $user_permissions)) echo 'checked'; ?> <?php if ($notadmincheck) echo 'disabled'; ?>> Administrator</label><br><br>
-                                <div class="fw-bold">Benutzerverwaltung</div>
-                                <label><input type="checkbox" name="permissions[]" value="users_view" <?php if (in_array('users_view', $user_permissions)) echo 'checked'; ?> <?php if (!$usview && $notadmincheck) echo 'disabled'; ?>> Benutzer ansehen</label><br>
-                                <label><input type="checkbox" name="permissions[]" value="users_edit" <?php if (in_array('users_edit', $user_permissions)) echo 'checked'; ?> <?php if (!$usedit && $notadmincheck) echo 'disabled'; ?>> Benutzer bearbeiten</label><br>
-                                <label><input type="checkbox" name="permissions[]" value="users_create" <?php if (in_array('users_create', $user_permissions)) echo 'checked'; ?> <?php if (!$uscreate && $notadmincheck) echo 'disabled'; ?>> Benutzer erstellen</label><br>
-                                <label><input type="checkbox" name="permissions[]" value="users_delete" <?php if (in_array('users_delete', $user_permissions)) echo 'checked'; ?> <?php if (!$usdelete && $notadmincheck) echo 'disabled'; ?>> Benutzer löschen</label>
-                                <div class="fw-bold">Dateien / Upload</div>
-                                <label><input type="checkbox" name="permissions[]" value="files_upload" <?php if (in_array('files_upload', $user_permissions)) echo 'checked'; ?> <?php if (!$filupload && $notadmincheck) echo 'disabled'; ?>> Dateien hochladen</label><br>
-                                <label><input type="checkbox" name="permissions[]" value="files_log" <?php if (in_array('files_log', $user_permissions)) echo 'checked'; ?> <?php if (!$fillog && $notadmincheck) echo 'disabled'; ?>> Datei-Log ansehen</label><br>
-                            </div>
-                            <div class="col mb-3"></div>
                         </div>
                         <div class="row">
                             <div class="col mb-3 mx-auto">

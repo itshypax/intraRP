@@ -64,7 +64,7 @@
                 <?php } ?>
                 <li class="nav-item dropdown" id="intra-usermenu">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <?= $_SESSION['cirs_username'] ?>
+                        <?= $_SESSION['cirs_username'] ?> <span class="badge bg-<?= $_SESSION['role_color'] ?>"><?= $_SESSION['role_name'] ?></span>
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="/admin/users/editprofile.php">Profil bearbeiten</a></li>
