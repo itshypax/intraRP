@@ -284,7 +284,10 @@ if (isset($_POST['new'])) {
         $profileid = $_POST['profileid'];
         $docType = $_POST['docType'];
         $anrede = $_POST['anrede'];
-        $ausstellungsdatum = date('Y-m-d', strtotime($_POST['ausstellungsdatum_' . $docType] ?? $_POST['ausstellungsdatum_0']));
+
+        $ausstDtNr = in_array($docType, ['10', '11', '12', '13']) ? '10' : $docType;
+
+        $ausstellungsdatum = date('Y-m-d', strtotime($_POST['ausstellungsdatum_' . $ausstDtNr] ?? $_POST['ausstellungsdatum_0']));
 
         do {
             $random_number = mt_rand(1000000, 9999999);
