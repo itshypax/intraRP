@@ -258,6 +258,19 @@ if (isset($_POST['new'])) {
 
         header('Location: ' . $_SERVER['REQUEST_URI']);
         exit;
+    } elseif ($_POST['new'] == 5) {
+        $logContent = $_POST['content'];
+        $logType = $_POST['noteType'];
+        $logStmt2 = $pdo->prepare("INSERT INTO intra_mitarbeiter_log (profilid, type, content, paneluser) VALUES (:id, :logType, :content, :paneluser)");
+        $logStmt2->execute([
+            'id' => $openedID,
+            'logType' => $logType,
+            'content' => $logContent,
+            'paneluser' => $edituser
+        ]);
+
+        header('Location: ' . $_SERVER['REQUEST_URI']);
+        exit;
     } elseif ($_POST['new'] == 6) {
         $erhalter = $_POST['erhalter'];
         $inhalt = $_POST['inhalt'] ?? NULL;
