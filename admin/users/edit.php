@@ -112,9 +112,6 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
                     <form name="form" method="post" action="">
                         <input type="hidden" name="new" value="1" />
                         <input name="id" type="hidden" value="<?= $row['id'] ?>" />
-                        <?php if (in_array('full_admin', $user_permissions)) { ?>
-                            <input type="hidden" name="permissions[]" value="full_admin">
-                        <?php } ?>
                         <div class="row">
                             <div class="col mb-3">
                                 <label for="username" class="form-label fw-bold">Benutzername <span class="text-main-color">*</span></label>
