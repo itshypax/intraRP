@@ -5,13 +5,7 @@
     </div>
     <?php
     if (isset($_SESSION['userid']) && isset($_SESSION['permissions'])) {
-        if (!$fadmin && !$admin && !$anview) {
-    ?>
-            <div class="cirs-login">
-                <a href="https://<?php echo SERVER_NAME ?>.eu/imprint/" class="text-decoration-none">Impressum</a>
-                <a href="https://<?php echo SERVER_NAME ?>.eu/datenschutzerklaerung/" class="text-decoration-none">Datenschutz</a>
-            </div>
-        <?php } else { ?>
+        if ($fadmin || $admin || $anview) { ?>
             <hr class="my-3">
             <h6>Verwaltung</h6>
             <div class="cirs-link mb-2">
