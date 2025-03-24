@@ -26,6 +26,7 @@ Das Projekt wird hobbymäßig weiterentwickelt und ist für jegliche Unterstütz
 ### Benutzte Assets
 
 - [Line Awesome](https://icons8.com/line-awesome) von [Icons8](https://icons8.com/)
+- [CKEditor5](https://ckeditor.com/)
 
 > [!CAUTION]
 > Es handelte sich hierbei um ein **Hobbyprojekt**! Es ist dementsprechend eine Lernerfahrung mit stetigen Anpassungen gewesen. Das System ist sicherlich keinesfalls fehlerfrei oder sicher vor Angriffen.

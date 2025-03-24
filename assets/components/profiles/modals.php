@@ -406,14 +406,15 @@
             }
         });
     </script>
-    <script src="/assets/redactorx/redactorx.min.js"></script>
-    <script>
-        RedactorX('#inhalt', {
-            editor: {
-                minHeight: '200px'
-            },
-            format: ['p', 'ul', 'ol']
-        });
-    </script>
+    <script type="importmap">
+        {
+			"imports": {
+				"ckeditor5": "/assets/_ext/ckeditor5/ckeditor5.js",
+				"ckeditor5/": "/assets/_ext/ckeditor5/"
+			}
+		}
+		</script>
+    <script src="/assets/_ext/ckeditor5/ckeditor5.js"></script>
+    <script type="module" src="/assets/js/ckmain.js"></script>
 <?php } ?>
 <!-- MODAL ENDE -->

@@ -122,3 +122,8 @@
 .rx-editor {
   color: black;
 }
+
+#inhalt,
+.ck-editor {
+  color: #000;
+}

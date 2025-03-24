@@ -354,7 +354,7 @@ if (isset($_POST['new'])) {
     <link rel="stylesheet" href="/assets/css/personal.min.css" />
     <link rel="stylesheet" href="/assets/_ext/lineawesome/css/line-awesome.min.css" />
     <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
-    <link rel="stylesheet" href="/assets/redactorx/redactorx.min.css" />
+    <link rel="stylesheet" href="/assets/_ext/ckeditor5/ckeditor5.css" />
     <!-- Bootstrap -->
     <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
     <script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
