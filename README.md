@@ -23,9 +23,9 @@ Das Projekt wird hobbymäßig weiterentwickelt und ist für jegliche Unterstütz
   - [Mitarbeiterverwaltung (für Mitarbeiter-Akten)](https://github.com/itshypax/intraRP/wiki/%C3%9Cbersicht-aller-Berechtigungen#mitarbeiterverwaltung-f%C3%BCr-mitarbeiter-akten)
   - [Datei-Upload](https://github.com/itshypax/intraRP/wiki/%C3%9Cbersicht-aller-Berechtigungen#datei-upload)
 
-> [!CAUTION]
-> Es handelte sich hierbei um ein **Hobbyprojekt**! Es ist dementsprechend eine Lernerfahrung mit stetigen Anpassungen gewesen. Das System ist sicherlich keinesfalls fehlerfrei oder sicher vor Angriffen.
-
 ### Benutze Assets
 
 - [Line Awesome](https://icons8.com/line-awesome) von [Icons8](https://icons8.com/)
+
+> [!CAUTION]
+> Es handelte sich hierbei um ein **Hobbyprojekt**! Es ist dementsprechend eine Lernerfahrung mit stetigen Anpassungen gewesen. Das System ist sicherlich keinesfalls fehlerfrei oder sicher vor Angriffen.
