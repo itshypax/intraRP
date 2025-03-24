@@ -10,6 +10,7 @@ Das Projekt wird hobbymäßig weiterentwickelt und ist für jegliche Unterstütz
 - [Setup ‐ intraRP aufsetzen & einrichten](https://github.com/itshypax/intraRP/wiki/Setup-%E2%80%90-intraRP-aufsetzen-&-einrichten)
    - [Was wird benötigt?](https://github.com/itshypax/intraRP/wiki/Setup-%E2%80%90-intraRP-aufsetzen-&-einrichten#was-wird-ben%C3%B6tigt)
    - [intraRP aufsetzen](https://github.com/itshypax/intraRP/wiki/Setup-%E2%80%90-intraRP-aufsetzen-&-einrichten#intrarp-aufsetzen)
+   - [Weitere Anpassung](https://github.com/itshypax/intraRP/wiki/Setup-%E2%80%90-intraRP-aufsetzen-&-einrichten#weitere-anpassung)
    - [Weitere Fragen?](https://github.com/itshypax/intraRP/wiki/Setup-%E2%80%90-intraRP-aufsetzen-&-einrichten#weitere-fragen)
 - [Übersicht aller Berechtigungen](https://github.com/itshypax/intraRP/wiki/%C3%9Cbersicht-aller-Berechtigungen)
    - [Administration](https://github.com/itshypax/intraRP/wiki/%C3%9Cbersicht-aller-Berechtigungen#administration)
@@ -21,10 +22,3 @@ Das Projekt wird hobbymäßig weiterentwickelt und ist für jegliche Unterstütz
 
 > [!CAUTION]
 > Es handelte sich hierbei um ein **Hobbyprojekt**! Es ist dementsprechend eine Lernerfahrung mit stetigen Anpassungen gewesen. Das System ist sicherlich keinesfalls fehlerfrei oder sicher vor Angriffen.
-
-#### --- OLD ---
-
-Hiernach müsste eine passende DB erstellt werden. Die zugehörige Struktur ist als Datei beigefügt.
-Der erste (initiale) Benutzer muss in der DB (Tabelle `cirs_users`) angelegt werden. Das Passwort wird **nicht** als Klartext gespeichert. Um ein gehashtes Passwort zu generieren habe ich den Generator von [Bcrypt](https://bcrypt.online/) verwendet. Außerdem benötigt der Benutzer die Berechtigung (in der Zeile `permissions`) `["full_admin"]` - sonst besteht kein ausreichender Zugriff auf das System.
-
-[Favicon generator](https://realfavicongenerator.net/)
