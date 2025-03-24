@@ -71,20 +71,8 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
     </div>
     <footer>
         <div class="footerCopyright">
-            <a href="https://hypax.wtf" target="_blank"><i class="fa-solid fa-code"></i> hypax</a>
-            <span>© 2023-<?php echo date("Y"); ?> | Version <?php echo SYSTEM_VERSION ?></span>
-        </div>
-        <div class="footerLegal">
-            <span>
-                <a href="https://<?php echo SERVER_NAME ?>.eu/app/imprint/">
-                    Impressum
-                </a>
-            </span>
-            <span>
-                <a href="https://<?php echo SERVER_NAME ?>.eu/app/datenschutzerklaerung/">
-                    Datenschutzerklärung
-                </a>
-            </span>
+            <a href="https://hypax.wtf" target="_blank"><i class="las la-code"></i> hypax</a>
+            <span>© 2023-<?php echo date("Y"); ?> intraRP | Version <?php echo SYSTEM_VERSION ?></span>
         </div>
     </footer>
 </body>

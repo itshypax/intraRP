@@ -1,3 +1,4 @@
+@charset "UTF-8";
 .ma-basedata,
 .ma-comments,
 .ma-documents {
@@ -41,11 +42,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: "Font Awesome 6 Pro";
+  font-family: "Line Awesome Free";
 }
 
 .comment.note::after {
-  content: "\f249";
+  content: "";
   background-color: #acadb0;
 }
 
@@ -53,7 +54,7 @@
   background-color: #b7d0b3;
 }
 .comment.positive::after {
-  content: "\f560";
+  content: "";
   background-color: #7fb257;
 }
 
@@ -69,7 +70,7 @@
   background-color: #b4ddf9;
 }
 .comment.rank::after {
-  content: "\f0e7";
+  content: "";
   background-color: #55b3f1;
 }
 
@@ -77,7 +78,7 @@
   background-color: #fed69a;
 }
 .comment.modify::after {
-  content: "\f6e3";
+  content: "";
   background-color: #fdad35;
 }
 
@@ -85,7 +86,7 @@
   background-color: #feafea;
 }
 .comment.document::after {
-  content: "\f02d";
+  content: "";
   background-color: #fd49d0;
 }
 
@@ -93,7 +94,7 @@
   background-color: #a4f4f3;
 }
 .comment.created::after {
-  content: "\f055";
+  content: "";
   background-color: #14a3a1;
 }
 

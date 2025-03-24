@@ -186,7 +186,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
             <?php if ($ist_freigegeben) : ?>
                 <div class="container-full edivi__notice edivi__notice-freigeber">
                     <div class="row">
-                        <div class="col-1 text-end"><i class="fa-solid fa-info"></i></div>
+                        <div class="col-1 text-end"><i class="las la-info"></i></div>
                         <div class="col">
                             Das Protokoll wurde durch <strong><?= $daten['freigeber_name'] ?></strong> am <strong><?= $daten['last_edit'] ?></strong> Uhr freigegeben. Es kann nicht mehr bearbeitet werden.
                         </div>

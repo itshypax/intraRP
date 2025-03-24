@@ -64,7 +64,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                             <input name="file" type="file" multiple />
                         </div>
                         <div class="dz-message">
-                            <i class="fa-solid fa-upload"></i>
+                            <i class="las la-cloud-upload-alt"></i>
                             <span>Nutze Drag und Drop oder klicke hier um etwas hochzuladen.</span>
                         </div>
                     </form>

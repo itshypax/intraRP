@@ -88,7 +88,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                 echo "<td>" . $preview . "</td>";
                                 echo "<td>" . $row['user_name'] . " / " . $date . "</td>";
                                 echo "<td>" . $row['file_name'] . "</td>";
-                                echo "<td><a title='https://<?php echo SYSTEM_URL ?>/assets/upload/" . $row['file_name'] . "' href='/assets/upload/" . $row['file_name'] . "' class='btn btn-sm btn-primary'><i class='fa-solid fa-link'></i></a></td>";
+                                echo "<td><a title='https://<?php echo SYSTEM_URL ?>/assets/upload/" . $row['file_name'] . "' href='/assets/upload/" . $row['file_name'] . "' class='btn btn-sm btn-primary'><i class='las la-link'></i></a></td>";
                                 echo "</tr>";
                             }
                             ?>

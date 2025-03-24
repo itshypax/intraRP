@@ -85,7 +85,7 @@ $prot_url = "https://" . SYSTEM_URL . "/admin/edivi/view.php?id=" . $row['id'];
                             if ($log_row['log_aktion'] == 0) {
                     ?>
                                 <div class='row edivi__box edivi__log-comment'>
-                                    <div class="col-1 d-flex justify-content-center align-items-center"><i class="fa-solid fa-info"></i></div>
+                                    <div class="col-1 d-flex justify-content-center align-items-center"><i class="las la-info"></i></div>
                                     <div class='col'>
                                         <small style="opacity:.6" class='mb-0'><b><?= $log_row['bearbeiter'] ?></b> | <?= $log_row['timestamp'] ?></small>
                                         <p class='mb-0'><?= $log_row['kommentar'] ?></p>

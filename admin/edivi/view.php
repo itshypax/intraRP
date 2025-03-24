@@ -101,7 +101,7 @@ $prot_url = "https://" . SYSTEM_URL . "/admin/edivi/view.php?id=" . $row['id'];
             <?php if ($ist_freigegeben) : ?>
                 <div class="container-full mb-2 edivi__notice edivi__notice-freigeber">
                     <div class="row">
-                        <div class="col-1 text-end"><i class="fa-solid fa-info"></i></div>
+                        <div class="col-1 text-end"><i class="las la-info"></i></div>
                         <div class="col">
                             Das Protokoll wurde durch <strong><?= $row['freigeber_name'] ?></strong> am <strong><?= $row['last_edit'] ?></strong> Uhr freigegeben. Es kann nicht mehr bearbeitet werden.
                         </div>
@@ -119,7 +119,7 @@ $prot_url = "https://" . SYSTEM_URL . "/admin/edivi/view.php?id=" . $row['id'];
             <?php else : ?>
                 <div class="container-full mb-2 edivi__notice edivi__notice-freigeber">
                     <div class="row">
-                        <div class="col-1 text-end"><i class="fa-solid fa-info"></i></div>
+                        <div class="col-1 text-end"><i class="las la-info"></i></div>
                         <div class="col">
                             Das Protokoll wurde <u>noch nicht</u> freigegben! Es kann noch bearbeitet und geändert werden!
                         </div>
@@ -131,17 +131,6 @@ $prot_url = "https://" . SYSTEM_URL . "/admin/edivi/view.php?id=" . $row['id'];
                             <?php elseif ($row['protokoll_status'] == 3) : ?>
                                 <div class="badge bg-danger" style="line-height: var(--bs-body-line-height); border-radius: 0;">Ungenügend</div>
                             <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-            <?php endif; ?>
-            <?php if ($row['qmkommentar'] != NULL) : ?>
-                <div class="container-full edivi__notice edivi__notice-qm">
-                    <div class="row">
-                        <div class="col-1 text-end"><i class="fa-solid fa-eye"></i></div>
-                        <div class="col">
-                            <small>QM-Kommentar von <strong><?= $row['bearbeiter'] ?></strong>:</small><br>
-                            <?= $row['qmkommentar'] ?>
                         </div>
                     </div>
                 </div>

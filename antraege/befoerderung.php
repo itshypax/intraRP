@@ -115,7 +115,6 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
                     <div class="mb-3">
                         <textarea class="form-control" id="freitext" name="freitext" rows="5"></textarea>
                     </div>
-                    <!-- <div class="text-danger fw-bold"><i class="fa-solid fa-triangle-exclamation" style="margin-right:10px"></i>Um Bilder zu Meldung hinzuzufügen kann die Upload-Funktion des CIRS verwendet werden: abc.de</div> -->
                     <p><input class="mt-4 btn btn-main-color" name="submit" type="submit" value="Absenden" /></p>
                 </form>
             </div>

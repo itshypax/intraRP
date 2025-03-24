@@ -52,7 +52,7 @@
             echo "<a href='$path' class='btn btn-sm btn-primary' target='_blank'>Ansehen</a>";
 
             if ($adminPermission) {
-                echo " <a href='/admin/personal/dokument-delete.php?id={$doks['docid']}&pid=$openedID' class='btn btn-sm btn-danger'><i class='fa-solid fa-trash'></i></a>";
+                echo " <a href='/admin/personal/dokument-delete.php?id={$doks['docid']}&pid=$openedID' class='btn btn-sm btn-danger'><i class='las la-trash'></i></a>";
             }
 
             echo "</td>";

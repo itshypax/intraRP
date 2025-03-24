@@ -108,7 +108,7 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
             <div class="row">
                 <div class="col mb-5">
                     <hr class="text-light my-3">
-                    <h1 class="mb-3">Benutzer bearbeiten <span class="mx-3"></span> <button class="btn btn-main-color btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-trash fa-sm"></i> Benutzer löschen</button></h1>
+                    <h1 class="mb-3">Benutzer bearbeiten <span class="mx-3"></span> <button class="btn btn-main-color btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="las la-trash"></i> Benutzer löschen</button></h1>
                     <form name="form" method="post" action="">
                         <input type="hidden" name="new" value="1" />
                         <input name="id" type="hidden" value="<?= $row['id'] ?>" />

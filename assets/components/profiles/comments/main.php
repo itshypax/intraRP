@@ -39,9 +39,9 @@ foreach ($comments as $comment) {
 
     echo "<div class='comment $commentType border shadow-sm'>";
     $comtime = date("d.m.Y H:i", strtotime($comment['datetime']));
-    echo "<p>{$comment['content']}<br><small><span><i class='fa-solid fa-user fa-xs'></i> {$comment['paneluser']} <i class='fa-solid fa-clock fa-xs'></i> $comtime";
+    echo "<p>{$comment['content']}<br><small><span><i class='las la-user'></i> {$comment['paneluser']} <i class='las la-clock'></i> $comtime";
     if ($fadmin && $comment['type'] <= 3 || $admin && $comment['type'] <= 3) {
-        echo " / <a href='/admin/personal/comment-delete.php?id={$comment['logid']}&pid={$comment['profilid']}'><i class='fa-solid fa-trash-can fa-xs' style='color:red;margin-left:5px'></i></a></span></small></p>";
+        echo " / <a href='/admin/personal/comment-delete.php?id={$comment['logid']}&pid={$comment['profilid']}'><i class='las la-trash' style='color:red;margin-left:5px'></i></a></span></small></p>";
     } else {
         echo "</span></small></p>";
     }

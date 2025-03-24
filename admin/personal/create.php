@@ -128,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="col p-3 shadow-sm border ma-basedata">
                             <form id="profil" method="post" novalidate>
                                 <a href="#" class="btn btn-success btn-sm" id="personal-save">
-                                    <i class="fa-solid fa-floppy-disk"></i> Speichern / Benutzer erstellen
+                                    <i class="las la-save"></i> Speichern / Benutzer erstellen
                                 </a>
                                 <?php
                                 // Function to remove the 'edit' parameter from the URL
@@ -144,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 }
                                 ?>
                                 <div class="w-100 text-center">
-                                    <i class="fa-solid fa-circle-user" style="font-size:94px"></i>
+                                    <i class="las la-user-circle" style="font-size:94px"></i>
                                     <?php
                                     require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
                                     $stmt = $pdo->prepare("SELECT id,name,priority FROM intra_mitarbeiter_dienstgrade WHERE archive = 0 ORDER BY priority ASC");

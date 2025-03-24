@@ -105,8 +105,8 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
                                 <label for="password" class="form-label fw-bold">Passwort <span class="text-main-color">*</span></label>
                                 <div class="input-group">
                                     <input type="password" class="form-control" id="password" name="password" placeholder="" required>
-                                    <button title="Passwort anzeigen" class="btn btn-outline-warning" type="button" id="show-password-btn"><i class="fa-solid fa-eye"></i></button>
-                                    <button title="Passwort generieren" class="btn btn-outline-primary" type="button" id="generate-password-btn"><i class="fa-solid fa-shuffle"></i></button>
+                                    <button title="Passwort anzeigen" class="btn btn-outline-warning" type="button" id="show-password-btn"><i class="las la-eye"></i></button>
+                                    <button title="Passwort generieren" class="btn btn-outline-primary" type="button" id="generate-password-btn"><i class="las la-random"></i></button>
                                 </div>
                             </div>
                         </div>

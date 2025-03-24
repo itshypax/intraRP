@@ -160,7 +160,7 @@ $prot_url = "https://" . SYSTEM_URL . "/admin/edivi/view.php?id=" . $row['id'];
                             <div class="row mt-3">
                                 <div class="col-3 fw-bold">Protokoll teilen</div>
                                 <div class="col">
-                                    <a href='https://<?php echo SYSTEM_URL ?>/edivi/<?= $row['enr'] ?>' class='copy-link' style='text-decoration:none'>https://<?php echo SYSTEM_URL ?>/edivi/<?= $row['enr'] ?> <i class='fa-solid fa-copy fa-2xs'></i></a>
+                                    <a href='https://<?php echo SYSTEM_URL ?>/edivi/<?= $row['enr'] ?>' class='copy-link' style='text-decoration:none'>https://<?php echo SYSTEM_URL ?>/edivi/<?= $row['enr'] ?> <i class="las la-copy"></i></a>
                                 </div>
                             </div>
                             <div class=" row mt-5 mb-4">
