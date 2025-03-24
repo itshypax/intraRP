@@ -62,7 +62,7 @@
   background-color: #e2a2a7;
 }
 .comment.negative::after {
-  content: "X";
+  content: "";
   background-color: #ce646d;
 }
 
