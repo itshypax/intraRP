@@ -227,7 +227,7 @@ CREATE TABLE IF NOT EXISTS `intra_mitarbeiter_dokumente` (
   `profileid` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `docid` (`docid`)
-) ENGINE=InnoDB AUTO_INCREMENT=2284 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2286 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 -- Daten-Export vom Benutzer nicht ausgewählt
 
@@ -255,7 +255,7 @@ CREATE TABLE IF NOT EXISTS `intra_mitarbeiter_log` (
   `datetime` datetime NOT NULL DEFAULT current_timestamp(),
   `paneluser` varchar(255) NOT NULL,
   PRIMARY KEY (`logid`)
-) ENGINE=InnoDB AUTO_INCREMENT=6398 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6400 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 -- Daten-Export vom Benutzer nicht ausgewählt
 
@@ -295,10 +295,10 @@ CREATE TABLE IF NOT EXISTS `intra_users` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `passwort` varchar(255) NOT NULL,
   `aktenid` int(11) DEFAULT NULL,
-  `role` int(11) NOT NULL DEFAULT 3,
+  `role` int(11) NOT NULL DEFAULT 0,
   `full_admin` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=114 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=115 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 -- Daten-Export vom Benutzer nicht ausgewählt
 
