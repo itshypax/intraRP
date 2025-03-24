@@ -60,8 +60,6 @@ $fadmin = checkPermission('full_admin');
 $admin = checkPermission('admin');
 $admincheck = $fadmin || $admin;
 $notadmincheck = !$fadmin && !$admin;
-// CIRS TEAM
-$cteam = checkPermission('cirs_team');
 // ANTRÄGE
 $anview = checkPermission('antraege_view');
 $anedit = checkPermission('antraege_edit');
@@ -82,5 +80,3 @@ $usdelete = checkPermission('users_delete');
 // FILES
 $filupload = checkPermission('files_upload');
 $fillog = checkPermission('files_log');
-// SCHULE
-$frsrd = checkPermission('frs_rd');
