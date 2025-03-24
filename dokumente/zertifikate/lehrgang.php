@@ -147,7 +147,7 @@ $own_url = "https://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/assets/css/style.min.css" />
     <link rel="stylesheet" href="/assets/css/dokumente.min.css" />
-    <link rel="stylesheet" href="/assets/fonts/fontawesome/css/all.min.css" />
+    <link rel="stylesheet" href="/assets/_ext/lineawesome/css/line-awesome.min.css" />
     <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
     <link rel="stylesheet" href="/assets/fonts/freehand/css/all.min.css" />
     <!-- Bootstrap -->

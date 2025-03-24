@@ -71,6 +71,7 @@
   .mobile-hide {
     display: none !important;
   }
+
   #admin-links {
     min-width: 33% !important;
     width: 33%;
@@ -78,9 +79,6 @@
 }
 #intra-nav .nav-link {
   border-bottom-color: transparent;
-}
-#intra-nav .nav-link i {
-  color: var(--main-color);
 }
 #intra-nav .nav-link.active {
   background-color: var(--main-color);
@@ -131,6 +129,7 @@
   #adminnav-new .navbar-nav {
     flex-wrap: wrap;
   }
+
   #adminnav-new .navbar-nav .nav-link {
     margin-bottom: 10px;
   }

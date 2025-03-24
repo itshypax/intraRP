@@ -62,7 +62,7 @@ if (isset($_GET['login'])) {
     <title>Login &rsaquo; <?php echo SYSTEM_NAME ?></title>
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/assets/css/style.min.css" />
-    <link rel="stylesheet" href="/assets/fonts/fontawesome/css/all.min.css" />
+    <link rel="stylesheet" href="/assets/_ext/lineawesome/css/line-awesome.min.css" />
     <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
     <!-- Bootstrap -->
     <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
@@ -111,20 +111,8 @@ if (isset($_GET['login'])) {
     </div>
     <footer>
         <div class="footerCopyright">
-            <a href="https://hypax.wtf" target="_blank"><i class="fa-solid fa-code"></i> hypax</a>
-            <span>© 2023-<?php echo date("Y"); ?> | Version <?php echo SYSTEM_VERSION ?></span>
-        </div>
-        <div class="footerLegal">
-            <span>
-                <a href="https://">
-                    Impressum
-                </a>
-            </span>
-            <span>
-                <a href="https://">
-                    Datenschutzerklärung
-                </a>
-            </span>
+            <a href="https://hypax.wtf" target="_blank"><i class="las la-code"></i> hypax</a>
+            <span>© 2023-<?php echo date("Y"); ?> intraRP | Version <?php echo SYSTEM_VERSION ?></span>
         </div>
     </footer>
 </body>

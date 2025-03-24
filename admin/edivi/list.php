@@ -25,13 +25,13 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/assets/css/style.min.css" />
     <link rel="stylesheet" href="/assets/css/admin.min.css" />
-    <link rel="stylesheet" href="/assets/fonts/fontawesome/css/all.min.css" />
+    <link rel="stylesheet" href="/assets/_ext/lineawesome/css/line-awesome.min.css" />
     <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
     <!-- Bootstrap -->
     <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
     <script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="/assets/jquery/jquery.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+    <script src="/assets/_ext/jquery/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/assets/_ext/datatables/datatables.min.css">
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
@@ -129,8 +129,8 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                 $patname = $row['patname'] ?? "Unbekannt";
 
                                 $actions = ($edview || $admincheck)
-                                    ? "<a title='Protokoll ansehen' href='/admin/edivi/view.php?id={$row['id']}' class='btn btn-sm btn-primary'><i class='fa-solid fa-eye'></i></a> 
-                                        <a title='Protokoll löschen' href='/admin/edivi/delete.php?id={$row['id']}' class='btn btn-sm btn-danger'><i class='fa-solid fa-trash'></i></a>"
+                                    ? "<a title='Protokoll ansehen' href='/admin/edivi/view.php?id={$row['id']}' class='btn btn-sm btn-primary'><i class='las la-eye'></i></a> 
+                                        <a title='Protokoll löschen' href='/admin/edivi/delete.php?id={$row['id']}' class='btn btn-sm btn-danger'><i class='las la-trash'></i></a>"
                                     : "";
 
                                 echo "<tr>";
@@ -150,8 +150,8 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
         </div>
     </div>
 
-    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
+    <script src="/assets/_ext/jquery/jquery.dataTables.min.js"></script>
+    <script src="/assets/_ext/datatables/datatables.min.js"></script>
     <script>
         $(document).ready(function() {
             var table = $('#table-protokoll').DataTable({

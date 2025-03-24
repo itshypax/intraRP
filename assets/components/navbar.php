@@ -6,16 +6,16 @@
         </button>
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul class="navbar-nav">
-                <a class="nav-link" href="/admin/index.php" data-page="dashboard"><i class="fa-solid fa-house" style="margin-right:3px"></i> Dashboard</a>
+                <a class="nav-link" href="/admin/index.php" data-page="dashboard"><i class="las la-home" style="margin-right:3px"></i> Dashboard</a>
                 <!-- Beförderungsanträge -->
                 <?php if ($anview || $admincheck) { ?>
-                    <li class="nav-item"><a href="/admin/antraege/list.php" class="nav-link" data-page="antrag"><i class="fa-solid fa-code-pull-request" style="margin-right:3px"></i> Anträge</a></li>
+                    <li class="nav-item"><a href="/admin/antraege/list.php" class="nav-link" data-page="antrag"><i class="las la-code-branch" style="margin-right:3px"></i> Anträge</a></li>
                 <?php }
                 if ($usview || $admincheck) { ?>
                     <!-- Benutzerverwaltung -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-page="benutzer" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fa-solid fa-user-secret" style="margin-right:3px"></i> intra-Benutzer
+                            <i class="las la-user-secret" style="margin-right:3px"></i> Benutzer
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="/admin/users/list.php">Übersicht</a></li>
@@ -28,7 +28,7 @@
                 if ($perview || $admincheck) { ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-page="mitarbeiter" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fa-solid fa-suitcase" style="margin-right:3px"></i> Personal
+                            <i class="las la-suitcase" style="margin-right:3px"></i> Personal
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="/admin/personal/list.php">Übersicht</a></li>
@@ -40,7 +40,7 @@
                 <?php } ?>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" data-page="edivi" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fa-solid fa-newspaper" style="margin-right:3px"></i> RD Protokolle
+                        <i class="las la-newspaper" style="margin-right:3px"></i> RD Protokolle
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="/edivi/protokoll.php" target="_blank">Neues Protokoll</a></li>
@@ -52,7 +52,7 @@
                 <?php if ($filupload || $admincheck) { ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-page="upload" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fa-solid fa-upload" style="margin-right:3px"></i> Dateien
+                            <i class="las la-upload" style="margin-right:3px"></i> Dateien
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="/admin/upload/index.php">Datei hochladen</a></li>
