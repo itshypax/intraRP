@@ -18,13 +18,20 @@
   border-radius: 5px;
   padding: 10px;
   margin-bottom: 10px;
-  border-radius: 0;
+  border-radius: 8px;
   position: relative;
   overflow: hidden;
 }
 .comment > p {
   margin-bottom: 0;
   max-width: 86%;
+}
+.comment a {
+  text-decoration-style: dotted;
+  color: inherit;
+}
+.comment small {
+  opacity: 0.5;
 }
 
 .comment::after {
@@ -34,6 +41,7 @@
   padding: 5px 15px;
   background-color: var(--main-color);
   color: var(--white);
+  border-radius: 0 8px 8px 0;
   font-weight: 900;
   font-size: 1.7rem;
   height: 100%;

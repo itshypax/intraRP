@@ -59,58 +59,60 @@ if ($notadmincheck && !$anedit) {
                 <div class="col mb-5">
                     <hr class="text-light my-3">
                     <h1 class="mb-5">Antragsübersicht</h1>
-                    <table class="table table-striped" id="table-antrag">
-                        <thead>
-                            <th scope="col">Nr.</th>
-                            <th scope="col">Von</th>
-                            <th scope="col">Status</th>
-                            <th scope="col">Datum</th>
-                            <th scope="col"></th>
-                        </thead>
-                        <tbody>
-                            <?php
-                            require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
-                            $stmt = $pdo->prepare("SELECT * FROM intra_antrag_bef");
-                            $stmt->execute();
-                            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                            if (count($result) > 0) {
-                                foreach ($result as $row) {
-                                    $adddat = date("d.m.Y | H:i", strtotime($row['time_added']));
-                                    $cirs_state = "Unbekannt";
-                                    $bgColor = "";
-                                    switch ($row['cirs_status']) {
-                                        case 0:
-                                            $cirs_state = "In Bearbeitung";
-                                            break;
-                                        case 1:
-                                            $bgColor = "rgba(255,0,0,.05)";
-                                            $cirs_state = "Abgelehnt";
-                                            break;
-                                        case 2:
-                                            $cirs_state = "Aufgeschoben";
-                                            break;
-                                        case 3:
-                                            $bgColor = "rgba(0,255,0,.05)";
-                                            $cirs_state = "Angenommen";
-                                            break;
-                                    }
+                    <div class="intra__tile py-2 px-3">
+                        <table class="table table-striped" id="table-antrag">
+                            <thead>
+                                <th scope="col">Nr.</th>
+                                <th scope="col">Von</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Datum</th>
+                                <th scope="col"></th>
+                            </thead>
+                            <tbody>
+                                <?php
+                                require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+                                $stmt = $pdo->prepare("SELECT * FROM intra_antrag_bef");
+                                $stmt->execute();
+                                $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                if (count($result) > 0) {
+                                    foreach ($result as $row) {
+                                        $adddat = date("d.m.Y | H:i", strtotime($row['time_added']));
+                                        $cirs_state = "Unbekannt";
+                                        $bgColor = "";
+                                        switch ($row['cirs_status']) {
+                                            case 0:
+                                                $cirs_state = "In Bearbeitung";
+                                                break;
+                                            case 1:
+                                                $bgColor = "rgba(255,0,0,.05)";
+                                                $cirs_state = "Abgelehnt";
+                                                break;
+                                            case 2:
+                                                $cirs_state = "Aufgeschoben";
+                                                break;
+                                            case 3:
+                                                $bgColor = "rgba(0,255,0,.05)";
+                                                $cirs_state = "Angenommen";
+                                                break;
+                                        }
 
-                                    echo "<tr";
-                                    if (!empty($bgColor)) {
-                                        echo " style='--bs-table-striped-bg: {$bgColor}; --bs-table-bg: {$bgColor};'";
-                                    }
-                                    echo ">
+                                        echo "<tr";
+                                        if (!empty($bgColor)) {
+                                            echo " style='--bs-table-striped-bg: {$bgColor}; --bs-table-bg: {$bgColor};'";
+                                        }
+                                        echo ">
                                         <td>{$row['uniqueid']}</td>
                                         <td>{$row['name_dn']}</td>
                                         <td>{$cirs_state}</td>
                                         <td><span style='display:none'>{$row['time_added']}</span>{$adddat}</td>
-                                        <td><a class='btn btn-main-color btn-sm' href='/admin/antraege/antrag{$row['uniqueid']}'>Öffnen</a></td>
+                                        <td><a class='btn btn-main-color btn-sm' href='/admin/antraege/view.php?antrag={$row['uniqueid']}'>Öffnen</a></td>
                                     </tr>";
+                                    }
                                 }
-                            }
-                            ?>
-                        </tbody>
-                    </table>
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

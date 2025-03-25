@@ -83,68 +83,70 @@ $rdginfo = $stmtr->fetchAll(PDO::FETCH_UNIQUE);
                             </div>
                         </div>
                     </div>
-                    <table class="table table-striped" id="mitarbeiterTable">
-                        <thead>
-                            <th scope="col">Dienstnummer</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Dienstgrad</th>
-                            <th scope="col">Einstellungsdatum</th>
-                            <th scope="col"></th>
-                        </thead>
-                        <tbody>
-                            <?php
-                            require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+                    <div class="intra__tile py-2 px-3">
+                        <table class="table table-striped" id="mitarbeiterTable">
+                            <thead>
+                                <th scope="col">Dienstnummer</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Dienstgrad</th>
+                                <th scope="col">Einstellungsdatum</th>
+                                <th scope="col"></th>
+                            </thead>
+                            <tbody>
+                                <?php
+                                require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 
-                            $stmta = $pdo->prepare("SELECT id,archive FROM intra_mitarbeiter_dienstgrade WHERE archive = 1");
-                            $stmta->execute();
-                            $stdata = $stmta->fetch();
+                                $stmta = $pdo->prepare("SELECT id,archive FROM intra_mitarbeiter_dienstgrade WHERE archive = 1");
+                                $stmta->execute();
+                                $stdata = $stmta->fetch();
 
-                            if (isset($_GET['archiv'])) {
-                                $listQuery = "SELECT * FROM intra_mitarbeiter WHERE dienstgrad = :dienstgrad ORDER BY einstdatum ASC";
-                                $params = [$stdata['id']];
-                            } else {
-                                $listQuery = "SELECT * FROM intra_mitarbeiter WHERE dienstgrad <> :dienstgrad ORDER BY einstdatum ASC";
-                                $params = [$stdata['id']];
-                            }
-                            $stmt = $pdo->prepare($listQuery);
-                            $stmt->execute($params);
-                            $result = $stmt->fetchAll();
-
-                            foreach ($result as $row) {
-                                $einstellungsdatum = (new DateTime($row['einstdatum']))->format('d.m.Y');
-
-                                $dginfo2 = $dginfo[$row['dienstgrad']];
-                                $rdginfo2 = $rdginfo[$row['qualird']];
-
-                                if ($row['geschlecht'] == 0) {
-                                    $dienstgrad = $dginfo2['name_m'];
-                                    $rdqualtext = $rdginfo2['name_m'];
-                                } elseif ($row['geschlecht'] == 1) {
-                                    $dienstgrad = $dginfo2['name_w'];
-                                    $rdqualtext = $rdginfo2['name_w'];
+                                if (isset($_GET['archiv'])) {
+                                    $listQuery = "SELECT * FROM intra_mitarbeiter WHERE dienstgrad = :dienstgrad ORDER BY einstdatum ASC";
+                                    $params = [$stdata['id']];
                                 } else {
-                                    $dienstgrad = $dginfo2['name'];
-                                    $rdqualtext = $rdginfo2['name'];
+                                    $listQuery = "SELECT * FROM intra_mitarbeiter WHERE dienstgrad <> :dienstgrad ORDER BY einstdatum ASC";
+                                    $params = [$stdata['id']];
                                 }
+                                $stmt = $pdo->prepare($listQuery);
+                                $stmt->execute($params);
+                                $result = $stmt->fetchAll();
 
-                                echo "<tr>";
-                                echo "<td >" . $row['dienstnr'] . "</td>";
-                                echo "<td>" . $row['fullname'] .  "</td>";
-                                echo "<td>";
-                                if ($dginfo2['badge']) {
-                                    echo "<img src='" . $dginfo2['badge'] . "' height='16px' width='auto' style='padding-right:5px' alt='Dienstgrad' />";
+                                foreach ($result as $row) {
+                                    $einstellungsdatum = (new DateTime($row['einstdatum']))->format('d.m.Y');
+
+                                    $dginfo2 = $dginfo[$row['dienstgrad']];
+                                    $rdginfo2 = $rdginfo[$row['qualird']];
+
+                                    if ($row['geschlecht'] == 0) {
+                                        $dienstgrad = $dginfo2['name_m'];
+                                        $rdqualtext = $rdginfo2['name_m'];
+                                    } elseif ($row['geschlecht'] == 1) {
+                                        $dienstgrad = $dginfo2['name_w'];
+                                        $rdqualtext = $rdginfo2['name_w'];
+                                    } else {
+                                        $dienstgrad = $dginfo2['name'];
+                                        $rdqualtext = $rdginfo2['name'];
+                                    }
+
+                                    echo "<tr>";
+                                    echo "<td >" . $row['dienstnr'] . "</td>";
+                                    echo "<td>" . $row['fullname'] .  "</td>";
+                                    echo "<td>";
+                                    if ($dginfo2['badge']) {
+                                        echo "<img src='" . $dginfo2['badge'] . "' height='16px' width='auto' style='padding-right:5px' alt='Dienstgrad' />";
+                                    }
+                                    echo $dienstgrad;
+                                    if (!$rdginfo2['none']) {
+                                        echo " <span class='badge bg-warning' style='color:var(--black)'>" . $rdqualtext . "</span></td>";
+                                    }
+                                    echo "<td><span style='display:none'>" . $row['einstdatum'] . "</span>" . $einstellungsdatum . "</td>";
+                                    echo "<td><a href='/admin/personal/profile.php?id=" . $row['id'] . "' class='btn btn-sm btn-primary'>Ansehen</a></td>";
+                                    echo "</tr>";
                                 }
-                                echo $dienstgrad;
-                                if (!$rdginfo2['none']) {
-                                    echo " <span class='badge bg-warning' style='color:var(--black)'>" . $rdqualtext . "</span></td>";
-                                }
-                                echo "<td><span style='display:none'>" . $row['einstdatum'] . "</span>" . $einstellungsdatum . "</td>";
-                                echo "<td><a href='/admin/personal/profile.php?id=" . $row['id'] . "' class='btn btn-sm btn-primary'>Ansehen</a></td>";
-                                echo "</tr>";
-                            }
-                            ?>
-                        </tbody>
-                    </table>
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

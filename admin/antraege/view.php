@@ -88,45 +88,51 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
                         <input type="hidden" name="new" value="1" />
                         <input type="hidden" name="case_id" value="<?= $row['id'] ?>">
                         <input type="hidden" name="cirs_manger" value="<?= $_SESSION['cirs_user'] ?? "Fehler Fehler" ?>">
-                        <div class="row">
-                            <div class="col mb-3">
-                                <label for="name_dn" class="form-label fw-bold">Name und Dienstnummer <span class="text-main-color">*</span></label>
-                                <input type="text" class="form-control" id="name_dn" name="name_dn" placeholder="" value="<?= $row['name_dn'] ?>" required disabled>
+                        <div class="intra__tile py-2 px-3">
+                            <div class="row">
+                                <div class="col mb-3">
+                                    <label for="name_dn" class="form-label fw-bold">Name und Dienstnummer <span class="text-main-color">*</span></label>
+                                    <input type="text" class="form-control" id="name_dn" name="name_dn" placeholder="" value="<?= $row['name_dn'] ?>" required readonly>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col mb-3">
+                                    <label for="dienstgrad" class="form-label fw-bold">Aktueller Dienstgrad <span class="text-main-color">*</span></label>
+                                    <input type="text" class="form-control" id="dienstgrad" name="dienstgrad" placeholder="" value="<?= $row['dienstgrad'] ?>" required readonly>
+                                </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col mb-3">
-                                <label for="dienstgrad" class="form-label fw-bold">Aktueller Dienstgrad <span class="text-main-color">*</span></label>
-                                <input type="text" class="form-control" id="dienstgrad" name="dienstgrad" placeholder="" value="<?= $row['dienstgrad'] ?>" required disabled>
+                        <hr class="text-light my-3">
+                        <div class="intra__tile py-2 px-3">
+                            <h5>Schriftlicher Antrag</h5>
+                            <div class="mb-3">
+                                <textarea class="form-control" id="freitext" name="freitext" rows="5" readonly><?= $row['freitext'] ?></textarea>
                             </div>
                         </div>
                         <hr class="text-light my-3">
-                        <h5>Schriftlicher Antrag</h5>
-                        <div class="mb-3">
-                            <textarea class="form-control" id="freitext" name="freitext" rows="5" disabled><?= $row['freitext'] ?></textarea>
-                        </div>
-                        <hr class="text-light my-3">
-                        <div class="mb-3">
-                            <?php if ($row['cirs_manager'] != NULL) { ?>
-                                <h5>Antrag bearbeitet von: <?= $row['cirs_manager'] ?></h5>
-                            <?php } else { ?>
-                                <h5>Noch kein Bearbeiter festgelegt.</h5>
-                            <?php } ?>
-                        </div>
-                        <hr class="text-light my-3">
-                        <hr class="text-light my-3">
-                        <h5>Bemerkung durch Bearbeiter</h5>
-                        <div class="mb-3">
-                            <textarea class="form-control" id="cirs_text" name="cirs_text" rows="5"><?= $row['cirs_text'] ?></textarea>
-                        </div>
-                        <h5>Status setzen</h5>
-                        <div class="mb-3">
-                            <select class="form-select" id="cirs_status" name="cirs_status" autocomplete="off">
-                                <option value="0" <?php if ($row['cirs_status'] == "0") echo 'selected'; ?>>in Bearbeitung</option>
-                                <option value="1" <?php if ($row['cirs_status'] == "1") echo 'selected'; ?>>Abgelehnt</option>
-                                <option value="2" <?php if ($row['cirs_status'] == "2") echo 'selected'; ?>>Aufgeschoben</option>
-                                <option value="3" <?php if ($row['cirs_status'] == "3") echo 'selected'; ?>>Angenommen</option>
-                            </select>
+                        <div class="intra__tile py-2 px-3">
+                            <div class="mb-3">
+                                <?php if ($row['cirs_manager'] != NULL) { ?>
+                                    <h5>Antrag bearbeitet von: <?= $row['cirs_manager'] ?></h5>
+                                <?php } else { ?>
+                                    <h5>Noch kein Bearbeiter festgelegt.</h5>
+                                <?php } ?>
+                            </div>
+                            <hr class="text-light my-3">
+                            <hr class="text-light my-3">
+                            <h5>Bemerkung durch Bearbeiter</h5>
+                            <div class="mb-3">
+                                <textarea class="form-control" id="cirs_text" name="cirs_text" rows="5"><?= $row['cirs_text'] ?></textarea>
+                            </div>
+                            <h5>Status setzen</h5>
+                            <div class="mb-3">
+                                <select class="form-select" id="cirs_status" name="cirs_status" autocomplete="off">
+                                    <option value="0" <?php if ($row['cirs_status'] == "0") echo 'selected'; ?>>in Bearbeitung</option>
+                                    <option value="1" <?php if ($row['cirs_status'] == "1") echo 'selected'; ?>>Abgelehnt</option>
+                                    <option value="2" <?php if ($row['cirs_status'] == "2") echo 'selected'; ?>>Aufgeschoben</option>
+                                    <option value="3" <?php if ($row['cirs_status'] == "3") echo 'selected'; ?>>Angenommen</option>
+                                </select>
+                            </div>
                         </div>
                         <p><input class="mt-4 btn btn-main-color" name="submit" type="submit" value="Änderungen speichern" /></p>
                     </form>

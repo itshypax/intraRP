@@ -91,50 +91,52 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
                     <hr class="text-light my-3">
                     <h1>Benutzer anlegen</h1>
                     <form name="form" method="post" action="">
-                        <input type="hidden" name="new" value="1" />
-                        <div class="row">
-                            <div class="col mb-3">
-                                <label for="username" class="form-label fw-bold">Benutzername <span class="text-main-color">*</span></label>
-                                <input type="text" class="form-control" id="username" name="username" placeholder="" required>
+                        <div class="intra__tile py-2 px-3">
+                            <input type="hidden" name="new" value="1" />
+                            <div class="row">
+                                <div class="col mb-3">
+                                    <label for="username" class="form-label fw-bold">Benutzername <span class="text-main-color">*</span></label>
+                                    <input type="text" class="form-control" id="username" name="username" placeholder="" required>
+                                </div>
+                                <div class="col mb-3">
+                                    <label for="fullname" class="form-label fw-bold">Vor- und Zuname <span class="text-main-color">*</span></label>
+                                    <input type="text" class="form-control" id="fullname" name="fullname" placeholder="" required>
+                                </div>
+                                <div class="col mb-3">
+                                    <label for="password" class="form-label fw-bold">Passwort <span class="text-main-color">*</span></label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="password" name="password" placeholder="" required>
+                                        <button title="Passwort anzeigen" class="btn btn-outline-warning" type="button" id="show-password-btn"><i class="las la-eye"></i></button>
+                                        <button title="Passwort generieren" class="btn btn-outline-primary" type="button" id="generate-password-btn"><i class="las la-random"></i></button>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col mb-3">
-                                <label for="fullname" class="form-label fw-bold">Vor- und Zuname <span class="text-main-color">*</span></label>
-                                <input type="text" class="form-control" id="fullname" name="fullname" placeholder="" required>
-                            </div>
-                            <div class="col mb-3">
-                                <label for="password" class="form-label fw-bold">Passwort <span class="text-main-color">*</span></label>
-                                <div class="input-group">
-                                    <input type="password" class="form-control" id="password" name="password" placeholder="" required>
-                                    <button title="Passwort anzeigen" class="btn btn-outline-warning" type="button" id="show-password-btn"><i class="las la-eye"></i></button>
-                                    <button title="Passwort generieren" class="btn btn-outline-primary" type="button" id="generate-password-btn"><i class="las la-random"></i></button>
+                            <div class="row">
+                                <div class="col-4 mb-3">
+                                    <label for="aktenid" class="form-label fw-bold">Mitarbeiterakten-ID</label>
+                                    <input type="text" class="form-control" id="aktenid" name="aktenid" placeholder="">
+                                </div>
+                                <div class="col mb-3">
+                                    <label for="role" class="form-label fw-bold">Rolle/Gruppe <span class="text-main-color">*</span></label>
+                                    <select name="role" id="role" class="form-select" required>
+                                        <option selected hidden disabled>Bitte wählen</option>
+                                        <?php
+                                        require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+                                        $stmt = $pdo->prepare("SELECT * FROM intra_users_roles WHERE priority > :own_prio");
+                                        $stmt->execute(['own_prio' => $_SESSION['role_priority']]);
+                                        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                                        foreach ($result as $rr) {
+                                            echo "<option value ='{$rr['id']}'>{$rr['name']}</option>";
+                                        }
+                                        ?>
+                                    </select>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-4 mb-3">
-                                <label for="aktenid" class="form-label fw-bold">Mitarbeiterakten-ID</label>
-                                <input type="text" class="form-control" id="aktenid" name="aktenid" placeholder="">
-                            </div>
-                            <div class="col mb-3">
-                                <label for="role" class="form-label fw-bold">Rolle/Gruppe <span class="text-main-color">*</span></label>
-                                <select name="role" id="role" class="form-select" required>
-                                    <option selected hidden disabled>Bitte wählen</option>
-                                    <?php
-                                    require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
-                                    $stmt = $pdo->prepare("SELECT * FROM intra_users_roles WHERE priority > :own_prio");
-                                    $stmt->execute(['own_prio' => $_SESSION['role_priority']]);
-                                    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                                    foreach ($result as $rr) {
-                                        echo "<option value ='{$rr['id']}'>{$rr['name']}</option>";
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row">
                             <div class="col mb-3 mx-auto">
-                                <input class="btn btn-outline-success btn-sm" name="submit" type="submit" value="Benutzer anlegen" />
+                                <input class="mt-4 btn btn-success btn-sm" name="submit" type="submit" value="Benutzer anlegen" />
                             </div>
                         </div>
                     </form>

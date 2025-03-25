@@ -178,100 +178,25 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                             </script>
                         </div>
                     </div>
-                    <div class="row mt-4">
-                        <div class="col px-auto intra__tile">
-                            <?php
-                            $stmt = $pdo->prepare("SELECT dienstgrad, COUNT(*) as count FROM intra_mitarbeiter GROUP BY dienstgrad");
-                            $stmt->execute();
-                            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                            $data = [];
-                            $labels = [];
-
-                            $dienstgrade = [
-                                16 => "Ehrenamt",
-                                0 => "Angestellt",
-                                1 => "BMA",
-                                2 => "BM",
-                                3 => "OBM",
-                                4 => "HBM",
-                                5 => "HBMZ",
-                                17 => "BIA",
-                                6 => "BI",
-                                7 => "OBI",
-                                8 => "BAM",
-                                9 => "BAR",
-                                10 => "BOAR",
-                                15 => "BRef",
-                                11 => "BR",
-                                12 => "OBR",
-                                13 => "BD",
-                                14 => "LBD",
-                            ];
-
-                            $temp = [];
-
-                            if (!empty($result)) {
-                                foreach ($result as $row) {
-                                    $temp[$row['dienstgrad']] = $row['count'];
-                                }
-                            }
-
-                            $customOrder = [16, 0, 1, 2, 3, 4, 5, 17, 6, 7, 8, 9, 10, 15, 11, 12, 13, 14];
-
-                            foreach ($customOrder as $rank) {
-                                if (isset($temp[$rank])) {
-                                    $data[] = $temp[$rank];
-                                    $labels[] = $dienstgrade[$rank];
-                                }
-                            }
-                            ?>
-                            <canvas id="rankChart" style="width:100%"></canvas>
-
-                            <script>
-                                var ctx = document.getElementById('rankChart').getContext('2d');
-                                var chart = new Chart(ctx, {
-                                    type: 'bar',
-                                    data: {
-                                        labels: <?php echo json_encode($labels); ?>,
-                                        datasets: [{
-                                            label: 'Mitarbeiter pro Dienstgrad',
-                                            data: <?php echo json_encode($data); ?>,
-                                            backgroundColor: 'rgba(255, 255, 255, .7)', // Example color
-                                            borderWidth: 1
-                                        }]
-                                    },
-                                    options: {
-                                        scales: {
-                                            y: {
-                                                beginAtZero: true,
-                                                precision: 0
-                                            }
-                                        }
-                                    }
-                                });
-                            </script>
-                            <script>
-                                document.addEventListener("DOMContentLoaded", function() {
-                                    const quotes = [
-                                        "Willkommen im Intranet der <?php echo RP_ORGTYPE . " " . SERVER_CITY ?>.",
-                                        "Fun Fact: Die ersten Rettungswagen waren Leichenwagen. Manchmal kamen Bestatter an und mussten feststellen, dass die Person noch gar nicht gestorben war.",
-                                        "Das Schweizer Taschenmesser der <?php echo SERVER_CITY ?>er <?php echo RP_ORGTYPE ?>.",
-                                        "Die <?php echo RP_ORGTYPE . " " . SERVER_CITY ?> - Immer für Sie da.",
-                                        "<?php echo SYSTEM_NAME ?> powered by hypax."
-                                    ];
-
-                                    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-
-                                    document.getElementById("quote-of-the-day").textContent = randomQuote;
-                                });
-                            </script>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const quotes = [
+                "Willkommen im Intranet der <?php echo RP_ORGTYPE . " " . SERVER_CITY ?>.",
+                "Fun Fact: Die ersten Rettungswagen waren Leichenwagen. Manchmal kamen Bestatter an und mussten feststellen, dass die Person noch gar nicht gestorben war.",
+                "Das Schweizer Taschenmesser der <?php echo SERVER_CITY ?>er <?php echo RP_ORGTYPE ?>.",
+                "Die <?php echo RP_ORGTYPE . " " . SERVER_CITY ?> - Immer für Sie da.",
+                "<?php echo SYSTEM_NAME ?> powered by hypax."
+            ];
+
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+
+            document.getElementById("quote-of-the-day").textContent = randomQuote;
+        });
+    </script>
 </body>
 
 </html>

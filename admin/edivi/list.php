@@ -78,73 +78,75 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                             Dazu hast du nicht die richtigen Berechtigungen!
                         </div>
                     <?php } ?>
-                    <table class="table table-striped" id="table-protokoll">
-                        <thead>
-                            <th scope="col">Einsatznummer</th>
-                            <th scope="col">Patient</th>
-                            <th scope="col">Angelegt am</th>
-                            <th scope="col">Protokollant</th>
-                            <th scope="col">Status</th>
-                            <th scope="col"></th>
-                        </thead>
-                        <tbody>
-                            <?php
-                            require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
-                            $stmt = $pdo->prepare("SELECT * FROM intra_edivi WHERE hidden <> 1");
-                            $stmt->execute();
-                            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                            foreach ($result as $row) {
-                                $datetime = new DateTime($row['sendezeit']);
-                                $date = $datetime->format('d.m.Y | H:i');
-                                switch ($row['protokoll_status']) {
-                                    case 0:
-                                        $status = "<span class='badge bg-secondary'>Ungesehen</span>";
-                                        break;
-                                    case 1:
-                                        $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='badge bg-warning'>in Prüfung</span>";
-                                        break;
-                                    case 2:
-                                        $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='badge bg-success'>Geprüft</span>";
-                                        break;
-                                    default:
-                                        $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='badge bg-danger'>Ungenügend</span>";
-                                        break;
-                                }
-
-                                switch ($row['freigegeben']) {
-                                    default:
-                                        $freigabe_status = "";
-                                        break;
-                                    case 1:
-                                        $freigabe_status = "<span title='Freigeber: " . $row['freigeber_name'] . "' class='badge bg-success'>F</span>";
-                                        break;
-                                }
-
-                                if (isset($_GET['view']) && $_GET['view'] == 1) {
-                                    if ($row['protokoll_status'] != 0 && $row['protokoll_status'] != 1) {
-                                        continue;
+                    <div class="intra__tile py-2 px-3">
+                        <table class="table table-striped" id="table-protokoll">
+                            <thead>
+                                <th scope="col">Einsatznummer</th>
+                                <th scope="col">Patient</th>
+                                <th scope="col">Angelegt am</th>
+                                <th scope="col">Protokollant</th>
+                                <th scope="col">Status</th>
+                                <th scope="col"></th>
+                            </thead>
+                            <tbody>
+                                <?php
+                                require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+                                $stmt = $pdo->prepare("SELECT * FROM intra_edivi WHERE hidden <> 1");
+                                $stmt->execute();
+                                $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                foreach ($result as $row) {
+                                    $datetime = new DateTime($row['sendezeit']);
+                                    $date = $datetime->format('d.m.Y | H:i');
+                                    switch ($row['protokoll_status']) {
+                                        case 0:
+                                            $status = "<span class='badge bg-secondary'>Ungesehen</span>";
+                                            break;
+                                        case 1:
+                                            $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='badge bg-warning'>in Prüfung</span>";
+                                            break;
+                                        case 2:
+                                            $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='badge bg-success'>Geprüft</span>";
+                                            break;
+                                        default:
+                                            $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='badge bg-danger'>Ungenügend</span>";
+                                            break;
                                     }
-                                }
 
-                                $patname = $row['patname'] ?? "Unbekannt";
+                                    switch ($row['freigegeben']) {
+                                        default:
+                                            $freigabe_status = "";
+                                            break;
+                                        case 1:
+                                            $freigabe_status = "<span title='Freigeber: " . $row['freigeber_name'] . "' class='badge bg-success'>F</span>";
+                                            break;
+                                    }
 
-                                $actions = ($edview || $admincheck)
-                                    ? "<a title='Protokoll ansehen' href='/admin/edivi/view.php?id={$row['id']}' class='btn btn-sm btn-primary'><i class='las la-eye'></i></a> 
+                                    if (isset($_GET['view']) && $_GET['view'] == 1) {
+                                        if ($row['protokoll_status'] != 0 && $row['protokoll_status'] != 1) {
+                                            continue;
+                                        }
+                                    }
+
+                                    $patname = $row['patname'] ?? "Unbekannt";
+
+                                    $actions = ($edview || $admincheck)
+                                        ? "<a title='Protokoll ansehen' href='/admin/edivi/view.php?id={$row['id']}' class='btn btn-sm btn-primary'><i class='las la-eye'></i></a> 
                                         <a title='Protokoll löschen' href='/admin/edivi/delete.php?id={$row['id']}' class='btn btn-sm btn-danger'><i class='las la-trash'></i></a>"
-                                    : "";
+                                        : "";
 
-                                echo "<tr>";
-                                echo "<td >" . $row['enr'] . "</td>";
-                                echo "<td>" . $patname . "</td>";
-                                echo "<td><span style='display:none'>" . $row['sendezeit'] . "</span>" . $date . "</td>";
-                                echo "<td>" . $row['pfname'] . " " . $freigabe_status . "</td>";
-                                echo "<td>" . $status . "</td>";
-                                echo "<td>{$actions}</td>";
-                                echo "</tr>";
-                            }
-                            ?>
-                        </tbody>
-                    </table>
+                                    echo "<tr>";
+                                    echo "<td >" . $row['enr'] . "</td>";
+                                    echo "<td>" . $patname . "</td>";
+                                    echo "<td><span style='display:none'>" . $row['sendezeit'] . "</span>" . $date . "</td>";
+                                    echo "<td>" . $row['pfname'] . " " . $freigabe_status . "</td>";
+                                    echo "<td>" . $status . "</td>";
+                                    echo "<td>{$actions}</td>";
+                                    echo "</tr>";
+                                }
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

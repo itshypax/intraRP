@@ -60,40 +60,42 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                 <div class="col mb-5">
                     <hr class="text-light my-3">
                     <h1>Datei-Log</h1>
-                    <table class="table table-striped" id="table-uploads">
-                        <thead>
-                            <th scope="col">Upload-ID</th>
-                            <th scope="col">Vorschau</th>
-                            <th scope="col">Hochgeladen von/am</th>
-                            <th scope="col">Dateiname</th>
-                            <th scope="col">Link</th>
-                        </thead>
-                        <tbody>
-                            <?php
-                            require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
-                            $stmt = $pdo->prepare("SELECT * FROM intra_uploads");
-                            $stmt->execute();
-                            $result = $stmt->fetchAll();
-                            foreach ($result as $row) {
-                                $date = (new DateTime($row['upload_time']))->format('d.m.Y H:i');
+                    <div class="intra__tile py-2 px-3">
+                        <table class="table table-striped" id="table-uploads">
+                            <thead>
+                                <th scope="col">Upload-ID</th>
+                                <th scope="col">Vorschau</th>
+                                <th scope="col">Hochgeladen von/am</th>
+                                <th scope="col">Dateiname</th>
+                                <th scope="col">Link</th>
+                            </thead>
+                            <tbody>
+                                <?php
+                                require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+                                $stmt = $pdo->prepare("SELECT * FROM intra_uploads");
+                                $stmt->execute();
+                                $result = $stmt->fetchAll();
+                                foreach ($result as $row) {
+                                    $date = (new DateTime($row['upload_time']))->format('d.m.Y H:i');
 
-                                if (strpos($row['file_type'], 'image') !== false) {
-                                    $preview = "<img src='/assets/upload/" . $row['file_name'] . "' alt='Bild-Vorschau' height='64px' width='64px'>";
-                                } else {
-                                    $preview = "<div>Keine<br>Vorschau</div>";
+                                    if (strpos($row['file_type'], 'image') !== false) {
+                                        $preview = "<img src='/assets/upload/" . $row['file_name'] . "' alt='Bild-Vorschau' height='64px' width='64px'>";
+                                    } else {
+                                        $preview = "<div>Keine<br>Vorschau</div>";
+                                    }
+
+                                    echo "<tr>";
+                                    echo "<td >" . $row['id'] . "</td>";
+                                    echo "<td>" . $preview . "</td>";
+                                    echo "<td>" . $row['user_name'] . " / " . $date . "</td>";
+                                    echo "<td>" . $row['file_name'] . "</td>";
+                                    echo "<td><a title='https://<?php echo SYSTEM_URL ?>/assets/upload/" . $row['file_name'] . "' href='/assets/upload/" . $row['file_name'] . "' class='btn btn-sm btn-primary'><i class='las la-link'></i></a></td>";
+                                    echo "</tr>";
                                 }
-
-                                echo "<tr>";
-                                echo "<td >" . $row['id'] . "</td>";
-                                echo "<td>" . $preview . "</td>";
-                                echo "<td>" . $row['user_name'] . " / " . $date . "</td>";
-                                echo "<td>" . $row['file_name'] . "</td>";
-                                echo "<td><a title='https://<?php echo SYSTEM_URL ?>/assets/upload/" . $row['file_name'] . "' href='/assets/upload/" . $row['file_name'] . "' class='btn btn-sm btn-primary'><i class='las la-link'></i></a></td>";
-                                echo "</tr>";
-                            }
-                            ?>
-                        </tbody>
-                    </table>
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

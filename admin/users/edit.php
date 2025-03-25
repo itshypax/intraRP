@@ -113,43 +113,57 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
                         <input type="hidden" name="new" value="1" />
                         <input name="id" type="hidden" value="<?= $row['id'] ?>" />
                         <div class="row">
-                            <div class="col mb-3">
-                                <label for="username" class="form-label fw-bold">Benutzername <span class="text-main-color">*</span></label>
-                                <input type="text" class="form-control" id="username" name="username" placeholder="" value="<?= $row['username'] ?>" required>
+                            <div class="col me-2">
+                                <div class="intra__tile py-2 px-3">
+                                    <div class="row">
+                                        <div class="col mb-3">
+                                            <label for="username" class="form-label fw-bold">Benutzername <span class="text-main-color">*</span></label>
+                                            <input type="text" class="form-control" id="username" name="username" placeholder="" value="<?= $row['username'] ?>" required>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col mb-3">
+                                            <label for="fullname" class="form-label fw-bold">Vor- und Zuname <span class="text-main-color">*</span></label>
+                                            <input type="text" class="form-control" id="fullname" name="fullname" placeholder="" value="<?= $row['fullname'] ?>" required>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col mb-3">
-                                <label for="fullname" class="form-label fw-bold">Vor- und Zuname <span class="text-main-color">*</span></label>
-                                <input type="text" class="form-control" id="fullname" name="fullname" placeholder="" value="<?= $row['fullname'] ?>" required>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-6 mb-3">
-                                <label for="aktenid" class="form-label fw-bold">Mitarbeiterakten-ID</label>
-                                <input type="number" class="form-control" id="aktenid" name="aktenid" placeholder="" value="<?= $row['aktenid'] ?? NULL ?>">
-                            </div>
-                            <div class="col-6 mb-3">
-                                <label for="role" class="form-label fw-bold">Rolle/Gruppe <span class="text-main-color">*</span></label>
-                                <select name="role" id="role" class="form-select" required>
-                                    <?php
-                                    require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
-                                    $stmt = $pdo->prepare("SELECT * FROM intra_users_roles WHERE priority > :own_prio");
-                                    $stmt->execute(['own_prio' => $_SESSION['role_priority']]);
-                                    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                            <div class="col">
+                                <div class="intra__tile py-2 px-3">
+                                    <div class="row">
+                                        <div class="col mb-3">
+                                            <label for="aktenid" class="form-label fw-bold">Mitarbeiterakten-ID</label>
+                                            <input type="number" class="form-control" id="aktenid" name="aktenid" placeholder="" value="<?= $row['aktenid'] ?? NULL ?>">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col mb-3">
+                                            <label for="role" class="form-label fw-bold">Rolle/Gruppe <span class="text-main-color">*</span></label>
+                                            <select name="role" id="role" class="form-select" required>
+                                                <?php
+                                                require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+                                                $stmt = $pdo->prepare("SELECT * FROM intra_users_roles WHERE priority > :own_prio");
+                                                $stmt->execute(['own_prio' => $_SESSION['role_priority']]);
+                                                $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                                    foreach ($result as $rr) {
-                                        if ($rr['id'] == $roleID) {
-                                            echo "<option value ='{$rr['id']}' selected='selected'>{$rr['name']}</option>";
-                                        } else {
-                                            echo "<option value ='{$rr['id']}'>{$rr['name']}</option>";
-                                        }
-                                    }
-                                    ?>
-                                </select>
+                                                foreach ($result as $rr) {
+                                                    if ($rr['id'] == $roleID) {
+                                                        echo "<option value ='{$rr['id']}' selected='selected'>{$rr['name']}</option>";
+                                                    } else {
+                                                        echo "<option value ='{$rr['id']}'>{$rr['name']}</option>";
+                                                    }
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col mb-3 mx-auto">
-                                <input class="btn btn-outline-success btn-sm" name="submit" type="submit" value="Änderungen speichern" />
+                                <input class="mt-4 btn btn-success btn-sm" name="submit" type="submit" value="Änderungen speichern" />
                             </div>
                         </div>
                     </form>

@@ -105,27 +105,29 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
                     <hr class="text-light my-3">
                     <h1 class="mb-3">Eigene Daten bearbeiten</h1>
                     <form name="form" method="post" action="">
-                        <input type="hidden" name="new" value="1" />
-                        <input name="id" type="hidden" value="<?= $row['id'] ?>" />
-                        <div class="row">
-                            <div class="col-6 mb-3">
-                                <label for="aktenid" class="form-label fw-bold">Mitarbeiterakten-ID</label>
-                                <input type="number" class="form-control" id="aktenid" name="aktenid" placeholder="" value="<?= $row['aktenid'] ?>">
+                        <div class="intra__tile py-2 px-3">
+                            <input type="hidden" name="new" value="1" />
+                            <input name="id" type="hidden" value="<?= $row['id'] ?>" />
+                            <div class="row">
+                                <div class="col-6 mb-3">
+                                    <label for="aktenid" class="form-label fw-bold">Mitarbeiterakten-ID</label>
+                                    <input type="number" class="form-control" id="aktenid" name="aktenid" placeholder="" value="<?= $row['aktenid'] ?>">
+                                </div>
                             </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-6 mb-3">
-                                <label for="passwort" class="form-label fw-bold">Neues Passwort</label>
-                                <input type="password" class="form-control" id="passwort" name="passwort" placeholder="Leer lassen um nichts zu ändern">
-                            </div>
-                            <div class="col-6 mb-3">
-                                <label for="passwort2" class="form-label fw-bold">Passwort wiederholen</label>
-                                <input type="password" class="form-control" id="passwort2" name="passwort2" placeholder="Passwort wiederholen">
+                            <div class="row mt-3">
+                                <div class="col-6 mb-3">
+                                    <label for="passwort" class="form-label fw-bold">Neues Passwort</label>
+                                    <input type="password" class="form-control" id="passwort" name="passwort" placeholder="Leer lassen um nichts zu ändern">
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <label for="passwort2" class="form-label fw-bold">Passwort wiederholen</label>
+                                    <input type="password" class="form-control" id="passwort2" name="passwort2" placeholder="Passwort wiederholen">
+                                </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col mb-3 mx-auto">
-                                <input class="btn btn-outline-success btn-sm" name="submit" type="submit" value="Änderungen speichern" />
+                                <input class="mt-4 btn btn-success btn-sm" name="submit" type="submit" value="Änderungen speichern" />
                             </div>
                         </div>
                     </form>

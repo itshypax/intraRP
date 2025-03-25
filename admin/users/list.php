@@ -76,54 +76,56 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                             Du kannst keine Benutzer mit den Selben oder höheren Berechtigungen bearbeiten!
                         </div>
                     <?php } ?>
-                    <table class="table table-striped" id="userTable">
-                        <thead>
-                            <th scope="col">UID</th>
-                            <th scope="col">Name (Benutzername)</th>
-                            <th scope="col">Rolle/Gruppe</th>
-                            <th scope="col">Angelegt am</th>
-                            <th scope="col"></th>
-                        </thead>
-                        <tbody>
-                            <?php
-                            require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
-                            $stmt = $pdo->prepare("SELECT * FROM intra_users");
-                            $stmt->execute();
-                            $result = $stmt->fetchAll();
+                    <div class="intra__tile py-2 px-3">
+                        <table class="table table-striped" id="userTable">
+                            <thead>
+                                <th scope="col">UID</th>
+                                <th scope="col">Name (Benutzername)</th>
+                                <th scope="col">Rolle/Gruppe</th>
+                                <th scope="col">Angelegt am</th>
+                                <th scope="col"></th>
+                            </thead>
+                            <tbody>
+                                <?php
+                                require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+                                $stmt = $pdo->prepare("SELECT * FROM intra_users");
+                                $stmt->execute();
+                                $result = $stmt->fetchAll();
 
-                            $stmt2 = $pdo->prepare("SELECT * FROM intra_users_roles");
-                            $stmt2->execute();
-                            $result2 = $stmt2->fetchAll(PDO::FETCH_UNIQUE);
-                            foreach ($result as $row) {
+                                $stmt2 = $pdo->prepare("SELECT * FROM intra_users_roles");
+                                $stmt2->execute();
+                                $result2 = $stmt2->fetchAll(PDO::FETCH_UNIQUE);
+                                foreach ($result as $row) {
 
-                                if ($row['full_admin'] == 1) {
-                                    $role_color = "danger";
-                                    $role_name = "Admin+";
-                                } else {
-                                    $role_color = $result2[$row['role']]['color'];
-                                    $role_name = $result2[$row['role']]['name'];
-                                }
-
-                                $date = (new DateTime($row['created_at']))->format('d.m.Y | H:i');
-                                echo "<tr>";
-                                echo "<td >" . $row['id'] . "</td>";
-                                echo "<td>" . $row['fullname'] .  " (<strong>" . $row['username'] . "</strong>)</td>";
-                                echo "<td><span class='badge bg-" . $role_color . "'>" . $role_name . "</span></td>";
-                                echo "<td><span style='display:none'>" . $row['created_at'] . "</span>" . $date . "</td>";
-                                if ($usedit || $admincheck) {
-                                    echo "<td><a href='/admin/users/edit.php?id=" . $row['id'] . "' class='btn btn-sm btn-primary'>Bearbeiten</a>";
-                                    if (isset($row['aktenid']) && $row['aktenid'] > 0) {
-                                        echo " <a href='/admin/personal/profile.php?id=" . $row['aktenid'] . "' class='btn btn-sm btn-warning'>Profil</a>";
+                                    if ($row['full_admin'] == 1) {
+                                        $role_color = "danger";
+                                        $role_name = "Admin+";
+                                    } else {
+                                        $role_color = $result2[$row['role']]['color'];
+                                        $role_name = $result2[$row['role']]['name'];
                                     }
-                                    echo "</td>";
-                                } else {
-                                    echo "<td></td>";
+
+                                    $date = (new DateTime($row['created_at']))->format('d.m.Y | H:i');
+                                    echo "<tr>";
+                                    echo "<td >" . $row['id'] . "</td>";
+                                    echo "<td>" . $row['fullname'] .  " (<strong>" . $row['username'] . "</strong>)</td>";
+                                    echo "<td><span class='badge bg-" . $role_color . "'>" . $role_name . "</span></td>";
+                                    echo "<td><span style='display:none'>" . $row['created_at'] . "</span>" . $date . "</td>";
+                                    if ($usedit || $admincheck) {
+                                        echo "<td><a href='/admin/users/edit.php?id=" . $row['id'] . "' class='btn btn-sm btn-primary'>Bearbeiten</a>";
+                                        if (isset($row['aktenid']) && $row['aktenid'] > 0) {
+                                            echo " <a href='/admin/personal/profile.php?id=" . $row['aktenid'] . "' class='btn btn-sm btn-warning'>Profil</a>";
+                                        }
+                                        echo "</td>";
+                                    } else {
+                                        echo "<td></td>";
+                                    }
+                                    echo "</tr>";
                                 }
-                                echo "</tr>";
-                            }
-                            ?>
-                        </tbody>
-                    </table>
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

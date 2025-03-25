@@ -125,103 +125,92 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <hr class="text-light my-3">
                     <h1 class="mb-3">Mitarbeiterprofil</h1>
                     <div class="row">
-                        <div class="col p-3 shadow-sm border ma-basedata">
+                        <div class="col">
                             <form id="profil" method="post" novalidate>
-                                <a href="#" class="btn btn-success btn-sm" id="personal-save">
-                                    <i class="las la-save"></i> Speichern / Benutzer erstellen
-                                </a>
-                                <?php
-                                // Function to remove the 'edit' parameter from the URL
-                                function removeEditParamFromURL()
-                                {
-                                    $currentURL = $_SERVER['REQUEST_URI'];
-                                    $parsedURL = parse_url($currentURL);
-                                    parse_str($parsedURL['query'], $queryParams);
-                                    unset($queryParams['edit']);
-                                    $newQuery = http_build_query($queryParams);
-                                    $modifiedURL = $parsedURL['path'] . '?' . $newQuery;
-                                    return $modifiedURL;
-                                }
-                                ?>
-                                <div class="w-100 text-center">
-                                    <i class="las la-user-circle" style="font-size:94px"></i>
-                                    <?php
-                                    require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
-                                    $stmt = $pdo->prepare("SELECT id,name,priority FROM intra_mitarbeiter_dienstgrade WHERE archive = 0 ORDER BY priority ASC");
-                                    $stmt->execute();
-                                    $dgsel = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                                    ?>
+                                <div class="intra__tile py-2 px-3">
+                                    <div class="w-100 text-center">
+                                        <i class="las la-user-circle" style="font-size:94px"></i>
+                                        <?php
+                                        require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+                                        $stmt = $pdo->prepare("SELECT id,name,priority FROM intra_mitarbeiter_dienstgrade WHERE archive = 0 ORDER BY priority ASC");
+                                        $stmt->execute();
+                                        $dgsel = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                        ?>
 
-                                    <div class="form-floating">
-                                        <select class="form-select mt-3" name="dienstgrad" id="dienstgrad">
-                                            <option value="" selected hidden>Dienstgrad wählen</option>
-                                            <?php foreach ($dgsel as $data) {
-                                                if ($dg == $data['id']) {
-                                                    echo "<option value='{$data['id']}' selected='selected'>{$data['name']}</option>";
-                                                } else {
-                                                    echo "<option value='{$data['id']}'>{$data['name']}</option>";
-                                                }
-                                            } ?>
-                                        </select>
-                                        <label for="dienstgrad">Dienstgrad</label>
+                                        <div class="form-floating">
+                                            <select class="form-select mt-3" name="dienstgrad" id="dienstgrad">
+                                                <option value="" selected hidden>Dienstgrad wählen</option>
+                                                <?php foreach ($dgsel as $data) {
+                                                    if ($dg == $data['id']) {
+                                                        echo "<option value='{$data['id']}' selected='selected'>{$data['name']}</option>";
+                                                    } else {
+                                                        echo "<option value='{$data['id']}'>{$data['name']}</option>";
+                                                    }
+                                                } ?>
+                                            </select>
+                                            <label for="dienstgrad">Dienstgrad</label>
+                                        </div>
+                                        <div class="invalid-feedback">Bitte wähle einen Dienstgrad aus.</div>
+                                        <hr class="my-3">
+                                        <input type="hidden" name="new" value="1" />
+                                        <table class="mx-auto" style="width: 100%;">
+                                            <tbody class="text-start">
+                                                <tr>
+                                                    <td class="fw-bold text-center" style="width:15%">Vor- und Zuname</td>
+                                                    <td style="width:35%">
+                                                        <input class="form-control w-100" type="text" name="fullname" id="fullname" value="" required>
+                                                        <div class="invalid-feedback">Bitte gebe einen Namen ein.</div>
+                                                    </td>
+                                                    <td class="fw-bold text-center" style="width: 15%;">Geburtsdatum</td>
+                                                    <td style="width:35%">
+                                                        <input class="form-control" type="date" name="gebdatum" id="gebdatum" value="" min="1900-01-01" required>
+                                                        <div class="invalid-feedback">Bitte gebe ein Geburtsdatum ein.</div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold text-center" style="width: 15%">Charakter-ID</td>
+                                                    <td style="width: 35%;">
+                                                        <input class="form-control" type="text" name="charakterid" id="charakterid" value="" pattern="[a-zA-Z]{3}[0-9]{5}" required>
+                                                        <div class="invalid-feedback">Bitte gebe eine charakter-ID ein.</div>
+                                                    </td>
+                                                    <td class="fw-bold text-center" style="width: 15%;">Geschlecht</td>
+                                                    <td style="width: 35%;">
+                                                        <select name="geschlecht" id="geschlecht" class="form-select" required>
+                                                            <option value="" selected hidden>Bitte wählen</option>
+                                                            <option value="0">Männlich</option>
+                                                            <option value="1">Weiblich</option>
+                                                            <option value="2">Divers</option>
+                                                        </select>
+                                                        <div class="invalid-feedback">Bitte wähle ein Geschlecht aus.</div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold text-center">Discord</td>
+                                                    <td><input class="form-control" type="text" name="discordtag" id="discordtag" value=""></td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold text-center">Telefonnummer</td>
+                                                    <td><input class="form-control" type="text" name="telefonnr" id="telefonnr" value="0176 00 00 00 0"></td>
+                                                    <td class="fw-bold text-center">Dienstnummer</td>
+                                                    <td>
+                                                        <input class="form-control" type="number" name="dienstnr" id="dienstnr" value="" oninput="checkDienstnrAvailability()" required>
+                                                        <div class="invalid-feedback">Bitte gebe eine Dienstnummer ein.</div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="fw-bold">Einstellungsdatum</td>
+                                                    <td>
+                                                        <input class="form-control" type="date" name="einstdatum" id="einstdatum" value="" min="2022-01-01" required>
+                                                        <div class="invalid-feedback">Bitte gebe ein Einstellungsdatum ein.</div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
-                                    <div class="invalid-feedback">Bitte wähle einen Dienstgrad aus.</div>
-                                    <hr class="my-3">
-                                    <input type="hidden" name="new" value="1" />
-                                    <table class="mx-auto" style="width: 100%;">
-                                        <tbody class="text-start">
-                                            <tr>
-                                                <td class="fw-bold text-center" style="width:15%">Vor- und Zuname</td>
-                                                <td style="width:35%">
-                                                    <input class="form-control w-100" type="text" name="fullname" id="fullname" value="" required>
-                                                    <div class="invalid-feedback">Bitte gebe einen Namen ein.</div>
-                                                </td>
-                                                <td class="fw-bold text-center" style="width: 15%;">Geburtsdatum</td>
-                                                <td style="width:35%">
-                                                    <input class="form-control" type="date" name="gebdatum" id="gebdatum" value="" min="1900-01-01" required>
-                                                    <div class="invalid-feedback">Bitte gebe ein Geburtsdatum ein.</div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-bold text-center" style="width: 15%">Charakter-ID</td>
-                                                <td style="width: 35%;">
-                                                    <input class="form-control" type="text" name="charakterid" id="charakterid" value="" pattern="[a-zA-Z]{3}[0-9]{5}" required>
-                                                    <div class="invalid-feedback">Bitte gebe eine charakter-ID ein.</div>
-                                                </td>
-                                                <td class="fw-bold text-center" style="width: 15%;">Geschlecht</td>
-                                                <td style="width: 35%;">
-                                                    <select name="geschlecht" id="geschlecht" class="form-select" required>
-                                                        <option value="" selected hidden>Bitte wählen</option>
-                                                        <option value="0">Männlich</option>
-                                                        <option value="1">Weiblich</option>
-                                                        <option value="2">Divers</option>
-                                                    </select>
-                                                    <div class="invalid-feedback">Bitte wähle ein Geschlecht aus.</div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-bold text-center">Discord</td>
-                                                <td><input class="form-control" type="text" name="discordtag" id="discordtag" value=""></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-bold text-center">Telefonnummer</td>
-                                                <td><input class="form-control" type="text" name="telefonnr" id="telefonnr" value="0176 00 00 00 0"></td>
-                                                <td class="fw-bold text-center">Dienstnummer</td>
-                                                <td>
-                                                    <input class="form-control" type="number" name="dienstnr" id="dienstnr" value="" oninput="checkDienstnrAvailability()" required>
-                                                    <div class="invalid-feedback">Bitte gebe eine Dienstnummer ein.</div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-bold">Einstellungsdatum</td>
-                                                <td>
-                                                    <input class="form-control" type="date" name="einstdatum" id="einstdatum" value="" min="2022-01-01" required>
-                                                    <div class="invalid-feedback">Bitte gebe ein Einstellungsdatum ein.</div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
                                 </div>
+                                <a href="#" class="mt-4 btn btn-success btn-sm" id="personal-save">
+                                    <i class="las la-plus-circle"></i> Benutzer erstellen
+                                </a>
                             </form>
                         </div>
                     </div>

@@ -85,11 +85,22 @@
   }
 }
 
+#intra-nav {
+  background-color: #0f1828;
+  opacity: 1;
+  background-size: 13px 13px;
+  background-image: repeating-linear-gradient(
+    45deg,
+    #1a2332 0,
+    #1a2332 1.3px,
+    #0f1828 0,
+    #0f1828 50%
+  );
+  border-bottom: 2px solid #192231;
+}
+
 #intra-nav .nav-link {
   border-bottom-color: transparent;
-  i {
-    // color: var(--main-color);
-  }
 
   &.active {
     background-color: var(--main-color);
@@ -190,12 +201,9 @@
   .ma-comments,
   .ma-documents,
   .intra__tile {
-    background-color: var(--bs-secondary-bg) !important;
-    border-color: var(--bs-tertiary-color) !important;
-  }
-
-  .intra__tile {
-    border: 1px solid;
+    background-color: #0f1828 !important;
+    border: 2px solid #192231 !important;
+    border-radius: 8px;
   }
 
   .comment p {
@@ -221,7 +229,10 @@
   z-index: 999;
 }
 
-.btn,
+.btn {
+  border-radius: 8px !important;
+}
+
 .badge {
   border-radius: 0 !important;
 }
