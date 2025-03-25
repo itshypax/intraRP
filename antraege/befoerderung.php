@@ -64,7 +64,7 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
 
 </head>
 
-<body>
+<body id="antrag">
     <!-- NAVIGATION -->
     <nav class="navbar bg-main-color" id="cirs-nav">
         <div class="container-fluid">

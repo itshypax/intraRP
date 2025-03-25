@@ -170,10 +170,15 @@ if (isset($_POST['new'])) {
                 'id' => $id
             ]);
 
-            $currentFWQText = isset($bfqualiMapping[$currentQualifw]) ? $bfqualiMapping[$currentQualifw] : 'Unknown';
-            $newFWQText = isset($bfqualiMapping[$qualifw2]) ? $bfqualiMapping[$qualifw2] : 'Unknown';
+            $stmtcfg = $pdo->prepare("SELECT id,name FROM intra_mitarbeiter_fwquali WHERE id = :id");
+            $stmtcfg->execute(['id' => $currentQualifw]);
+            $cfginfo = $stmtcfg->fetch();
 
-            $logContent = 'Qualifikation (FW) wurde von <strong>' . $currentFWQText . '</strong> auf <strong>' . $newFWQText . '</strong> geändert.';
+            $stmtnfg = $pdo->prepare("SELECT id,name FROM intra_mitarbeiter_fwquali WHERE id = :id");
+            $stmtnfg->execute(['id' => $qualifw2]);
+            $nfginfo = $stmtnfg->fetch();
+
+            $logContent = 'Qualifikation (FW) wurde von <strong>' . $cfginfo['name'] . '</strong> auf <strong>' . $nfginfo['name'] . '</strong> geändert.';
             $logStmt = $pdo->prepare("INSERT INTO intra_mitarbeiter_log (profilid, type, content, paneluser) VALUES (:id, '5', :content, :paneluser)");
             $logStmt->execute([
                 'id' => $id,

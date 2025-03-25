@@ -44,7 +44,7 @@ $row = $stmt->fetch();
 
 </head>
 
-<body>
+<body id="antrag">
     <!-- NAVIGATION -->
     <nav class="navbar bg-main-color" id="cirs-nav">
         <div class="container-fluid">

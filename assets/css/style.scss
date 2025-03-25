@@ -25,6 +25,9 @@ body {
   --bs-body-font-family: "Maven Pro", system-ui, -apple-system, "Segoe UI",
     Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+}
+
+body:not(#antrag) {
   --bs-body-bg: #010618 !important;
 }
 
