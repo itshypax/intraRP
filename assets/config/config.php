@@ -1,7 +1,7 @@
 <?php
 // BASIS DATEN
 define('SYSTEM_NAME', 'intraRP'); // Eigenname des Intranets
-define('SYSTEM_VERSION', '0.3 WIP'); // Versionsnummer
+define('SYSTEM_VERSION', '0.3.2 WIP'); // Versionsnummer
 define('SYSTEM_COLOR', '#85170c'); // Hauptfarbe des Systems
 define('SYSTEM_URL', 'CHANGE_ME'); // Domain des Systems
 define('SYSTEM_LOGO', '/assets/img/defaultLogo.webp'); // Ort des Logos (entweder als relativer Pfad oder Link)
