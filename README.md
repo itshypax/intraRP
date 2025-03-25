@@ -23,6 +23,72 @@ Das Projekt wird hobbymäßig weiterentwickelt und ist für jegliche Unterstütz
   - [Mitarbeiterverwaltung (für Mitarbeiter-Akten)](https://github.com/itshypax/intraRP/wiki/%C3%9Cbersicht-aller-Berechtigungen#mitarbeiterverwaltung-f%C3%BCr-mitarbeiter-akten)
   - [Datei-Upload](https://github.com/itshypax/intraRP/wiki/%C3%9Cbersicht-aller-Berechtigungen#datei-upload)
 
+### Preview
+<details>
+  <summary>Admin Login & Dashboard</summary>
+  Login-Seite
+  <img src="/.github/PREVIEW/loginpage.png">
+  
+  Dashboard
+  <img src="/.github/PREVIEW/dashboard.png">
+</details>
+<details>
+  <summary>Benutzverwaltung</summary>
+  Benutzer erstellen
+  <img src="/.github/PREVIEW/userCreate.png">
+  
+  Benutzerliste
+  <img src="/.github/PREVIEW/userList.png">
+
+  Benutzer bearbeiten
+  <img src="/.github/PREVIEW/userEdit.png">
+</details>
+<details>
+  <summary>Mitarbeiterprofile</summary>
+  Mitarbeiter anlegen
+  <img src="/.github/PREVIEW/aktenCreate.png">
+  
+  Mitarbeiter-Übersicht
+  <img src="/.github/PREVIEW/aktenListe.png">
+
+  Mitarbeiterprofil
+  <img src="/.github/PREVIEW/aktenView1.png">
+  <img src="/.github/PREVIEW/aktenView2.png">
+</details>
+<details>
+  <summary>eDIVI (Notfallprotokoll)</summary>
+  eDIVI anlegen
+  <img src="/.github/PREVIEW/ediviCreate1.png">
+  <img src="/.github/PREVIEW/ediviCreate2.png">
+  
+  eDIVI Liste
+  <img src="/.github/PREVIEW/ediviList.png">
+
+  QM-Optionen<br>
+  <img src="/.github/PREVIEW/ediviQMLog.png">
+  <img src="/.github/PREVIEW/ediviQMOptions.png">
+</details>
+<details>
+  <summary>Beförderungsanträge</summary>
+  Benutzer-Ansicht
+  <img src="/.github/PREVIEW/befAntragUser.png">
+  <img src="/.github/PREVIEW/befAntragViewUser.png">
+  
+  Liste der Anträge
+  <img src="/.github/PREVIEW/befAntragList.png">
+
+  Admininistrative Ansicht
+  <img src="/.github/PREVIEW/befAntragViewAdmin.png">
+</details>
+<details>
+  <summary>Datei-Upload</summary>
+  Upload-Seite
+  <img src="/.github/PREVIEW/fileUpload.png">
+  
+  Log aller Uploads
+  <img src="/.github/PREVIEW/fileLog.png">
+</details>
+
 ### Benutzte Assets
 
 - [Line Awesome](https://icons8.com/line-awesome) von [Icons8](https://icons8.com/)
