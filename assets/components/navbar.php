@@ -46,6 +46,9 @@
                         <li><a class="dropdown-item" href="/edivi/protokoll.php" target="_blank">Neues Protokoll</a></li>
                         <?php if ($edview || $admincheck) { ?>
                             <li><a class="dropdown-item" href="/admin/edivi/list.php">Qualitätsmanagement</a></li>
+                            <div class="dropdown-divider"></div>
+                            <li><a class="dropdown-item" href="/admin/edivi/management/fahrzeuge/index.php">Übersicht Fahrzeuge</a></li>
+                            <li><a class="dropdown-item" href="/admin/edivi/management/ziele/index.php">Übersicht Transportziele</a></li>
                         <?php } ?>
                     </ul>
                 </li>

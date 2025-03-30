@@ -67,15 +67,20 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                             <a href="?view=0" class="btn btn-primary btn-sm">Bearbeitete einblenden</a>
                         <?php } ?>
                     </div>
-                    <?php if (isset($_GET['message']) && $_GET['message'] === 'error-1') { ?>
-                        <div class="alert alert-danger" role="alert">
-                            <h5>Fehler!</h5>
-                            Du kannst dich nicht selbst bearbeiten!
-                        </div>
-                    <?php } else if (isset($_GET['message']) && $_GET['message'] === 'error-2') { ?>
-                        <div class="alert alert-danger" role="alert">
-                            <h5>Fehler!</h5>
-                            Dazu hast du nicht die richtigen Berechtigungen!
+                    <?php
+                    $messages = [
+                        'error-1' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Du kannst dich nicht selbst bearbeiten!'],
+                        'error-2' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Dazu hast du nicht die richtigen Berechtigungen!'],
+                        'success-1' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Änderung erfolgreich gespeichert!'],
+                    ];
+
+                    if (isset($_GET['message'], $messages[$_GET['message']])) {
+                        $msg = $messages[$_GET['message']];
+                    ?>
+                        <div class="alert alert-<?= htmlspecialchars($msg['type']) ?>" role="alert">
+                            <h5><?= htmlspecialchars($msg['title']) ?></h5>
+                            <?= htmlspecialchars($msg['text']) ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Schließen"></button>
                         </div>
                     <?php } ?>
                     <div class="intra__tile py-2 px-3">
