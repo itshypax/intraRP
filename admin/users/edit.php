@@ -108,7 +108,8 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
             <div class="row">
                 <div class="col mb-5">
                     <hr class="text-light my-3">
-                    <h1 class="mb-3">Benutzer bearbeiten <span class="mx-3"></span> <button class="btn btn-main-color btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="las la-trash"></i> Benutzer löschen</button></h1>
+                    <h1 class="mb-3">Benutzer bearbeiten <span class="mx-3"></span> <button class="btn btn-main-color btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="las la-trash"></i> Benutzer löschen</button> <?php if ($admincheck) : ?><button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#newPassword"><i class="las la-key"></i> Neues Passwort generieren</button><?php endif; ?></h1>
+
                     <form name="form" method="post" action="">
                         <input type="hidden" name="new" value="1" />
                         <input name="id" type="hidden" value="<?= $row['id'] ?>" />
@@ -172,7 +173,7 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
         </div>
     </div>
 
-    <!-- Modal -->
+    <!-- MODAL BEGIN -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -190,6 +191,27 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
             </div>
         </div>
     </div>
+    <!-- MODAL END & BEGIN -->
+    <?php if ($admincheck) : ?>
+        <div class="modal fade" id="newPassword" tabindex="-1" aria-labelledby="newPasswordLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="newPasswordLabel">Bestätigung erforderlich</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Willst du wirklich für den Benutzer <span class="fw-bold"><?= $row['fullname'] ?></span> ein neues Passwort generieren?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary-color" data-bs-dismiss="modal">Ne, Upsi</button>
+                        <button type="button" class="btn btn-warning" onclick="window.location.href='generatenewpass.php?id=<?= $row['id'] ?>';">Neues Passwort generieren</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+    <!-- MODAL END -->
 
 </body>
 

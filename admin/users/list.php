@@ -75,6 +75,12 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                             <h5>Fehler!</h5>
                             Du kannst keine Benutzer mit den Selben oder höheren Berechtigungen bearbeiten!
                         </div>
+                    <?php } else if (isset($_GET['message']) && $_GET['message'] === 'success-1') { ?>
+                        <div class="alert alert-success" role="alert">
+                            <h5>Erfolg!</h5>
+                            Das Passwort für den Benutzer <strong><?= $_GET['user'] ?></strong> wurde bearbeitet.<br>
+                            - Neues Passwort: <code><?= $_GET['pass'] ?></code>
+                        </div>
                     <?php } ?>
                     <div class="intra__tile py-2 px-3">
                         <table class="table table-striped" id="userTable">
