@@ -60,20 +60,37 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                 <div class="col mb-5">
                     <hr class="text-light my-3">
                     <h1 class="mb-5">Benutzerübersicht</h1>
-                    <?php if (isset($_GET['message']) && $_GET['message'] === 'error-1') { ?>
-                        <div class="alert alert-danger" role="alert">
-                            <h5>Fehler!</h5>
-                            Du kannst dich nicht selbst bearbeiten!
-                        </div>
-                    <?php } else if (isset($_GET['message']) && $_GET['message'] === 'error-2') { ?>
-                        <div class="alert alert-danger" role="alert">
-                            <h5>Fehler!</h5>
-                            Dazu hast du nicht die richtigen Berechtigungen!
-                        </div>
-                    <?php } else if (isset($_GET['message']) && $_GET['message'] === 'error-3') { ?>
-                        <div class="alert alert-danger" role="alert">
-                            <h5>Fehler!</h5>
-                            Du kannst keine Benutzer mit den Selben oder höheren Berechtigungen bearbeiten!
+                    <?php
+                    $messages = [
+                        'error-1' => [
+                            'type' => 'danger',
+                            'title' => 'Fehler!',
+                            'text' => 'Du kannst dich nicht selbst bearbeiten!'
+                        ],
+                        'error-2' => [
+                            'type' => 'danger',
+                            'title' => 'Fehler!',
+                            'text' => 'Dazu hast du nicht die richtigen Berechtigungen!'
+                        ],
+                        'error-3' => [
+                            'type' => 'danger',
+                            'title' => 'Fehler!',
+                            'text' => 'Du kannst keine Benutzer mit den Selben oder höheren Berechtigungen bearbeiten!'
+                        ],
+                        'success-1' => [
+                            'type' => 'success',
+                            'title' => 'Erfolg!',
+                            'text' => 'Das Passwort für den Benutzer <strong>' . htmlspecialchars($_GET['user'] ?? '') . '</strong> wurde bearbeitet.<br>- Neues Passwort: <code>' . htmlspecialchars($_GET['pass'] ?? '') . '</code>'
+                        ]
+                    ];
+
+                    if (isset($_GET['message']) && array_key_exists($_GET['message'], $messages)) {
+                        $msg = $messages[$_GET['message']];
+                    ?>
+                        <div class="alert alert-<?= htmlspecialchars($msg['type']) ?> alert-dismissible fade show" role="alert">
+                            <h5><?= htmlspecialchars($msg['title']) ?></h5>
+                            <?= $msg['text'] ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Schließen"></button>
                         </div>
                     <?php } ?>
                     <div class="intra__tile py-2 px-3">
