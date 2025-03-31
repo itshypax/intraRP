@@ -179,7 +179,6 @@ CREATE TABLE IF NOT EXISTS `intra_mitarbeiter` (
   `dienstnr` varchar(255) NOT NULL,
   `einstdatum` date NOT NULL,
   `dienstgrad` tinyint(2) NOT NULL DEFAULT 0,
-  `qualifw` longtext NOT NULL,
   `qualifw2` tinyint(1) NOT NULL DEFAULT 0,
   `qualird` tinyint(1) NOT NULL DEFAULT 0,
   `zusatz` varchar(255) DEFAULT NULL,
