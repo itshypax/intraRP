@@ -121,9 +121,12 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                             break;
                                     }
 
+                                    $dimmed = '';
+
                                     switch ($row['active']) {
                                         case 0:
                                             $vehActive = "<span class='badge bg-danger'>Nein</span>";
+                                            $dimmed = "style='color:var(--tag-color)'";
                                             break;
                                         default:
                                             $vehActive = "<span class='badge bg-success'>Ja</span>";
@@ -135,8 +138,8 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                         : "";
 
                                     echo "<tr>";
-                                    echo "<td>" . $row['priority'] . "</td>";
-                                    echo "<td>" . $row['name'] . "</td>";
+                                    echo "<td " . $dimmed . ">" . $row['priority'] . "</td>";
+                                    echo "<td " . $dimmed . ">" . $row['name'] . "</td>";
                                     echo "<td>" . $docYes . "</td>";
                                     echo "<td>" . $vehActive . "</td>";
                                     echo "<td>{$actions}</td>";

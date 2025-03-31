@@ -99,11 +99,13 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                     <div class="intra__tile py-2 px-3">
                         <table class="table table-striped" id="table-fahrzeuge">
                             <thead>
-                                <th scope="col">Priorität</th>
-                                <th scope="col">Bezeichnung (Typ)</th>
-                                <th scope="col">Arztbesetzt?</th>
-                                <th scope="col">Aktiv?</th>
-                                <th scope="col"></th>
+                                <tr>
+                                    <th scope="col">Priorität</th>
+                                    <th scope="col">Bezeichnung (Typ)</th>
+                                    <th scope="col">Arztbesetzt?</th>
+                                    <th scope="col">Aktiv?</th>
+                                    <th scope="col"></th>
+                                </tr>
                             </thead>
                             <tbody>
                                 <?php
@@ -121,9 +123,12 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                             break;
                                     }
 
+                                    $dimmed = '';
+
                                     switch ($row['active']) {
                                         case 0:
                                             $vehActive = "<span class='badge bg-danger'>Nein</span>";
+                                            $dimmed = "style='color:var(--tag-color)'";
                                             break;
                                         default:
                                             $vehActive = "<span class='badge bg-success'>Ja</span>";
@@ -135,8 +140,8 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                         : "";
 
                                     echo "<tr>";
-                                    echo "<td>" . $row['priority'] . "</td>";
-                                    echo "<td>" . $row['name'] . " (" . $row['veh_type'] .  ")</td>";
+                                    echo "<td " . $dimmed . ">" . $row['priority'] . "</td>";
+                                    echo "<td " . $dimmed . ">" . $row['name'] . " (" . $row['veh_type'] .  ")</td>";
                                     echo "<td>" . $docYes . "</td>";
                                     echo "<td>" . $vehActive . "</td>";
                                     echo "<td>{$actions}</td>";
