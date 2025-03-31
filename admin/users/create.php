@@ -21,10 +21,7 @@ $userid = $_SESSION['userid'];
 if (isset($_POST['new']) && $_POST['new'] == 1) {
     $username = $_REQUEST['username'];
     $fullname = $_REQUEST['fullname'] ?? NULL;
-    $aktenid = $_REQUEST['aktenid'] ?? NULL;
-    if ($aktenid == 0) {
-        $aktenid = NULL;
-    }
+    $aktenid = !empty($_REQUEST['aktenid']) ? (int)$_REQUEST['aktenid'] : NULL;
     $password = password_hash($_REQUEST['password'], PASSWORD_DEFAULT);
     $role = $_REQUEST['role'];
     $jetzt = date("Y-m-d H:i:s");
