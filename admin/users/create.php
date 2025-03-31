@@ -20,8 +20,8 @@ $userid = $_SESSION['userid'];
 
 if (isset($_POST['new']) && $_POST['new'] == 1) {
     $username = $_REQUEST['username'];
-    $fullname = $_REQUEST['fullname'];
-    $aktenid = $_REQUEST['aktenid'];
+    $fullname = $_REQUEST['fullname'] ?? NULL;
+    $aktenid = $_REQUEST['aktenid'] ?? NULL;
     if ($aktenid == 0) {
         $aktenid = NULL;
     }
