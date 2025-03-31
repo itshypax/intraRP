@@ -25,7 +25,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $gebdatum = $_POST['gebdatum'] ?? '';
         $charakterid = $_POST['charakterid'] ?? '';
         $dienstgrad = $_POST['dienstgrad'] ?? '';
-        $forumprofil = $_POST['forumprofil'] ?? '';
         $geschlecht = $_POST['geschlecht'] ?? '';
         $discordtag = $_POST['discordtag'] ?? '';
         $telefonnr = $_POST['telefonnr'] ?? '';
@@ -39,14 +38,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $stmt = $pdo->prepare("INSERT INTO intra_mitarbeiter 
-            (fullname, gebdatum, charakterid, dienstgrad, forumprofil, geschlecht, discordtag, telefonnr, dienstnr, einstdatum) 
-            VALUES (:fullname, :gebdatum, :charakterid, :dienstgrad, :forumprofil, :geschlecht, :discordtag, :telefonnr, :dienstnr, :einstdatum)");
+            (fullname, gebdatum, charakterid, dienstgrad, geschlecht, discordtag, telefonnr, dienstnr, einstdatum) 
+            VALUES (:fullname, :gebdatum, :charakterid, :dienstgrad, :geschlecht, :discordtag, :telefonnr, :dienstnr, :einstdatum)");
         $stmt->execute([
             'fullname' => $fullname,
             'gebdatum' => $gebdatum,
             'charakterid' => $charakterid,
             'dienstgrad' => $dienstgrad,
-            'forumprofil' => $forumprofil,
             'geschlecht' => $geschlecht,
             'discordtag' => $discordtag,
             'telefonnr' => $telefonnr,

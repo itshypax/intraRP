@@ -182,7 +182,7 @@ CREATE TABLE IF NOT EXISTS `intra_mitarbeiter` (
   `qualifw2` tinyint(1) NOT NULL DEFAULT 0,
   `qualird` tinyint(1) NOT NULL DEFAULT 0,
   `zusatz` varchar(255) DEFAULT NULL,
-  `fachdienste` longtext NOT NULL,
+  `fachdienste` longtext NOT NULL DEFAULT '[]',
   `createdate` datetime NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `dienstnr` (`dienstnr`)
