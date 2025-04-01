@@ -416,22 +416,27 @@ if (isset($_POST['new'])) {
                     <div class="row">
                         <div class="col-5 p-3 shadow-sm border ma-basedata">
                             <form id="profil" method="post">
-                                <?php if (!isset($_GET['edit']) && $canView) { ?>
-                                    <div class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalNewComment" title="Notiz anlegen"><i class="las la-sticky-note"></i></div>
-                                <?php } ?>
-                                <?php if (!isset($_GET['edit']) && $admincheck || !isset($_GET['edit']) && $perdoku) { ?>
-                                    <div class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalDokuCreate" title="Dokument erstellen"><i class="las la-print"></i></div>
-                                <?php } ?>
-                                <?php if (!isset($_GET['edit']) && $canEdit) { ?>
-                                    <a href="?id=<?= $_GET['id'] . (isset($_GET['page']) ? '&page=' . $_GET['page'] : '') ?>&edit" class="btn btn-dark btn-sm" id="personal-edit" title="Profil bearbeiten"><i class="las la-edit"></i></a>
-                                    <div class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalFDQuali" title="Fachdienste bearbeiten"><i class="las la-graduation-cap"></i></div>
-                                <?php } elseif (isset($_GET['edit']) && $canEdit) { ?>
-                                    <a href="#" class="btn btn-success btn-sm" id="personal-save" onclick="document.getElementById('profil').submit()"><i class="las la-save"></i></a>
-                                    <a href="<?php echo removeEditParamFromURL(); ?>" class="btn btn-dark btn-sm"><i class="las la-arrow-left"></i></a>
-                                    <?php if ($admincheck || $perdelete) { ?>
-                                        <div class="btn btn-danger btn-sm" id="personal-delete" data-bs-toggle="modal" data-bs-target="#modalPersoDelete"><i class="las la-trash"></i></div>
-                                <?php }
-                                } ?>
+                                <div class="row">
+                                    <div class="col">
+                                        <?php if (!isset($_GET['edit']) && $canView) { ?>
+                                            <div class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalNewComment" title="Notiz anlegen"><i class="las la-sticky-note"></i></div>
+                                        <?php } ?>
+                                        <?php if (!isset($_GET['edit']) && $admincheck || !isset($_GET['edit']) && $perdoku) { ?>
+                                            <div class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalDokuCreate" title="Dokument erstellen"><i class="las la-print"></i></div>
+                                        <?php } ?>
+                                        <?php if (!isset($_GET['edit']) && $canEdit) { ?>
+                                            <a href="?id=<?= $_GET['id'] . (isset($_GET['page']) ? '&page=' . $_GET['page'] : '') ?>&edit" class="btn btn-dark btn-sm" id="personal-edit" title="Profil bearbeiten"><i class="las la-edit"></i></a>
+                                            <div class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalFDQuali" title="Fachdienste bearbeiten"><i class="las la-graduation-cap"></i></div>
+                                        <?php } elseif (isset($_GET['edit']) && $canEdit) { ?>
+                                            <a href="#" class="btn btn-success btn-sm" id="personal-save" onclick="document.getElementById('profil').submit()"><i class="las la-save"></i></a>
+                                            <a href="<?php echo removeEditParamFromURL(); ?>" class="btn btn-dark btn-sm"><i class="las la-arrow-left"></i></a>
+                                            <?php if ($admincheck || $perdelete) { ?>
+                                                <div class="btn btn-danger btn-sm" id="personal-delete" data-bs-toggle="modal" data-bs-target="#modalPersoDelete"><i class="las la-trash"></i></div>
+                                        <?php }
+                                        } ?>
+                                    </div>
+                                    <div class="col text-end" style="color:var(--tag-color)">Akten-ID: <?= $row['id'] ?></div>
+                                </div>
                                 <?php
                                 // Function to remove the 'edit' parameter from the URL
                                 function removeEditParamFromURL()
