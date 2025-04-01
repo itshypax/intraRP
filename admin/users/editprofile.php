@@ -28,6 +28,7 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
 if (isset($_POST['new']) && $_POST['new'] == 1) {
     $id = $_REQUEST['id'];
     $aktenid = $_REQUEST['aktenid'];
+    $fullname = $_REQUEST['fullname'];
 
     $new_password = $_REQUEST['passwort'];
     $new_password_2 = $_REQUEST['passwort2'];
@@ -35,27 +36,27 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
     if (!empty($new_password) && !empty($new_password_2) && $new_password === $new_password_2) {
         $new_password_hash = password_hash($new_password, PASSWORD_DEFAULT);
 
-        $stmt = $pdo->prepare("UPDATE intra_users SET passwort = :password WHERE id = :id");
+        $stmt = $pdo->prepare("UPDATE intra_users SET passwort = :password, fullname = :fullname, aktenid = :aktenid WHERE id = :id");
         $stmt->execute([
             'password' => $new_password_hash,
+            'fullname' => $fullname,
+            'aktenid' => $aktenid,
             'id' => $id
         ]);
 
         header("Location: ?message=success-1");
         exit();
     } else {
-        header("Location: /admin/users/editprofile.php?message=error-1");
+        $stmt = $pdo->prepare("UPDATE intra_users SET fullname = :fullname, aktenid = :aktenid WHERE id = :id");
+        $stmt->execute([
+            'fullname' => $fullname,
+            'aktenid' => $aktenid,
+            'id' => $id
+        ]);
+
+        header("Location: ?message=success-2");
         exit();
     }
-
-    $stmt = $pdo->prepare("UPDATE intra_users SET fullname = :fullname, aktenid = :aktenid WHERE id = :id");
-    $stmt->execute([
-        'fullname' => $fullname,
-        'aktenid' => $aktenid,
-        'id' => $id
-    ]);
-
-    header("Refresh: 0");
 }
 ?>
 
@@ -103,12 +104,31 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
             <div class="row">
                 <div class="col mb-5">
                     <hr class="text-light my-3">
-                    <h1 class="mb-3">Eigene Daten bearbeiten</h1>
+                    <h1 class="mb-5">Eigene Daten bearbeiten</h1>
+                    <?php
+                    $messages = [
+                        'success-1' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Deine Daten & dein Passwort wurden aktualisiert!'],
+                        'success-2' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Deine Daten wurden aktualisiert!'],
+                    ];
+
+                    if (isset($_GET['message'], $messages[$_GET['message']])) {
+                        $msg = $messages[$_GET['message']];
+                    ?>
+                        <div class="alert alert-<?= htmlspecialchars($msg['type']) ?> alert-dismissible fade show" role="alert">
+                            <h5><?= htmlspecialchars($msg['title']) ?></h5>
+                            <?= htmlspecialchars($msg['text']) ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Schließen"></button>
+                        </div>
+                    <?php } ?>
                     <form name="form" method="post" action="">
                         <div class="intra__tile py-2 px-3">
                             <input type="hidden" name="new" value="1" />
                             <input name="id" type="hidden" value="<?= $row['id'] ?>" />
                             <div class="row">
+                                <div class="col-6 mb-3">
+                                    <label for="fullname" class="form-label fw-bold">Vor- und Zuname</label>
+                                    <input type="text" class="form-control" id="fullname" name="fullname" placeholder="" value="<?= $row['fullname'] ?>">
+                                </div>
                                 <div class="col-6 mb-3">
                                     <label for="aktenid" class="form-label fw-bold">Mitarbeiterakten-ID</label>
                                     <input type="number" class="form-control" id="aktenid" name="aktenid" placeholder="" value="<?= $row['aktenid'] ?>">
