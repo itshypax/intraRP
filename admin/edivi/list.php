@@ -77,7 +77,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                     if (isset($_GET['message'], $messages[$_GET['message']])) {
                         $msg = $messages[$_GET['message']];
                     ?>
-                        <div class="alert alert-<?= htmlspecialchars($msg['type']) ?>" role="alert">
+                        <div class="alert alert-<?= htmlspecialchars($msg['type']) ?> alert-dismissible fade show" role="alert">
                             <h5><?= htmlspecialchars($msg['title']) ?></h5>
                             <?= htmlspecialchars($msg['text']) ?>
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Schließen"></button>
