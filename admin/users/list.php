@@ -126,7 +126,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                     echo "<tr>";
                                     echo "<td >" . $row['id'] . "</td>";
                                     echo "<td>" . $row['fullname'] .  " (<strong>" . $row['username'] . "</strong>)</td>";
-                                    echo "<td><span class='badge bg-" . $role_color . "'>" . $role_name . "</span></td>";
+                                    echo "<td><span class='badge text-bg-" . $role_color . "'>" . $role_name . "</span></td>";
                                     echo "<td><span style='display:none'>" . $row['created_at'] . "</span>" . $date . "</td>";
                                     if ($usedit || $admincheck) {
                                         echo "<td><a href='/admin/users/edit.php?id=" . $row['id'] . "' class='btn btn-sm btn-primary'>Bearbeiten</a>";

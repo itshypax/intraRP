@@ -114,10 +114,10 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                 foreach ($result as $row) {
                                     switch ($row['transport']) {
                                         case 0:
-                                            $docYes = "<span class='badge bg-danger'>Nein</span>";
+                                            $docYes = "<span class='badge text-bg-danger'>Nein</span>";
                                             break;
                                         default:
-                                            $docYes = "<span class='badge bg-success'>Ja</span>";
+                                            $docYes = "<span class='badge text-bg-success'>Ja</span>";
                                             break;
                                     }
 
@@ -125,16 +125,16 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 
                                     switch ($row['active']) {
                                         case 0:
-                                            $vehActive = "<span class='badge bg-danger'>Nein</span>";
+                                            $vehActive = "<span class='badge text-bg-danger'>Nein</span>";
                                             $dimmed = "style='color:var(--tag-color)'";
                                             break;
                                         default:
-                                            $vehActive = "<span class='badge bg-success'>Ja</span>";
+                                            $vehActive = "<span class='badge text-bg-success'>Ja</span>";
                                             break;
                                     }
 
                                     $actions = ($admincheck)
-                                        ? "<a title='Fahrzeug bearbeiten' href='#' class='btn btn-sm btn-primary edit-btn' data-bs-toggle='modal' data-bs-target='#editFahrzeugModal' data-id='{$row['id']}' data-name='{$row['name']}' data-priority='{$row['priority']}' data-identifier='{$row['identifier']}' data-transport='{$row['transport']}' data-active='{$row['active']}'><i class='las la-pen'></i></a>"
+                                        ? "<a title='Ziel bearbeiten' href='#' class='btn btn-sm btn-primary edit-btn' data-bs-toggle='modal' data-bs-target='#editFahrzeugModal' data-id='{$row['id']}' data-name='{$row['name']}' data-priority='{$row['priority']}' data-identifier='{$row['identifier']}' data-transport='{$row['transport']}' data-active='{$row['active']}'><i class='las la-pen'></i></a>"
                                         : "";
 
                                     echo "<tr>";

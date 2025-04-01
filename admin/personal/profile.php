@@ -469,10 +469,10 @@ if (isset($_POST['new'])) {
                                         <?php } ?>
                                         <?= $dienstgradText ?><br>
                                         <?php if (!$rdginfo['none']) { ?>
-                                            <span style="text-transform:none; color:var(--black)" class="badge bg-warning"><?= $rdqualtext ?></span>
+                                            <span style="text-transform:none; color:var(--black)" class="badge text-bg-warning"><?= $rdqualtext ?></span>
                                         <?php }
                                         if (!$fwginfo['none'] || $row['qualifw'] > 0) { ?>
-                                            <span style="text-transform:none" class="badge bg-danger"><?= $bfqualtext ?></span>
+                                            <span style="text-transform:none" class="badge text-bg-danger"><?= $bfqualtext ?></span>
                                         <?php } ?>
                                         </p>
                                     <?php } else {

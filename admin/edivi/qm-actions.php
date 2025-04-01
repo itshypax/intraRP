@@ -44,15 +44,15 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
             break;
         case 1:
             $status_klar = "in Prüfung";
-            $statusstring = '<span class="badge bg-warning" style="line-height: var(--bs-body-line-height); border-radius: 0;">in Prüfung</span>';
+            $statusstring = '<span class="badge text-bg-warning" style="line-height: var(--bs-body-line-height); border-radius: 0;">in Prüfung</span>';
             break;
         case 2:
             $status_klar = "Freigegeben";
-            $statusstring = '<span class="badge bg-success" style="line-height: var(--bs-body-line-height); border-radius: 0;">Freigegeben</span>';
+            $statusstring = '<span class="badge text-bg-success" style="line-height: var(--bs-body-line-height); border-radius: 0;">Freigegeben</span>';
             break;
         case 3:
             $status_klar = "Ungenügend";
-            $statusstring = '<span class="badge bg-danger" style="line-height: var(--bs-body-line-height); border-radius: 0;">Ungenügend</span>';
+            $statusstring = '<span class="badge text-bg-danger" style="line-height: var(--bs-body-line-height); border-radius: 0;">Ungenügend</span>';
             break;
     }
 

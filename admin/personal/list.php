@@ -137,7 +137,7 @@ $rdginfo = $stmtr->fetchAll(PDO::FETCH_UNIQUE);
                                     }
                                     echo $dienstgrad;
                                     if (!$rdginfo2['none']) {
-                                        echo " <span class='badge bg-warning' style='color:var(--black)'>" . $rdqualtext . "</span></td>";
+                                        echo " <span class='badge text-bg-warning' style='color:var(--black)'>" . $rdqualtext . "</span></td>";
                                     }
                                     echo "<td><span style='display:none'>" . $row['einstdatum'] . "</span>" . $einstellungsdatum . "</td>";
                                     echo "<td><a href='/admin/personal/profile.php?id=" . $row['id'] . "' class='btn btn-sm btn-primary'>Ansehen</a></td>";

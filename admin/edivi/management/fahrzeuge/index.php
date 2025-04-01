@@ -116,10 +116,10 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                 foreach ($result as $row) {
                                     switch ($row['doctor']) {
                                         case 0:
-                                            $docYes = "<span class='badge bg-danger'>Nein</span>";
+                                            $docYes = "<span class='badge text-bg-danger'>Nein</span>";
                                             break;
                                         default:
-                                            $docYes = "<span class='badge bg-success'>Ja</span>";
+                                            $docYes = "<span class='badge text-bg-success'>Ja</span>";
                                             break;
                                     }
 
@@ -127,11 +127,11 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 
                                     switch ($row['active']) {
                                         case 0:
-                                            $vehActive = "<span class='badge bg-danger'>Nein</span>";
+                                            $vehActive = "<span class='badge text-bg-danger'>Nein</span>";
                                             $dimmed = "style='color:var(--tag-color)'";
                                             break;
                                         default:
-                                            $vehActive = "<span class='badge bg-success'>Ja</span>";
+                                            $vehActive = "<span class='badge text-bg-success'>Ja</span>";
                                             break;
                                     }
 
