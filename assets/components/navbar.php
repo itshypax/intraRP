@@ -35,6 +35,7 @@
                             <div class="dropdown-divider"></div>
                             <li><a class="dropdown-item" href="/admin/personal/management/dienstgrade/index.php">Dienstgrade verwalten</a></li>
                             <li><a class="dropdown-item" href="/admin/personal/management/qualifw/index.php">FW Qualifikationen verwalten</a></li>
+                            <li><a class="dropdown-item" href="/admin/personal/management/qualird/index.php">RD Qualifikationen verwalten</a></li>
                         </ul>
                     </li>
                 <?php } ?>

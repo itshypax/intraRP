@@ -58,7 +58,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                 <div class="col mb-5">
                     <hr class="text-light my-3">
                     <div class="d-flex justify-content-between align-items-center mb-5">
-                        <h1 class="mb-0">FW Qualifikationen verwalten</h1>
+                        <h1 class="mb-0">RD Qualifikationen verwalten</h1>
 
                         <?php if ($admincheck) : ?>
                             <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createDienstgradModal">
@@ -105,13 +105,14 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                     <th scope="col">Bezeichnung <i class="las la-mars"></i></th>
                                     <th scope="col">Bezeichnung <i class="las la-venus"></i></th>
                                     <th scope="col">Leer?</th>
+                                    <th scope="col">Zertifiziert?</th>
                                     <th scope="col"></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php
                                 require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
-                                $stmt = $pdo->prepare("SELECT * FROM intra_mitarbeiter_fwquali");
+                                $stmt = $pdo->prepare("SELECT * FROM intra_mitarbeiter_rdquali");
                                 $stmt->execute();
                                 $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 foreach ($result as $row) {
@@ -127,8 +128,17 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                             break;
                                     }
 
+                                    switch ($row['trainable']) {
+                                        case 0:
+                                            $cert = "<span class='badge text-bg-danger'>Nein</span>";
+                                            break;
+                                        default:
+                                            $cert = "<span class='badge text-bg-success'>Ja</span>";
+                                            break;
+                                    }
+
                                     $actions = ($admincheck)
-                                        ? "<a title='Fahrzeug bearbeiten' href='#' class='btn btn-sm btn-primary edit-btn' data-bs-toggle='modal' data-bs-target='#editDienstgradModal' data-id='{$row['id']}' data-shortname='{$row['shortname']}' data-name='{$row['name']}' data-name_m='{$row['name_m']}' data-name_w='{$row['name_w']}' data-priority='{$row['priority']}' data-none='{$row['none']}'><i class='las la-pen'></i></a>"
+                                        ? "<a title='Fahrzeug bearbeiten' href='#' class='btn btn-sm btn-primary edit-btn' data-bs-toggle='modal' data-bs-target='#editDienstgradModal' data-id='{$row['id']}' data-name='{$row['name']}' data-name_m='{$row['name_m']}' data-name_w='{$row['name_w']}' data-priority='{$row['priority']}' data-none='{$row['none']}' data-none='{$row['trainable']}'><i class='las la-pen'></i></a>"
                                         : "";
 
                                     echo "<tr>";
@@ -137,6 +147,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                     echo "<td " . $dimmed . ">" . $row['name_m'] . "</td>";
                                     echo "<td " . $dimmed . ">" . $row['name_w'] . "</td>";
                                     echo "<td>" . $dgActive . "</td>";
+                                    echo "<td>" . $cert . "</td>";
                                     echo "<td>{$actions}</td>";
                                     echo "</tr>";
                                 }
@@ -154,18 +165,13 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
         <div class="modal fade" id="editDienstgradModal" tabindex="-1" aria-labelledby="editDienstgradModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="/admin/personal/management/qualifw/update.php" method="POST">
+                    <form action="/admin/personal/management/qualird/update.php" method="POST">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="editDienstgradModalLabel">FW Qualifikation bearbeiten</h5>
+                            <h5 class="modal-title" id="editDienstgradModalLabel">RD Qualifikation bearbeiten</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
                         </div>
                         <div class="modal-body">
                             <input type="hidden" name="id" id="dienstgrad-id">
-
-                            <div class="mb-3">
-                                <label for="dienstgrad-shortname" class="form-label">Kurzbezeichnung <small style="opacity:.5">(z.B. B1,B2 etc.)</small></label>
-                                <input type="text" class="form-control" name="shortname" id="dienstgrad-shortname" required>
-                            </div>
 
                             <div class="mb-3">
                                 <label for="dienstgrad-name" class="form-label">Bezeichnung <small style="opacity:.5">(Allgemein)</small></label>
@@ -192,6 +198,11 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                 <label class="form-check-label" for="dienstgrad-none">Leer?</label>
                             </div>
 
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="trainable" id="dienstgrad-trainable">
+                                <label class="form-check-label" for="dienstgrad-trainable">Zertifiziert?</label>
+                            </div>
+
                         </div>
                         <div class="modal-footer d-flex justify-content-between">
                             <button type="button" class="btn btn-danger" id="delete-dienstgrad-btn">Löschen</button>
@@ -203,7 +214,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                         </div>
                     </form>
 
-                    <form id="delete-dienstgrad-form" action="/admin/personal/management/qualifw/delete.php" method="POST" style="display:none;">
+                    <form id="delete-dienstgrad-form" action="/admin/personal/management/qualird/delete.php" method="POST" style="display:none;">
                         <input type="hidden" name="id" id="dienstgrad-delete-id">
                     </form>
 
@@ -217,17 +228,12 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
         <div class="modal fade" id="createDienstgradModal" tabindex="-1" aria-labelledby="createDienstgradModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="/admin/personal/management/qualifw/create.php" method="POST">
+                    <form action="/admin/personal/management/qualird/create.php" method="POST">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="createDienstgradModalLabel">FW Qualifikation anlegen</h5>
+                            <h5 class="modal-title" id="createDienstgradModalLabel">RD Qualifikation anlegen</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
                         </div>
                         <div class="modal-body">
-
-                            <div class="mb-3">
-                                <label for="new-dienstgrad-shortname" class="form-label">Kurzbezeichnung <small style="opacity:.5">(z.B. B1,B2 etc.)</small></label>
-                                <input type="text" class="form-control" name="shortname" id="new-dienstgrad-shortname" required>
-                            </div>
 
                             <div class="mb-3">
                                 <label for="new-dienstgrad-name" class="form-label">Bezeichnung <small style="opacity:.5">(Allgemein)</small></label>
@@ -252,6 +258,11 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="none" id="new-dienstgrad-none">
                                 <label class="form-check-label" for="new-dienstgrad-none">Leer?</label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="trainable" id="new-dienstgrad-trainable">
+                                <label class="form-check-label" for="new-dienstgrad-trainable">Zertifiziert?</label>
                             </div>
 
                         </div>
@@ -320,8 +331,8 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                     document.getElementById('dienstgrad-name_m').value = this.dataset.name_m;
                     document.getElementById('dienstgrad-name_w').value = this.dataset.name_w;
                     document.getElementById('dienstgrad-priority').value = this.dataset.priority;
-                    document.getElementById('dienstgrad-shortname').value = this.dataset.shortname;
                     document.getElementById('dienstgrad-none').checked = this.dataset.none == 1;
+                    document.getElementById('dienstgrad-trainable').checked = this.dataset.trainable == 1;
 
                     document.getElementById('dienstgrad-delete-id').value = id;
                 });
