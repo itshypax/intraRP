@@ -7,12 +7,7 @@
         <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul class="navbar-nav">
                 <a class="nav-link" href="/admin/index.php" data-page="dashboard"><i class="las la-home" style="margin-right:3px"></i> Dashboard</a>
-                <!-- Beförderungsanträge -->
-                <?php if ($anview || $admincheck) { ?>
-                    <li class="nav-item"><a href="/admin/antraege/list.php" class="nav-link" data-page="antrag"><i class="las la-code-branch" style="margin-right:3px"></i> Anträge</a></li>
-                <?php }
-                if ($usview || $admincheck) { ?>
-                    <!-- Benutzerverwaltung -->
+                <?php if ($usview || $admincheck) { ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-page="benutzer" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="las la-user-secret" style="margin-right:3px"></i> Benutzer
@@ -22,6 +17,8 @@
                             <?php if ($uscreate || $admincheck) { ?>
                                 <li><a class="dropdown-item" href="/admin/users/create.php">Erstellen</a></li>
                             <?php } ?>
+                            <div class="dropdown-divider"></div>
+                            <li><a class="dropdown-item" href="/admin/users/roles/index.php">Rollenverwaltung</a></li>
                         </ul>
                     </li>
                 <?php }
@@ -47,12 +44,15 @@
                         <?php if ($edview || $admincheck) { ?>
                             <li><a class="dropdown-item" href="/admin/edivi/list.php">Qualitätsmanagement</a></li>
                             <div class="dropdown-divider"></div>
-                            <li><a class="dropdown-item" href="/admin/edivi/management/fahrzeuge/index.php">Übersicht Fahrzeuge</a></li>
-                            <li><a class="dropdown-item" href="/admin/edivi/management/ziele/index.php">Übersicht Transportziele</a></li>
+                            <li><a class="dropdown-item" href="/admin/edivi/management/fahrzeuge/index.php">Fahrzeugverwaltung</a></li>
+                            <li><a class="dropdown-item" href="/admin/edivi/management/ziele/index.php">Zielverwaltung</a></li>
                         <?php } ?>
                     </ul>
                 </li>
-                <?php if ($filupload || $admincheck) { ?>
+                <?php if ($anview || $admincheck) { ?>
+                    <li class="nav-item"><a href="/admin/antraege/list.php" class="nav-link" data-page="antrag"><i class="las la-code-branch" style="margin-right:3px"></i> Anträge</a></li>
+                <?php }
+                if ($filupload || $admincheck) { ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-page="upload" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="las la-upload" style="margin-right:3px"></i> Dateien
