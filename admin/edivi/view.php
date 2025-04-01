@@ -107,11 +107,11 @@ $prot_url = "https://" . SYSTEM_URL . "/admin/edivi/view.php?id=" . $row['id'];
                         </div>
                         <div class="col-2 d-flex align-content-center justify-content-center">
                             <?php if ($row['protokoll_status'] == 1) : ?>
-                                <div class="badge bg-warning text-dark" style="line-height: var(--bs-body-line-height); border-radius: 0;">in Prüfung</div>
+                                <div class="badge text-bg-warning" style="line-height: var(--bs-body-line-height); border-radius: 0;">in Prüfung</div>
                             <?php elseif ($row['protokoll_status'] == 2) : ?>
-                                <div class="badge bg-success" style="line-height: var(--bs-body-line-height); border-radius: 0;">Geprüft</div>
+                                <div class="badge text-bg-success" style="line-height: var(--bs-body-line-height); border-radius: 0;">Geprüft</div>
                             <?php elseif ($row['protokoll_status'] == 3) : ?>
-                                <div class="badge bg-danger" style="line-height: var(--bs-body-line-height); border-radius: 0;">Ungenügend</div>
+                                <div class="badge text-bg-danger" style="line-height: var(--bs-body-line-height); border-radius: 0;">Ungenügend</div>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -125,11 +125,11 @@ $prot_url = "https://" . SYSTEM_URL . "/admin/edivi/view.php?id=" . $row['id'];
                         </div>
                         <div class="col-2 d-flex align-content-center justify-content-center">
                             <?php if ($row['protokoll_status'] == 1) : ?>
-                                <div class="badge bg-warning text-dark" style="line-height: var(--bs-body-line-height); border-radius: 0;">in Prüfung</div>
+                                <div class="badge text-bg-warning" style="line-height: var(--bs-body-line-height); border-radius: 0;">in Prüfung</div>
                             <?php elseif ($row['protokoll_status'] == 2) : ?>
-                                <div class="badge bg-success" style="line-height: var(--bs-body-line-height); border-radius: 0;">Geprüft</div>
+                                <div class="badge text-bg-success" style="line-height: var(--bs-body-line-height); border-radius: 0;">Geprüft</div>
                             <?php elseif ($row['protokoll_status'] == 3) : ?>
-                                <div class="badge bg-danger" style="line-height: var(--bs-body-line-height); border-radius: 0;">Ungenügend</div>
+                                <div class="badge text-bg-danger" style="line-height: var(--bs-body-line-height); border-radius: 0;">Ungenügend</div>
                             <?php endif; ?>
                         </div>
                     </div>

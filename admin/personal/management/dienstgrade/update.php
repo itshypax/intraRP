@@ -1,0 +1,57 @@
+<?php
+session_start();
+require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+
+if ($notadmincheck) {
+    header("Location: /admin/personal/management/dienstgrade/index.php");
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+    $name = trim($_POST['name'] ?? '');
+    $name_m = trim($_POST['name_m'] ?? '');
+    $name_w = trim($_POST['name_w'] ?? '');
+    $priority = isset($_POST['priority']) ? (int)$_POST['priority'] : 0;
+    $badge = isset($_POST['badge']) && trim($_POST['badge']) !== '' ? trim($_POST['badge']) : NULL;
+    $archive = isset($_POST['active']) ? 1 : 0;
+
+    if ($id <= 0 || empty($name)) {
+        header("Location: /admin/personal/management/dienstgrade/index.php?error=invalid");
+        exit;
+    }
+
+    try {
+        $stmt = $pdo->prepare("UPDATE intra_mitarbeiter_dienstgrade SET 
+            name = :name, 
+            name_m = :name_m, 
+            name_w = :name_w, 
+            priority = :priority, 
+            badge = :badge, 
+            archive = :archive 
+            WHERE id = :id
+        ");
+
+        $stmt->execute([
+            ':name' => $name,
+            ':name_m' => $name_m,
+            ':name_w' => $name_w,
+            ':priority' => $priority,
+            ':badge' => $badge,
+            ':archive' => $archive,
+            ':id' => $id
+        ]);
+
+        header("Location: /admin/personal/management/dienstgrade/index.php?success=updated");
+        exit;
+    } catch (PDOException $e) {
+        error_log("PDO Error: " . $e->getMessage());
+        header("Location: /admin/personal/management/dienstgrade/index.php?error=exception");
+        exit;
+    }
+} else {
+    header("Location: /admin/personal/management/dienstgrade/index.php");
+    exit;
+}

@@ -104,16 +104,16 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                     $date = $datetime->format('d.m.Y | H:i');
                                     switch ($row['protokoll_status']) {
                                         case 0:
-                                            $status = "<span class='badge bg-secondary'>Ungesehen</span>";
+                                            $status = "<span class='badge text-bg-secondary'>Ungesehen</span>";
                                             break;
                                         case 1:
-                                            $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='badge bg-warning'>in Prüfung</span>";
+                                            $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='badge text-bg-warning'>in Prüfung</span>";
                                             break;
                                         case 2:
-                                            $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='badge bg-success'>Geprüft</span>";
+                                            $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='badge text-bg-success'>Geprüft</span>";
                                             break;
                                         default:
-                                            $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='badge bg-danger'>Ungenügend</span>";
+                                            $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='badge text-bg-danger'>Ungenügend</span>";
                                             break;
                                     }
 
@@ -122,7 +122,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                             $freigabe_status = "";
                                             break;
                                         case 1:
-                                            $freigabe_status = "<span title='Freigeber: " . $row['freigeber_name'] . "' class='badge bg-success'>F</span>";
+                                            $freigabe_status = "<span title='Freigeber: " . $row['freigeber_name'] . "' class='text-badge bg-success'>F</span>";
                                             break;
                                     }
 

@@ -45,7 +45,7 @@ if (!empty($currentFd)) {
         echo "<p class='abteilung mb-0'>Abteilung 210</p>";
         foreach ($fd210 as $item) {
             $fdNameText = $fdNamen[$item] ?? "Unknown";
-            echo '<span class="badge bg-secondary">' . $fdNameText . '</span>';
+            echo '<span class="badge text-bg-secondary">' . $fdNameText . '</span>';
         }
         echo "</div>";
     }
@@ -54,7 +54,7 @@ if (!empty($currentFd)) {
         echo "<p class='abteilung mb-0'>Abteilung 220</p>";
         foreach ($fd220 as $item) {
             $fdNameText = $fdNamen[$item] ?? "Unknown";
-            echo '<span class="badge bg-secondary">' . $fdNameText . '</span>';
+            echo '<span class="badge text-bg-secondary">' . $fdNameText . '</span>';
         }
         echo "</div>";
     }
@@ -63,7 +63,7 @@ if (!empty($currentFd)) {
         echo "<p class='abteilung mb-0'>Abteilung 230</p>";
         foreach ($fd230 as $item) {
             $fdNameText = $fdNamen[$item] ?? "Unknown";
-            echo '<span class="badge bg-secondary">' . $fdNameText . '</span>';
+            echo '<span class="badge text-bg-secondary">' . $fdNameText . '</span>';
         }
         echo "</div>";
     }
@@ -72,7 +72,7 @@ if (!empty($currentFd)) {
         echo "<p class='abteilung mb-0'>Abteilung 410</p>";
         foreach ($fd410 as $item) {
             $fdNameText = $fdNamen[$item] ?? "Unknown";
-            echo '<span class="badge bg-secondary">' . $fdNameText . '</span>';
+            echo '<span class="badge text-bg-secondary">' . $fdNameText . '</span>';
         }
         echo "</div>";
     }

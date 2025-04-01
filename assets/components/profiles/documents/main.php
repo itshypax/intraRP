@@ -34,11 +34,11 @@
             $path = "/assets/functions/docredir.php?docid=" . $doks['docid'];
 
             if ($doks['type'] <= 3) {
-                $bg = "bg-secondary";
+                $bg = "text-bg-secondary";
             } elseif ($doks['type'] == 5 || $doks['type'] == 6 || $doks['type'] == 7) {
-                $bg = "bg-dark";
+                $bg = "text-bg-dark";
             } elseif ($doks['type'] >= 10 && $doks['type'] <= 12) {
-                $bg = "bg-danger";
+                $bg = "text-bg-danger";
             }
 
             $adminPermission = $admincheck;

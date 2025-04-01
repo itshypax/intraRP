@@ -47,7 +47,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 
 </head>
 
-<body data-bs-theme="dark" data-page="edivi">
+<body data-bs-theme="dark" data-page="mitarbeiter">
     <?php include $_SERVER['DOCUMENT_ROOT'] . "/assets/components/navbar.php"; ?>
     <div class="container-full position-relative" id="mainpageContainer">
         <!-- ------------ -->
@@ -58,11 +58,11 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                 <div class="col mb-5">
                     <hr class="text-light my-3">
                     <div class="d-flex justify-content-between align-items-center mb-5">
-                        <h1 class="mb-0">Fahrzeugverwaltung</h1>
+                        <h1 class="mb-0">Dienstgrade verwalten</h1>
 
                         <?php if ($admincheck) : ?>
-                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createFahrzeugModal">
-                                <i class="las la-plus"></i> Fahrzeug erstellen
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createDienstgradModal">
+                                <i class="las la-plus"></i> Dienstgrad erstellen
                             </button>
                         <?php endif; ?>
                     </div>
@@ -70,16 +70,16 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                     $alerts = [
                         'success' => [
                             'updated' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Änderung erfolgreich gespeichert.'],
-                            'deleted' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Das Fahrzeug wurde erfolgreich gelöscht.'],
-                            'created' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Das Fahrzeug wurde erfolgreich erstellt.'],
+                            'deleted' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Der Dienstgrad wurde erfolgreich gelöscht.'],
+                            'created' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Der Dienstgrad wurde erfolgreich erstellt.'],
                         ],
                         'error' => [
                             'exception' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Beim Speichern ist ein Fehler aufgetreten.'],
                             'invalid' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Ungültige Eingabe.'],
                             'not-allowed' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Keine Berechtigung.'],
-                            'not-found' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Das Fahrzeug wurde nicht gefunden.'],
-                            'invalid-id' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Ungültige Fahrzeug-ID.'],
-                            'invalid-input' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Bitte fülle alle Pflichtfelder aus, um ein Fahrzeug anzulegen.'],
+                            'not-found' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Der Dienstgrad wurde nicht gefunden.'],
+                            'invalid-id' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Ungültige Dienstgrad-ID.'],
+                            'invalid-input' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Bitte fülle alle Pflichtfelder aus, um einen Dienstgrad anzulegen.'],
                         ]
                     ];
 
@@ -97,53 +97,54 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                     }
                     ?>
                     <div class="intra__tile py-2 px-3">
-                        <table class="table table-striped" id="table-fahrzeuge">
+                        <table class="table table-striped" id="table-dienstgrade">
                             <thead>
                                 <tr>
                                     <th scope="col">Priorität</th>
-                                    <th scope="col">Bezeichnung (Typ)</th>
-                                    <th scope="col">Arztbesetzt?</th>
-                                    <th scope="col">Aktiv?</th>
+                                    <th scope="col">Badge</th>
+                                    <th scope="col">Bezeichnung <i class="las la-venus-mars"></i></th>
+                                    <th scope="col">Bezeichnung <i class="las la-mars"></i></th>
+                                    <th scope="col">Bezeichnung <i class="las la-venus"></i></th>
+                                    <th scope="col">Archiv?</th>
                                     <th scope="col"></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php
                                 require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
-                                $stmt = $pdo->prepare("SELECT * FROM intra_edivi_fahrzeuge");
+                                $stmt = $pdo->prepare("SELECT * FROM intra_mitarbeiter_dienstgrade");
                                 $stmt->execute();
                                 $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 foreach ($result as $row) {
-                                    switch ($row['doctor']) {
+                                    $dimmed = '';
+
+                                    switch ($row['archive']) {
                                         case 0:
-                                            $docYes = "<span class='badge text-bg-danger'>Nein</span>";
+                                            $dgActive = "<span class='badge text-bg-success'>Nein</span>";
                                             break;
                                         default:
-                                            $docYes = "<span class='badge text-bg-success'>Ja</span>";
+                                            $dgActive = "<span class='badge text-bg-danger'>Ja</span>";
+                                            $dimmed = "style='color:var(--tag-color)'";
                                             break;
                                     }
 
-                                    $dimmed = '';
-
-                                    switch ($row['active']) {
-                                        case 0:
-                                            $vehActive = "<span class='badge text-bg-danger'>Nein</span>";
-                                            $dimmed = "style='color:var(--tag-color)'";
-                                            break;
-                                        default:
-                                            $vehActive = "<span class='badge text-bg-success'>Ja</span>";
-                                            break;
+                                    if ($row['badge'] === NULL) {
+                                        $badge = "";
+                                    } else {
+                                        $badge = "<img src='" . $row['badge'] . "' height='16px' width='auto' alt='Dienstgrad'>";
                                     }
 
                                     $actions = ($admincheck)
-                                        ? "<a title='Fahrzeug bearbeiten' href='#' class='btn btn-sm btn-primary edit-btn' data-bs-toggle='modal' data-bs-target='#editFahrzeugModal' data-id='{$row['id']}' data-name='{$row['name']}' data-type='{$row['veh_type']}' data-priority='{$row['priority']}' data-identifier='{$row['identifier']}' data-doctor='{$row['doctor']}' data-active='{$row['active']}'><i class='las la-pen'></i></a>"
+                                        ? "<a title='Fahrzeug bearbeiten' href='#' class='btn btn-sm btn-primary edit-btn' data-bs-toggle='modal' data-bs-target='#editDienstgradModal' data-id='{$row['id']}' data-name='{$row['name']}' data-name_m='{$row['name_m']}' data-name_w='{$row['name_w']}' data-badge='{$row['badge']}' data-priority='{$row['priority']}' data-archive='{$row['archive']}'><i class='las la-pen'></i></a>"
                                         : "";
 
                                     echo "<tr>";
                                     echo "<td " . $dimmed . ">" . $row['priority'] . "</td>";
-                                    echo "<td " . $dimmed . ">" . $row['name'] . " (" . $row['veh_type'] .  ")</td>";
-                                    echo "<td>" . $docYes . "</td>";
-                                    echo "<td>" . $vehActive . "</td>";
+                                    echo "<td>" . $badge . "</td>";
+                                    echo "<td " . $dimmed . ">" . $row['name'] . "</td>";
+                                    echo "<td " . $dimmed . ">" . $row['name_m'] . "</td>";
+                                    echo "<td " . $dimmed . ">" . $row['name_w'] . "</td>";
+                                    echo "<td>" . $dgActive . "</td>";
                                     echo "<td>{$actions}</td>";
                                     echo "</tr>";
                                 }
@@ -158,50 +159,55 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 
     <!-- MODAL BEGIN -->
     <?php if ($admincheck) : ?>
-        <div class="modal fade" id="editFahrzeugModal" tabindex="-1" aria-labelledby="editFahrzeugModalLabel" aria-hidden="true">
+        <div class="modal fade" id="editDienstgradModal" tabindex="-1" aria-labelledby="editDienstgradModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="/admin/edivi/management/fahrzeuge/update.php" method="POST">
+                    <form action="/admin/personal/management/dienstgrade/update.php" method="POST">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="editFahrzeugModalLabel">Fahrzeug bearbeiten</h5>
+                            <h5 class="modal-title" id="editDienstgradModalLabel">Dienstgrad bearbeiten</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
                         </div>
                         <div class="modal-body">
-                            <input type="hidden" name="id" id="fahrzeug-id">
+                            <input type="hidden" name="id" id="dienstgrad-id">
 
                             <div class="mb-3">
-                                <label for="fahrzeug-name" class="form-label">Bezeichnung <small style="opacity:.5">(z.B. Funkrufname)</small></label>
-                                <input type="text" class="form-control" name="name" id="fahrzeug-name" required>
+                                <label for="dienstgrad-name" class="form-label">Bezeichnung <small style="opacity:.5">(Allgemein)</small></label>
+                                <input type="text" class="form-control" name="name" id="dienstgrad-name" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="fahrzeug-identifier" class="form-label">Identifier <small style="opacity:.5">(eindeutige interne Kennung)</small></label>
-                                <input type="text" class="form-control" name="identifier" id="fahrzeug-identifier" required>
+                                <label for="dienstgrad-name_m" class="form-label">Bezeichnung <small style="opacity:.5">(Männlich)</small></label>
+                                <input type="text" class="form-control" name="name_m" id="dienstgrad-name_m" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="fahrzeug-typ" class="form-label">Typ <small style="opacity:.5">(RTW,NEF,RTH etc.)</small></label>
-                                <input type="text" class="form-control" name="veh_type" id="fahrzeug-typ" required>
+                                <label for="dienstgrad-name_w" class="form-label">Bezeichnung <small style="opacity:.5">(Weiblich)</small></label>
+                                <input type="text" class="form-control" name="name_w" id="dienstgrad-name_w" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="fahrzeug-priority" class="form-label">Priorität <small style="opacity:.5">(Je niedriger die Zahl, desto höher sortiert)</small></label>
-                                <input type="number" class="form-control" name="priority" id="fahrzeug-priority" required>
+                                <label for="dienstgrad-badge" class="form-label">Badge <small style="opacity:.5">(Pfad oder URL, optional)</small></label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="badge" id="dienstgrad-badge">
+                                    <span class="input-group-text p-1" id="badge-preview-container">
+                                        <img id="badge-preview" src="" alt="Preview" style="height:30px; display: none;">
+                                    </span>
+                                </div>
                             </div>
 
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" name="doctor" id="fahrzeug-doctor">
-                                <label class="form-check-label" for="fahrzeug-doctor">Arztbesetzt?</label>
+                            <div class="mb-3">
+                                <label for="dienstgrad-priority" class="form-label">Priorität <small style="opacity:.5">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <input type="number" class="form-control" name="priority" id="dienstgrad-priority" required>
                             </div>
 
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="active" id="fahrzeug-active">
-                                <label class="form-check-label" for="fahrzeug-active">Aktiv?</label>
+                                <input class="form-check-input" type="checkbox" name="archive" id="dienstgrad-archive">
+                                <label class="form-check-label" for="dienstgrad-archive">Archiv?</label>
                             </div>
 
                         </div>
                         <div class="modal-footer d-flex justify-content-between">
-                            <button type="button" class="btn btn-danger" id="delete-fahrzeug-btn">Löschen</button>
+                            <button type="button" class="btn btn-danger" id="delete-dienstgrad-btn">Löschen</button>
 
                             <div>
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
@@ -210,8 +216,8 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                         </div>
                     </form>
 
-                    <form id="delete-fahrzeug-form" action="/admin/edivi/management/fahrzeuge/delete.php" method="POST" style="display:none;">
-                        <input type="hidden" name="id" id="fahrzeug-delete-id">
+                    <form id="delete-dienstgrad-form" action="/admin/personal/management/dienstgrade/delete.php" method="POST" style="display:none;">
+                        <input type="hidden" name="id" id="dienstgrad-delete-id">
                     </form>
 
                 </div>
@@ -221,44 +227,49 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     <!-- MODAL END -->
     <!-- MODAL 2 BEGIN -->
     <?php if ($admincheck) : ?>
-        <div class="modal fade" id="createFahrzeugModal" tabindex="-1" aria-labelledby="createFahrzeugModalLabel" aria-hidden="true">
+        <div class="modal fade" id="createDienstgradModal" tabindex="-1" aria-labelledby="createDienstgradModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="/admin/edivi/management/fahrzeuge/create.php" method="POST">
+                    <form action="/admin/personal/management/dienstgrade/create.php" method="POST">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="createFahrzeugModalLabel">Neues Fahrzeug anlegen</h5>
+                            <h5 class="modal-title" id="createDienstgradModalLabel">Neuen Dienstgrad anlegen</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
                         </div>
                         <div class="modal-body">
 
                             <div class="mb-3">
-                                <label for="new-fahrzeug-name" class="form-label">Bezeichnung <small style="opacity:.5">(z.B. Funkrufname)</small></label>
-                                <input type="text" class="form-control" name="name" id="new-fahrzeug-name" required>
+                                <label for="new-dienstgrad-name" class="form-label">Bezeichnung <small style="opacity:.5">(Allgemein)</small></label>
+                                <input type="text" class="form-control" name="name" id="new-dienstgrad-name" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-fahrzeug-identifier" class="form-label">Identifier <small style="opacity:.5">(eindeutige interne Kennung)</small></label>
-                                <input type="text" class="form-control" name="identifier" id="new-fahrzeug-identifier" required>
+                                <label for="new-dienstgrad-name_m" class="form-label">Bezeichnung <small style="opacity:.5">(Männlich)</small></label>
+                                <input type="text" class="form-control" name="name_m" id="new-dienstgrad-name_m" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-fahrzeug-typ" class="form-label">Typ <small style="opacity:.5">(RTW,NEF,RTH etc.)</small></label>
-                                <input type="text" class="form-control" name="veh_type" id="new-fahrzeug-typ" required>
+                                <label for="new-dienstgrad-name_w" class="form-label">Bezeichnung <small style="opacity:.5">(Weiblich)</small></label>
+                                <input type="text" class="form-control" name="name_w" id="new-dienstgrad-name_w" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-fahrzeug-priority" class="form-label">Priorität <small style="opacity:.5">(Je niedriger die Zahl, desto höher sortiert)</small></label>
-                                <input type="number" class="form-control" name="priority" id="new-fahrzeug-priority" required>
+                                <label for="new-dienstgrad-badge" class="form-label">Badge <small style="opacity:.5">(Pfad oder URL, optional)</small></label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="badge" id="new-dienstgrad-badge">
+                                    <span class="input-group-text p-1" id="new-badge-preview-container">
+                                        <img id="new-badge-preview" src="" alt="Preview" style="height:30px; display: none;">
+                                    </span>
+                                </div>
                             </div>
 
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" name="doctor" id="new-fahrzeug-doctor">
-                                <label class="form-check-label" for="new-fahrzeug-doctor">Arztbesetzt?</label>
+                            <div class="mb-3">
+                                <label for="new-dienstgrad-priority" class="form-label">Priorität <small style="opacity:.5">(je niedriger, desto höher)</small></label>
+                                <input type="number" class="form-control" name="priority" id="new-dienstgrad-priority" value="0" required>
                             </div>
 
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="active" id="new-fahrzeug-active" checked>
-                                <label class="form-check-label" for="new-fahrzeug-active">Aktiv?</label>
+                                <input class="form-check-input" type="checkbox" name="archive" id="new-dienstgrad-archive">
+                                <label class="form-check-label" for="new-dienstgrad-archive">Archiv?</label>
                             </div>
 
                         </div>
@@ -271,13 +282,14 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
             </div>
         </div>
     <?php endif; ?>
+
     <!-- MODAL 2 END -->
 
     <script src="/assets/_ext/jquery/jquery.dataTables.min.js"></script>
     <script src="/assets/_ext/datatables/datatables.min.js"></script>
     <script>
         $(document).ready(function() {
-            var table = $('#table-fahrzeuge').DataTable({
+            var table = $('#table-dienstgrade').DataTable({
                 stateSave: true,
                 paging: true,
                 lengthMenu: [10, 20, 50],
@@ -294,13 +306,13 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                     "emptyTable": "Keine Daten vorhanden",
                     "info": "Zeige _START_ bis _END_  | Gesamt: _TOTAL_",
                     "infoEmpty": "Keine Daten verfügbar",
-                    "infoFiltered": "| Gefiltert von _MAX_ Fahrzeugen",
+                    "infoFiltered": "| Gefiltert von _MAX_ Dienstgraden",
                     "infoPostFix": "",
                     "thousands": ",",
-                    "lengthMenu": "_MENU_ Fahrzeuge pro Seite anzeigen",
+                    "lengthMenu": "_MENU_ Dienstgrade pro Seite anzeigen",
                     "loadingRecords": "Lade...",
                     "processing": "Verarbeite...",
-                    "search": "Fahrzeug suchen:",
+                    "search": "Dienstgrad suchen:",
                     "zeroRecords": "Keine Einträge gefunden",
                     "paginate": {
                         "first": "Erste",
@@ -318,24 +330,57 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+
+            const badgeInput = document.getElementById('dienstgrad-badge');
+            const badgePreview = document.getElementById('badge-preview');
+
+            function updateBadgePreview() {
+                const value = badgeInput.value.trim();
+                if (value) {
+                    badgePreview.src = value;
+                    badgePreview.style.display = 'block';
+                } else {
+                    badgePreview.style.display = 'none';
+                }
+            }
+
+            badgeInput.addEventListener('blur', updateBadgePreview);
+
+            const newBadgeInput = document.getElementById('new-dienstgrad-badge');
+            const newBadgePreview = document.getElementById('new-badge-preview');
+
+            function updateNewBadgePreview() {
+                const value = newBadgeInput.value.trim();
+                if (value) {
+                    newBadgePreview.src = value;
+                    newBadgePreview.style.display = 'block';
+                } else {
+                    newBadgePreview.style.display = 'none';
+                }
+            }
+
+            newBadgeInput.addEventListener('blur', updateNewBadgePreview);
+
             document.querySelectorAll('.edit-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const id = this.dataset.id;
-                    document.getElementById('fahrzeug-id').value = id;
-                    document.getElementById('fahrzeug-name').value = this.dataset.name;
-                    document.getElementById('fahrzeug-typ').value = this.dataset.type;
-                    document.getElementById('fahrzeug-priority').value = this.dataset.priority;
-                    document.getElementById('fahrzeug-identifier').value = this.dataset.identifier;
-                    document.getElementById('fahrzeug-doctor').checked = this.dataset.doctor == 1;
-                    document.getElementById('fahrzeug-active').checked = this.dataset.active == 1;
+                    document.getElementById('dienstgrad-id').value = id;
+                    document.getElementById('dienstgrad-name').value = this.dataset.name;
+                    document.getElementById('dienstgrad-name_m').value = this.dataset.name_m;
+                    document.getElementById('dienstgrad-name_w').value = this.dataset.name_w;
+                    document.getElementById('dienstgrad-priority').value = this.dataset.priority;
+                    document.getElementById('dienstgrad-badge').value = this.dataset.badge;
+                    document.getElementById('dienstgrad-archive').checked = this.dataset.archive == 1;
 
-                    document.getElementById('fahrzeug-delete-id').value = id;
+                    document.getElementById('dienstgrad-delete-id').value = id;
+
+                    updateBadgePreview();
                 });
             });
 
-            document.getElementById('delete-fahrzeug-btn').addEventListener('click', function() {
-                if (confirm('Möchtest du dieses Fahrzeug wirklich löschen?')) {
-                    document.getElementById('delete-fahrzeug-form').submit();
+            document.getElementById('delete-dienstgrad-btn').addEventListener('click', function() {
+                if (confirm('Möchtest du diesen Dienstgrad wirklich löschen?')) {
+                    document.getElementById('delete-dienstgrad-form').submit();
                 }
             });
         });
