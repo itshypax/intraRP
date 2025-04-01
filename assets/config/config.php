@@ -13,8 +13,3 @@ define('SERVER_CITY', 'Musterstadt'); // Name der Stadt in welcher der Server sp
 define('RP_ORGTYPE', 'Berufsfeuerwehr'); // Art/Name der Organisation
 define('RP_STREET', 'Musterweg 0815'); // Straße der Organisation
 define('RP_ZIP', '1337'); // PLZ der Organisation
-// DATENBANK ZUGRIFF
-define('DB_HOST', 'intradev.neukirchheim-roleplay.eu'); // Host der Datenbank (kann auch localhost sein)
-define('DB_USER', 'intradevadmin'); // Benutzername der Datenbank
-define('DB_PASS', '%qU902bq8'); // Passwort der Datenbank
-define('DB_NAME', 'intradev'); // Name der Datenbank
