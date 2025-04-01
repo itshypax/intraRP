@@ -32,8 +32,6 @@ $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
 $openedID = $_GET['id'];
 $edituser = $_SESSION['cirs_user'];
-$edituseric = $_SESSION['ic_name'];
-$editdg = $_SESSION['cirs_dg'];
 
 $stmtg = $pdo->prepare("SELECT * FROM intra_mitarbeiter_dienstgrade WHERE id = :id");
 $stmtg->execute(['id' => $row['dienstgrad']]);
