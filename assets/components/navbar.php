@@ -32,6 +32,9 @@
                             <?php if ($peredit || $admincheck) { ?>
                                 <li><a class="dropdown-item" href="/admin/personal/create.php">Erstellen</a></li>
                             <?php } ?>
+                            <div class="dropdown-divider"></div>
+                            <li><a class="dropdown-item" href="/admin/personal/management/dienstgrade/index.php">Dienstgrade verwalten</a></li>
+                            <li><a class="dropdown-item" href="/admin/personal/management/qualifw/index.php">FW Qualifikationen verwalten</a></li>
                         </ul>
                     </li>
                 <?php } ?>
