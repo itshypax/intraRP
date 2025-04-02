@@ -471,7 +471,7 @@ if (isset($_POST['new'])) {
                                         <?php if (!$rdginfo['none']) { ?>
                                             <span style="text-transform:none; color:var(--black)" class="badge text-bg-warning"><?= $rdqualtext ?></span>
                                         <?php }
-                                        if (!$fwginfo['none'] || $row['qualifw'] > 0) { ?>
+                                        if (!$fwginfo['none']) { ?>
                                             <span style="text-transform:none" class="badge text-bg-danger"><?= $bfqualtext ?></span>
                                         <?php } ?>
                                         </p>

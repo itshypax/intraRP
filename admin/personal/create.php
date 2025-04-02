@@ -17,6 +17,14 @@ if (!$admincheck && !$peredit) {
     header("Location: /admin/index.php");
 }
 
+$stmtr = $pdo->prepare("SELECT * FROM intra_mitarbeiter_rdquali WHERE none = 1 LIMIT 1");
+$stmtr->execute();
+$resultr = $stmtr->fetch();
+
+$stmtf = $pdo->prepare("SELECT * FROM intra_mitarbeiter_fwquali WHERE none = 1 LIMIT 1");
+$stmtf->execute();
+$resultf = $stmtf->fetch();
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $response = ['success' => false, 'message' => ''];
 
@@ -30,6 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $telefonnr = $_POST['telefonnr'] ?? '';
         $dienstnr = $_POST['dienstnr'] ?? '';
         $einstdatum = $_POST['einstdatum'] ?? '';
+        $qualird = $resultr['id'];
+        $qualifw = $resultf['id'];
 
         if (empty($fullname) || empty($gebdatum) || empty($charakterid) || empty($dienstgrad)) {
             $response['message'] = "Bitte alle erforderlichen Felder ausfüllen.";
@@ -38,8 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $stmt = $pdo->prepare("INSERT INTO intra_mitarbeiter 
-            (fullname, gebdatum, charakterid, dienstgrad, geschlecht, discordtag, telefonnr, dienstnr, einstdatum) 
-            VALUES (:fullname, :gebdatum, :charakterid, :dienstgrad, :geschlecht, :discordtag, :telefonnr, :dienstnr, :einstdatum)");
+            (fullname, gebdatum, charakterid, dienstgrad, geschlecht, discordtag, telefonnr, dienstnr, einstdatum, qualifw2, qualird) 
+            VALUES (:fullname, :gebdatum, :charakterid, :dienstgrad, :geschlecht, :discordtag, :telefonnr, :dienstnr, :einstdatum, :qualifw, :qualird)");
         $stmt->execute([
             'fullname' => $fullname,
             'gebdatum' => $gebdatum,
@@ -49,15 +59,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'discordtag' => $discordtag,
             'telefonnr' => $telefonnr,
             'dienstnr' => $dienstnr,
-            'einstdatum' => $einstdatum
+            'einstdatum' => $einstdatum,
+            'qualifw' => $qualifw,
+            'qualird' => $qualird
         ]);
 
         $savedId = $pdo->lastInsertId();
 
         $edituser = $_SESSION['cirs_user'] ?? 'Unknown';
         $logContent = 'Mitarbeiter wurde angelegt.';
-        $logStmt = $pdo->prepare("INSERT INTO intra_mitarbeiter_log (profilid, type, content, paneluser) 
-                                  VALUES (:id, '6', :content, :paneluser)");
+        $logStmt = $pdo->prepare("INSERT INTO intra_mitarbeiter_log (profilid, type, content, paneluser) VALUES (:id, '6', :content, :paneluser)");
         $logStmt->execute([
             'id' => $savedId,
             'content' => $logContent,
