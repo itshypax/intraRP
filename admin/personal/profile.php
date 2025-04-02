@@ -30,8 +30,16 @@ $stmt = $pdo->prepare("SELECT * FROM intra_mitarbeiter WHERE id = :id");
 $stmt->execute(['id' => $_GET['id']]);
 $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
+if ($_SESSION['aktenid'] != null) {
+    $statement = $pdo->prepare("SELECT * FROM intra_mitarbeiter WHERE id = :id");
+    $statement->execute(array('id' => $_SESSION['aktenid']));
+    $profile = $statement->fetch();
+}
+
 $openedID = $_GET['id'];
 $edituser = $_SESSION['cirs_user'];
+$edituseric = $profile['fullname'];
+$editdg = $profile['dienstgrad'];
 
 $stmtg = $pdo->prepare("SELECT * FROM intra_mitarbeiter_dienstgrade WHERE id = :id");
 $stmtg->execute(['id' => $row['dienstgrad']]);
@@ -282,7 +290,7 @@ if (isset($_POST['new'])) {
     } elseif ($_POST['new'] == 6) {
         $erhalter = $_POST['erhalter'];
         $inhalt = $_POST['inhalt'] ?? NULL;
-        $suspendtime = $_POST['suspendtime'] ?? NULL;
+        $suspendtime = !empty($_POST['suspendtime']) ? $_POST['suspendtime'] : NULL;
         $erhalter_gebdat = $_POST['erhalter_gebdat'];
         $erhalter_rang = $_POST['erhalter_rang'] ?? NULL;
         $erhalter_rang_rd = $_POST['erhalter_rang_rd'] ?? NULL;

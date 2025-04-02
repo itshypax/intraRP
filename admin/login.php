@@ -27,17 +27,9 @@ if (isset($_GET['login'])) {
         $_SESSION['userid'] = $user['id'];
         $_SESSION['cirs_user'] = $user['fullname'];
         $_SESSION['cirs_username'] = $user['username'];
+        $_SESSION['aktenid'] = $user['aktenid'];
         $permissions = json_decode($user['permissions'], true) ?? [];
         $_SESSION['permissions'] = $permissions;
-
-        if ($user['aktenid'] != null) {
-            $statement = $pdo->prepare("SELECT * FROM intra_mitarbeiter WHERE id = :id");
-            $result = $statement->execute(array('id' => $user['aktenid']));
-            $profile = $statement->fetch();
-
-            $_SESSION['cirs_dg'] = $profile['dienstgrad'];
-            $_SESSION['ic_name'] = $profile['fullname'];
-        }
 
         if (isset($_SESSION['redirect_url'])) {
             $redirect_url = $_SESSION['redirect_url'];
