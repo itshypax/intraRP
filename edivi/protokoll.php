@@ -34,7 +34,7 @@ $enr = $daten['enr'];
 if (isset($_POST['new']) && $_POST['new'] == 1) {
     // STAMMDATEN
     $patname = $_POST['patname'] ?? NULL;
-    $patgebdat = $_POST['patgebdat'] ?? NULL;
+    $patgebdat = !empty($_POST['patgebdat']) ? $_POST['patgebdat'] : NULL;
     $patsex = $_POST['patsex'] ?? NULL;
     $edatum = $_POST['edatum'];
     $ezeit = $_POST['ezeit'];
@@ -63,12 +63,12 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
     $rrdias = $_POST['rrdias'] ?? NULL;
     $herzfreq = $_POST['herzfreq'] ?? NULL;
     $c_ekg = $_POST['c_ekg'];
-    $c_zugang_art_1 = $_POST['c_zugang_art_1'] ?? NULL;
-    $c_zugang_art_2 = $_POST['c_zugang_art_2'] ?? NULL;
-    $c_zugang_art_3 = $_POST['c_zugang_art_3'] ?? NULL;
-    $c_zugang_gr_1 = $_POST['c_zugang_gr_1'] ?? NULL;
-    $c_zugang_gr_2 = $_POST['c_zugang_gr_2'] ?? NULL;
-    $c_zugang_gr_3 = $_POST['c_zugang_gr_3'] ?? NULL;
+    $c_zugang_art_1 = ($_POST['c_zugang_art_1'] ?? '') !== '' ? (int)$_POST['c_zugang_art_1'] : NULL;
+    $c_zugang_art_2 = ($_POST['c_zugang_art_2'] ?? '') !== '' ? (int)$_POST['c_zugang_art_2'] : NULL;
+    $c_zugang_art_3 = ($_POST['c_zugang_art_3'] ?? '') !== '' ? (int)$_POST['c_zugang_art_3'] : NULL;
+    $c_zugang_gr_1 = ($_POST['c_zugang_gr_1'] ?? '') !== '' ? (int)$_POST['c_zugang_gr_1'] : NULL;
+    $c_zugang_gr_2 = ($_POST['c_zugang_gr_2'] ?? '') !== '' ? (int)$_POST['c_zugang_gr_2'] : NULL;
+    $c_zugang_gr_3 = ($_POST['c_zugang_gr_3'] ?? '') !== '' ? (int)$_POST['c_zugang_gr_3'] : NULL;
     $c_zugang_ort_1 = $_POST['c_zugang_ort_1'] ?? NULL;
     $c_zugang_ort_2 = $_POST['c_zugang_ort_2'] ?? NULL;
     $c_zugang_ort_3 = $_POST['c_zugang_ort_3'] ?? NULL;
@@ -567,7 +567,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     if ($daten['c_zugang_art_1'] === NULL) {
                                     ?>
                                         <select name="c_zugang_art_1" id="c_zugang_art_1" class="w-100 form-select">
-                                            <option selected>Art</option>
+                                            <option value="" selected>Art</option>
                                             <option value="3">pvk</option>
                                             <option value="1">zvk</option>
                                             <option value="2">i.o.</option>
@@ -576,7 +576,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     } else {
                                     ?>
                                         <select name="c_zugang_art_1" id="c_zugang_art_1" class="w-100 form-select" autocomplete="off">
-                                            <option selected>Art</option>
+                                            <option value="" selected>Art</option>
                                             <option value="3" <?php echo ($daten['c_zugang_art_1'] == 3 ? 'selected' : '') ?>>pvk</option>
                                             <option value="1" <?php echo ($daten['c_zugang_art_1'] == 1 ? 'selected' : '') ?>>zvk</option>
                                             <option value="2" <?php echo ($daten['c_zugang_art_1'] == 2 ? 'selected' : '') ?>>i.o.</option>
@@ -590,7 +590,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     if ($daten['c_zugang_gr_1'] === NULL) {
                                     ?>
                                         <select name="c_zugang_gr_1" id="c_zugang_gr_1" class="w-100 form-select edivi__zugang-list">
-                                            <option selected>Gr.</option>
+                                            <option value="" selected>Gr.</option>
                                             <option disabled>-- i.v. --</option>
                                             <option value="10">G24</option>
                                             <option value="1">G22</option>
@@ -608,7 +608,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     } else {
                                     ?>
                                         <select name="c_zugang_gr_1" id="c_zugang_gr_1" class="w-100 form-select edivi__zugang-list" autocomplete="off">
-                                            <option selected>Gr.</option>
+                                            <option value="" selected>Gr.</option>
                                             <option disabled>-- i.v. --</option>
                                             <option value="10" <?php echo ($daten['c_zugang_gr_1'] == 10 ? 'selected' : '') ?>>G24</option>
                                             <option value="1" <?php echo ($daten['c_zugang_gr_1'] == 1 ? 'selected' : '') ?>>G22</option>
@@ -637,7 +637,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     if ($daten['c_zugang_art_2'] === NULL) {
                                     ?>
                                         <select name="c_zugang_art_2" id="c_zugang_art_2" class="w-100 form-select">
-                                            <option selected>Art</option>
+                                            <option value="" selected>Art</option>
                                             <option value="3">pvk</option>
                                             <option value="1">zvk</option>
                                             <option value="2">i.o.</option>
@@ -646,7 +646,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     } else {
                                     ?>
                                         <select name="c_zugang_art_2" id="c_zugang_art_2" class="w-100 form-select" autocomplete="off">
-                                            <option selected>Art</option>
+                                            <option value="" selected>Art</option>
                                             <option value="3" <?php echo ($daten['c_zugang_art_2'] == 3 ? 'selected' : '') ?>>pvk</option>
                                             <option value="1" <?php echo ($daten['c_zugang_art_2'] == 1 ? 'selected' : '') ?>>zvk</option>
                                             <option value="2" <?php echo ($daten['c_zugang_art_2'] == 2 ? 'selected' : '') ?>>i.o.</option>
@@ -660,7 +660,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     if ($daten['c_zugang_gr_2'] === NULL) {
                                     ?>
                                         <select name="c_zugang_gr_2" id="c_zugang_gr_2" class="w-100 form-select edivi__zugang-list">
-                                            <option selected>Gr.</option>
+                                            <option value="" selected>Gr.</option>
                                             <option disabled>-- i.v. --</option>
                                             <option value="10">G24</option>
                                             <option value="1">G22</option>
@@ -678,7 +678,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     } else {
                                     ?>
                                         <select name="c_zugang_gr_2" id="c_zugang_gr_2" class="w-100 form-select edivi__zugang-list" autocomplete="off">
-                                            <option selected>Gr.</option>
+                                            <option value="" selected>Gr.</option>
                                             <option disabled>-- i.v. --</option>
                                             <option value="10" <?php echo ($daten['c_zugang_gr_2'] == 10 ? 'selected' : '') ?>>G24</option>
                                             <option value="1" <?php echo ($daten['c_zugang_gr_2'] == 1 ? 'selected' : '') ?>>G22</option>
@@ -707,7 +707,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     if ($daten['c_zugang_art_3'] === NULL) {
                                     ?>
                                         <select name="c_zugang_art_3" id="c_zugang_art_3" class="w-100 form-select">
-                                            <option selected>Art</option>
+                                            <option value="" selected>Art</option>
                                             <option value="3">pvk</option>
                                             <option value="1">zvk</option>
                                             <option value="2">i.o.</option>
@@ -716,7 +716,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     } else {
                                     ?>
                                         <select name="c_zugang_art_3" id="c_zugang_art_3" class="w-100 form-select" autocomplete="off">
-                                            <option selected>Art</option>
+                                            <option value="" selected>Art</option>
                                             <option value="3" <?php echo ($daten['c_zugang_art_3'] == 3 ? 'selected' : '') ?>>pvk</option>
                                             <option value="1" <?php echo ($daten['c_zugang_art_3'] == 1 ? 'selected' : '') ?>>zvk</option>
                                             <option value="2" <?php echo ($daten['c_zugang_art_3'] == 2 ? 'selected' : '') ?>>i.o.</option>
@@ -730,7 +730,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     if ($daten['c_zugang_gr_3'] === NULL) {
                                     ?>
                                         <select name="c_zugang_gr_3" id="c_zugang_gr_3" class="w-100 form-select edivi__zugang-list">
-                                            <option selected>Gr.</option>
+                                            <option value="" selected>Gr.</option>
                                             <option disabled>-- i.v. --</option>
                                             <option value="10">G24</option>
                                             <option value="1">G22</option>
@@ -748,7 +748,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     } else {
                                     ?>
                                         <select name="c_zugang_gr_3" id="c_zugang_gr_3" class="w-100 form-select edivi__zugang-list" autocomplete="off">
-                                            <option selected>Gr.</option>
+                                            <option value="" selected>Gr.</option>
                                             <option disabled>-- i.v. --</option>
                                             <option value="10" <?php echo ($daten['c_zugang_gr_3'] == 10 ? 'selected' : '') ?>>G24</option>
                                             <option value="1" <?php echo ($daten['c_zugang_gr_3'] == 1 ? 'selected' : '') ?>>G22</option>
