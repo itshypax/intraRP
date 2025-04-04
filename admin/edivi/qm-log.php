@@ -1,16 +1,20 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
-    // Store the current page's URL in a session variable
     $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
 
-    // Redirect the user to the login page
     header("Location: /admin/login.php");
     exit();
-} else if ($notadmincheck && !$edview) {
+}
+
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+
+if (!Permissions::check(['admin', 'edivi_view'])) {
+    Flash::set('error', 'no-permissions');
     header("Location: /admin/index.php");
 }
 
@@ -20,6 +24,7 @@ $stmt->execute();
 $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (count($row) == 0) {
+    Flash::set('edivi', 'not-found');
     header("Location: /admin/edivi/list.php");
 }
 
@@ -42,9 +47,9 @@ $prot_url = "https://" . SYSTEM_URL . "/admin/edivi/view.php?id=" . $row['id'];
     <link rel="stylesheet" href="/assets/_ext/lineawesome/css/line-awesome.min.css" />
     <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
-    <script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="/assets/_ext/jquery/jquery.min.js"></script>
+    <link rel="stylesheet" href="/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <script src="/vendor/components/jquery/jquery.min.js"></script>
+    <script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <!-- html2canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Favicon -->
@@ -110,7 +115,7 @@ $prot_url = "https://" . SYSTEM_URL . "/admin/edivi/view.php?id=" . $row['id'];
             </div>
         </div>
     </form>
-    <?php if (!$admincheck && !$ededit) : ?>
+    <?php if (!Permissions::check(['admin', 'edivi_edit'])) : ?>
         <script>
             window.close();
         </script>

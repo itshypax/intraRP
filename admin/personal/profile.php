@@ -1,27 +1,19 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
+require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     header("Location: /admin/login.php");
-} elseif ($notadmincheck) {
-    if ($perview) {
-        $canView = true;
-        $canEdit = $peredit;
-    } else {
-        $canView = false;
-        $canEdit = false;
-    }
-
-    if (!$canView && !$canEdit) {
-        header("Location: /admin/index.php");
-    }
-} else {
-    $canView = true;
-    $canEdit = true;
 }
 
-require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+
+if (!Permissions::check(['admin', 'personal_view'])) {
+    Flash::set('error', 'no-permissions');
+    header("Location: /admin/index.php");
+}
 
 //Abfrage der Nutzer ID vom Login
 $userid = $_SESSION['userid'];
@@ -367,9 +359,9 @@ if (isset($_POST['new'])) {
     <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
     <link rel="stylesheet" href="/assets/_ext/ckeditor5/ckeditor5.css" />
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
-    <script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="/assets/_ext/jquery/jquery.min.js"></script>
+    <link rel="stylesheet" href="/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <script src="/vendor/components/jquery/jquery.min.js"></script>
+    <script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
@@ -410,8 +402,8 @@ if (isset($_POST['new'])) {
                         <div class="alert alert-info" role="alert">
                             <h5 class="fw-bold">Achtung!</h5>
                             Dieses Mitarbeiterprofil gehört einem Funktionsträger - dieser besitzt ein registriertes Benutzerkonto im Intranet.<br>
-                            <?php if ($admincheck || $usedit) { ?>
-                                <strong>Name u. Benutzername:</strong> <a href="/admin/users/user<?= $panelakte['id'] ?>" class="text-decoration-none"><?= $panelakte['fullname'] ?> (<?= $panelakte['username'] ?>)</a>
+                            <?php if (Permissions::check(['admin', 'users_view'])) { ?>
+                                <strong>Name u. Benutzername:</strong> <a href="/admin/users/edit.php?id=<?= $panelakte['id'] ?>" class="text-decoration-none"><?= $panelakte['fullname'] ?> (<?= $panelakte['username'] ?>)</a>
                             <?php } else { ?>
                                 <strong>Name u. Benutzername:</strong> <?= $panelakte['fullname'] ?> (<?= $panelakte['username'] ?>)
                             <?php } ?>
@@ -424,19 +416,19 @@ if (isset($_POST['new'])) {
                             <form id="profil" method="post">
                                 <div class="row">
                                     <div class="col">
-                                        <?php if (!isset($_GET['edit']) && $canView) { ?>
+                                        <?php if (!isset($_GET['edit'])) { ?>
                                             <div class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalNewComment" title="Notiz anlegen"><i class="las la-sticky-note"></i></div>
                                         <?php } ?>
-                                        <?php if (!isset($_GET['edit']) && $admincheck || !isset($_GET['edit']) && $perdoku) { ?>
+                                        <?php if (!isset($_GET['edit']) && Permissions::check(['admin', 'intra_mitarbeiter_dokumente'])) { ?>
                                             <div class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalDokuCreate" title="Dokument erstellen"><i class="las la-print"></i></div>
                                         <?php } ?>
-                                        <?php if (!isset($_GET['edit']) && $canEdit) { ?>
+                                        <?php if (!isset($_GET['edit']) && Permissions::check(['admin', 'personal_edit'])) { ?>
                                             <a href="?id=<?= $_GET['id'] . (isset($_GET['page']) ? '&page=' . $_GET['page'] : '') ?>&edit" class="btn btn-dark btn-sm" id="personal-edit" title="Profil bearbeiten"><i class="las la-edit"></i></a>
                                             <div class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalFDQuali" title="Fachdienste bearbeiten"><i class="las la-graduation-cap"></i></div>
-                                        <?php } elseif (isset($_GET['edit']) && $canEdit) { ?>
+                                        <?php } elseif (isset($_GET['edit']) && Permissions::check(['admin', 'personal_edit'])) { ?>
                                             <a href="#" class="btn btn-success btn-sm" id="personal-save" onclick="document.getElementById('profil').submit()"><i class="las la-save"></i></a>
                                             <a href="<?php echo removeEditParamFromURL(); ?>" class="btn btn-dark btn-sm"><i class="las la-arrow-left"></i></a>
-                                            <?php if ($admincheck || $perdelete) { ?>
+                                            <?php if (Permissions::check(['admin', 'personal_delete'])) { ?>
                                                 <div class="btn btn-danger btn-sm" id="personal-delete" data-bs-toggle="modal" data-bs-target="#modalPersoDelete"><i class="las la-trash"></i></div>
                                         <?php }
                                         } ?>
@@ -458,7 +450,7 @@ if (isset($_POST['new'])) {
                                 ?>
                                 <div class="w-100 text-center">
                                     <i class="las la-user-circle" style="font-size:94px"></i>
-                                    <?php if (!isset($_GET['edit']) || !$canEdit) { ?>
+                                    <?php if (!isset($_GET['edit']) || !Permissions::check(['admin', 'personal_edit'])) { ?>
                                         <p class="mt-3">
                                             <?php if ($row['geschlecht'] == 0) {
                                                 $geschlechtText = "Herr";
@@ -489,7 +481,7 @@ if (isset($_POST['new'])) {
                                         include $_SERVER['DOCUMENT_ROOT'] . '/assets/components/profiles/qualiselector.php';
                                     } ?>
                                     <hr class="my-3">
-                                    <?php if (!isset($_GET['edit']) || !$canEdit) { ?>
+                                    <?php if (!isset($_GET['edit']) || !Permissions::check(['admin', 'personal_edit'])) { ?>
                                         <table class="mx-auto w-100">
                                             <tbody class="text-start">
                                                 <tr>
@@ -526,7 +518,7 @@ if (isset($_POST['new'])) {
                                         <div id="fd-container">
                                             <?php include $_SERVER['DOCUMENT_ROOT'] . "/assets/components/profiles/anzeige_fachdienste.php" ?>
                                         </div>
-                                    <?php } elseif (isset($_GET['edit']) && $canEdit) { ?>
+                                    <?php } elseif (isset($_GET['edit']) && Permissions::check(['admin', 'personal_edit'])) { ?>
                                         <input type="hidden" name="id" id="id" value="<?= $_GET['id'] ?>" />
                                         <input type="hidden" name="new" value="1" />
                                         <table class="mx-auto w-100">

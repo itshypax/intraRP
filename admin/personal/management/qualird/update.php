@@ -1,10 +1,14 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 
-if ($notadmincheck) {
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+
+if (!Permissions::check('admin')) {
+    Flash::set('error', 'no-permissions');
     header("Location: /admin/personal/management/qualird/index.php");
     exit;
 }
@@ -19,7 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $trainable = isset($_POST['trainable']) ? 1 : 0;
 
     if ($id <= 0 || empty($name)) {
-        header("Location: /admin/personal/management/qualird/index.php?error=invalid");
+        Flash::set('error', 'missing-fields');
+        header("Location: /admin/personal/management/qualird/index.php");
         exit;
     }
 
@@ -44,11 +49,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':id' => $id
         ]);
 
-        header("Location: /admin/personal/management/qualird/index.php?success=updated");
+        Flash::set('success', 'updated');
+        header("Location: /admin/personal/management/qualird/index.php");
         exit;
     } catch (PDOException $e) {
         error_log("PDO Error: " . $e->getMessage());
-        header("Location: /admin/personal/management/qualird/index.php?error=exception");
+        Flash::set('error', 'exception');
+        header("Location: /admin/personal/management/qualird/index.php");
         exit;
     }
 } else {

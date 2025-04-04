@@ -1,10 +1,14 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 
-if ($notadmincheck) {
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+
+if (!Permissions::check('admin')) {
+    Flash::set('error', 'no-permissions');
     header("Location: /admin/personal/management/qualird/index.php");
     exit;
 }
@@ -18,7 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $trainable = isset($_POST['trainable']) ? 1 : 0;
 
     if (empty($name) || empty($name_m) || empty($name_w)) {
-        header("Location: /admin/personal/management/qualird/index.php?error=invalid-input");
+        Flash::set('error', 'missing-fields');
+        header("Location: /admin/personal/management/qualird/index.php");
         exit;
     }
 
@@ -36,11 +41,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':trainable' => $trainable
         ]);
 
-        header("Location: /admin/personal/management/qualird/index.php?success=created");
+        Flash::set('qualification', 'created');
+        header("Location: /admin/personal/management/qualird/index.php");
         exit;
     } catch (PDOException $e) {
         error_log("PDO Error (create dienstgrad): " . $e->getMessage());
-        header("Location: /admin/personal/management/qualird/index.php?error=exception");
+        Flash::set('error', 'exception');
+        header("Location: /admin/personal/management/qualird/index.php");
         exit;
     }
 } else {

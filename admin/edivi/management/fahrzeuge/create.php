@@ -1,9 +1,13 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 
-if ($notadmincheck) {
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+
+if (!Permissions::check('admin')) {
+    Flash::set('error', 'no-permissions');
     header("Location: /admin/edivi/management/fahrzeuge/index.php");
 }
 
@@ -17,7 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $active = isset($_POST['active']) ? 1 : 0;
 
     if (empty($name) || empty($veh_type) || empty($identifier)) {
-        header("Location: /admin/edivi/management/fahrzeuge/index.php?error=invalid-input");
+        Flash::set('error', 'missing-fields');
+        header("Location: /admin/edivi/management/fahrzeuge/index.php");
         exit;
     }
 
@@ -32,11 +37,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':active' => $active
         ]);
 
-        header("Location: /admin/edivi/management/fahrzeuge/index.php?success=created");
+        Flash::set('vehicle', 'created');
+        header("Location: /admin/edivi/management/fahrzeuge/index.php");
         exit;
     } catch (PDOException $e) {
         error_log("PDO Insert Error: " . $e->getMessage());
-        header("Location: /admin/edivi/management/fahrzeuge/index.php?error=exception");
+        Flash::set('error', 'exception');
+        header("Location: /admin/edivi/management/fahrzeuge/index.php");
         exit;
     }
 } else {

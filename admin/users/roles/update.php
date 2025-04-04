@@ -1,10 +1,14 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 
-if (!$fadmin) {
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+
+if (!Permissions::check('full_admin')) {
+    Flash::set('error', 'no-permissions');
     header("Location: /admin/users/roles/index.php");
     exit;
 }
@@ -17,18 +21,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $color = trim($_POST['color'] ?? '');
     $permissions = $_POST['permissions'] ?? [];
 
-    // Validate required fields
     if ($id <= 0 || empty($name) || empty($color)) {
-        header("Location: /admin/users/roles/index.php?error=invalid-input");
+        Flash::set('role', 'invalid-input');
+        header("Location: /admin/users/roles/index.php");
         exit;
     }
 
-    // Make sure permissions is an array
     if (!is_array($permissions)) {
         $permissions = [];
     }
 
-    // Encode permissions as JSON
     $permissions_json = json_encode(array_values($permissions));
 
     try {
@@ -42,11 +44,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':id' => $id
         ]);
 
-        header("Location: /admin/users/roles/index.php?success=updated");
+        Flash::set('success', 'updated');
+        header("Location: /admin/users/roles/index.php");
         exit;
     } catch (PDOException $e) {
         error_log("PDO Error (roles update): " . $e->getMessage());
-        header("Location: /admin/users/roles/index.php?error=exception");
+        Flash::set('error', 'exception');
+        header("Location: /admin/users/roles/index.php");
         exit;
     }
 } else {

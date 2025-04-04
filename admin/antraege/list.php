@@ -2,13 +2,20 @@
 
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
-if (!isset($_SESSION['userid']) && !isset($_SESSION['permissions'])) {
-    die('Bitte zuerst <a href="/admin/login.php">einloggen</a>');
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
+if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
+    $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
+
+    header("Location: /admin/login.php");
+    exit();
 }
 
-if ($notadmincheck && !$anedit) {
-    header("Location: /admin/index.php?message=error-2");
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+
+if (!Permissions::check(['admin', 'antraege_edit'])) {
+    Flash::set('error', 'no-permissions');
+    header("Location: /admin/index.php");
 }
 
 ?>
@@ -27,10 +34,10 @@ if ($notadmincheck && !$anedit) {
     <link rel="stylesheet" href="/assets/_ext/lineawesome/css/line-awesome.min.css" />
     <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
-    <script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="/assets/_ext/jquery/jquery.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="/assets/_ext/datatables/datatables.min.css">
+    <link rel="stylesheet" href="/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <script src="/vendor/components/jquery/jquery.min.js"></script>
+    <script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="/vendor/datatables.net/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
@@ -118,8 +125,8 @@ if ($notadmincheck && !$anedit) {
         </div>
     </div>
 
-    <script src="/assets/_ext/jquery/jquery.dataTables.min.js"></script>
-    <script src="/assets/_ext/datatables/datatables.min.js"></script>
+    <script src="/vendor/datatables.net/datatables.net/js/dataTables.min.js"></script>
+    <script src="/vendor/datatables.net/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function() {
             var table = $('#table-antrag').DataTable({

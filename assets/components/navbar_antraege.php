@@ -1,3 +1,7 @@
+<?php
+
+use App\Auth\Permissions; ?>
+
 <div class="cirs-nav">
     <h6>Anträge</h6>
     <div class="cirs-link">
@@ -5,7 +9,7 @@
     </div>
     <?php
     if (isset($_SESSION['userid']) && isset($_SESSION['permissions'])) {
-        if ($fadmin || $admin || $anview) { ?>
+        if (Permissions::check(['admin', 'antraege_view'])) { ?>
             <hr class="my-3">
             <h6>Verwaltung</h6>
             <div class="cirs-link mb-2">
