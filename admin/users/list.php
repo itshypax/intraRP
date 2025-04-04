@@ -1,16 +1,20 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
-    // Store the current page's URL in a session variable
     $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
 
-    // Redirect the user to the login page
     header("Location: /admin/login.php");
     exit();
-} else if ($notadmincheck && !$usview) {
-    header("Location: /admin/users/list.php");
+}
+
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+
+if (!Permissions::check(['admin', 'users_view'])) {
+    Flash::set('error', 'no-permissions');
+    header("Location: /admin/index.php");
 }
 ?>
 
@@ -61,38 +65,8 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                     <hr class="text-light my-3">
                     <h1 class="mb-5">Benutzerübersicht</h1>
                     <?php
-                    $messages = [
-                        'error-1' => [
-                            'type' => 'danger',
-                            'title' => 'Fehler!',
-                            'text' => 'Du kannst dich nicht selbst bearbeiten!'
-                        ],
-                        'error-2' => [
-                            'type' => 'danger',
-                            'title' => 'Fehler!',
-                            'text' => 'Dazu hast du nicht die richtigen Berechtigungen!'
-                        ],
-                        'error-3' => [
-                            'type' => 'danger',
-                            'title' => 'Fehler!',
-                            'text' => 'Du kannst keine Benutzer mit den Selben oder höheren Berechtigungen bearbeiten!'
-                        ],
-                        'success-1' => [
-                            'type' => 'success',
-                            'title' => 'Erfolg!',
-                            'text' => 'Das Passwort für den Benutzer <strong>' . htmlspecialchars($_GET['user'] ?? '') . '</strong> wurde bearbeitet.<br>- Neues Passwort: <code>' . htmlspecialchars($_GET['pass'] ?? '') . '</code>'
-                        ]
-                    ];
-
-                    if (isset($_GET['message']) && array_key_exists($_GET['message'], $messages)) {
-                        $msg = $messages[$_GET['message']];
+                    Flash::render();
                     ?>
-                        <div class="alert alert-<?= htmlspecialchars($msg['type']) ?> alert-dismissible fade show" role="alert">
-                            <h5><?= htmlspecialchars($msg['title']) ?></h5>
-                            <?= $msg['text'] ?>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Schließen"></button>
-                        </div>
-                    <?php } ?>
                     <div class="intra__tile py-2 px-3">
                         <table class="table table-striped" id="userTable">
                             <thead>
@@ -128,7 +102,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                     echo "<td>" . $row['fullname'] .  " (<strong>" . $row['username'] . "</strong>)</td>";
                                     echo "<td><span class='badge text-bg-" . $role_color . "'>" . $role_name . "</span></td>";
                                     echo "<td><span style='display:none'>" . $row['created_at'] . "</span>" . $date . "</td>";
-                                    if ($usedit || $admincheck) {
+                                    if (Permissions::check(['admin', 'users_edit'])) {
                                         echo "<td><a href='/admin/users/edit.php?id=" . $row['id'] . "' class='btn btn-sm btn-primary'>Bearbeiten</a>";
                                         if (isset($row['aktenid']) && $row['aktenid'] > 0) {
                                             echo " <a href='/admin/personal/profile.php?id=" . $row['aktenid'] . "' class='btn btn-sm btn-warning'>Profil</a>";

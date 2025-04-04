@@ -1,17 +1,21 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
-    // Store the current page's URL in a session variable
     $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
 
-    // Redirect the user to the login page
     header("Location: /admin/login.php");
     exit();
-} else if ($notadmincheck && !$perview) {
-    header("Location: /admin/users/list.php");
+}
+
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+
+if (!Permissions::check(['admin', 'personal_view'])) {
+    Flash::set('error', 'no-permissions');
+    header("Location: /admin/index.php");
 }
 
 $stmtg = $pdo->prepare("SELECT * FROM intra_mitarbeiter_dienstgrade");
@@ -83,6 +87,9 @@ $rdginfo = $stmtr->fetchAll(PDO::FETCH_UNIQUE);
                             </div>
                         </div>
                     </div>
+                    <?php
+                    Flash::render();
+                    ?>
                     <div class="intra__tile py-2 px-3">
                         <table class="table table-striped" id="mitarbeiterTable">
                             <thead>

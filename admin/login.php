@@ -22,7 +22,6 @@ if (isset($_GET['login'])) {
     $result = $statement->execute(array('username' => $username));
     $user = $statement->fetch();
 
-    //Überprüfung des Passworts
     if ($user !== false && password_verify($passwort, $user['passwort'])) {
         $_SESSION['userid'] = $user['id'];
         $_SESSION['cirs_user'] = $user['fullname'];

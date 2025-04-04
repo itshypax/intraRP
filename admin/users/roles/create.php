@@ -1,10 +1,14 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 
-if (!$fadmin) {
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+
+if (!Permissions::check('full_admin')) {
+    Flash::set('error', 'no-permissions');
     header("Location: /admin/users/roles/index.php");
     exit;
 }
@@ -17,7 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $permissions = $_POST['permissions'] ?? [];
 
     if (empty($name) || empty($color)) {
-        header("Location: /admin/users/roles/index.php?error=invalid-input");
+        Flash::set('error', 'missing-fields');
+        header("Location: /admin/users/roles/index.php");
         exit;
     }
 
@@ -32,11 +37,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':permissions' => $permissions_json
         ]);
 
-        header("Location: /admin/users/roles/index.php?success=created");
+        Flash::set('role', 'created');
+        header("Location: /admin/users/roles/index.php");
         exit;
     } catch (PDOException $e) {
         error_log("PDO Insert Error (roles): " . $e->getMessage());
-        header("Location: /admin/users/roles/index.php?error=exception");
+        Flash::set('error', 'exception');
+        header("Location: /admin/users/roles/index.php");
         exit;
     }
 } else {

@@ -1,10 +1,11 @@
 <?php
 require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 
-$commentsPerPage = 6; // Number of comments to display per page
-$page = isset($_GET['page']) ? $_GET['page'] : 1; // Current page number, default is 1
+use App\Auth\Permissions;
 
-// Calculate the offset for comments retrieval
+$commentsPerPage = 6;
+$page = isset($_GET['page']) ? $_GET['page'] : 1;
+
 $offset = ($page - 1) * $commentsPerPage;
 
 $stmt = $pdo->prepare("SELECT * FROM intra_mitarbeiter_log WHERE profilid = ? ORDER BY datetime DESC LIMIT ?, ?");
@@ -40,7 +41,7 @@ foreach ($comments as $comment) {
     echo "<div class='comment $commentType border shadow-sm'>";
     $comtime = date("d.m.Y H:i", strtotime($comment['datetime']));
     echo "<p>{$comment['content']}<br><small><span><i class='las la-user'></i> {$comment['paneluser']} <i class='las la-clock'></i> $comtime";
-    if ($fadmin && $comment['type'] <= 3 || $admin && $comment['type'] <= 3) {
+    if (Permissions::check('admin') && $comment['type'] <= 3) {
         echo " / <a href='/admin/personal/comment-delete.php?id={$comment['logid']}&pid={$comment['profilid']}'><i class='las la-trash' style='color:red;margin-left:5px'></i></a></span></small></p>";
     } else {
         echo "</span></small></p>";
@@ -48,26 +49,20 @@ foreach ($comments as $comment) {
     echo "</div>";
 }
 
-
-// Calculate the total number of comments
 $totalComments = count($comments);
 
-// Calculate the total number of pages
 $totalPages = ceil($totalComments / $commentsPerPage);
 
-// Display pagination links if there are more than one page
 if ($totalPages > 1) {
     echo '<nav aria-label="Comment Pagination">';
     echo '<ul class="pagination justify-content-center">';
 
     $editArgument = isset($_GET['edit']) ? '&edit' : '';
 
-    // Previous page link
     if ($page > 1) {
         echo '<li class="page-item"><a class="page-link" href="?id=' . $_GET['id'] . '&page=' . ($page - 1) . $editArgument . '">Zurück</a></li>';
     }
 
-    // Page links
     for ($i = 1; $i <= $totalPages; $i++) {
         if ($i == $page) {
             echo '<li class="page-item active"><a class="page-link" href="#">' . $i . '</a></li>';
@@ -76,7 +71,6 @@ if ($totalPages > 1) {
         }
     }
 
-    // Next page link
     if ($page < $totalPages) {
         echo '<li class="page-item"><a class="page-link" href="?id=' . $_GET['id'] . '&page=' . ($page + 1) . $editArgument . '">Weiter</a></li>';
     }

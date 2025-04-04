@@ -1,13 +1,19 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
 
     header("Location: /admin/login.php");
     exit();
-} else if ($notadmincheck && !$edview) {
+}
+
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+
+if (!Permissions::check(['admin', 'edivi_view'])) {
+    Flash::set('error', 'no-permissions');
     header("Location: /admin/index.php");
 }
 ?>
@@ -60,41 +66,14 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                     <div class="d-flex justify-content-between align-items-center mb-5">
                         <h1 class="mb-0">Fahrzeugverwaltung</h1>
 
-                        <?php if ($admincheck) : ?>
+                        <?php if (Permissions::check('admin')) : ?>
                             <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createFahrzeugModal">
                                 <i class="las la-plus"></i> Fahrzeug erstellen
                             </button>
                         <?php endif; ?>
                     </div>
                     <?php
-                    $alerts = [
-                        'success' => [
-                            'updated' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Änderung erfolgreich gespeichert.'],
-                            'deleted' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Das Fahrzeug wurde erfolgreich gelöscht.'],
-                            'created' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Das Fahrzeug wurde erfolgreich erstellt.'],
-                        ],
-                        'error' => [
-                            'exception' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Beim Speichern ist ein Fehler aufgetreten.'],
-                            'invalid' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Ungültige Eingabe.'],
-                            'not-allowed' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Keine Berechtigung.'],
-                            'not-found' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Das Fahrzeug wurde nicht gefunden.'],
-                            'invalid-id' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Ungültige Fahrzeug-ID.'],
-                            'invalid-input' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Bitte fülle alle Pflichtfelder aus, um ein Fahrzeug anzulegen.'],
-                        ]
-                    ];
-
-                    foreach (['success', 'error'] as $type) {
-                        if (isset($_GET[$type]) && isset($alerts[$type][$_GET[$type]])) {
-                            $alert = $alerts[$type][$_GET[$type]];
-                    ?>
-                            <div class="alert alert-<?= htmlspecialchars($alert['type']) ?> alert-dismissible fade show" role="alert">
-                                <strong><?= htmlspecialchars($alert['title']) ?></strong> <?= htmlspecialchars($alert['text']) ?>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Schließen"></button>
-                            </div>
-                    <?php
-                            break;
-                        }
-                    }
+                    Flash::render();
                     ?>
                     <div class="intra__tile py-2 px-3">
                         <table class="table table-striped" id="table-fahrzeuge">
@@ -135,7 +114,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                             break;
                                     }
 
-                                    $actions = ($admincheck)
+                                    $actions = (Permissions::check('admin'))
                                         ? "<a title='Fahrzeug bearbeiten' href='#' class='btn btn-sm btn-primary edit-btn' data-bs-toggle='modal' data-bs-target='#editFahrzeugModal' data-id='{$row['id']}' data-name='{$row['name']}' data-type='{$row['veh_type']}' data-priority='{$row['priority']}' data-identifier='{$row['identifier']}' data-doctor='{$row['doctor']}' data-active='{$row['active']}'><i class='las la-pen'></i></a>"
                                         : "";
 
@@ -157,7 +136,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     </div>
 
     <!-- MODAL BEGIN -->
-    <?php if ($admincheck) : ?>
+    <?php if (Permissions::check('admin')) : ?>
         <div class="modal fade" id="editFahrzeugModal" tabindex="-1" aria-labelledby="editFahrzeugModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -220,7 +199,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     <?php endif; ?>
     <!-- MODAL END -->
     <!-- MODAL 2 BEGIN -->
-    <?php if ($admincheck) : ?>
+    <?php if (Permissions::check('admin')) : ?>
         <div class="modal fade" id="createFahrzeugModal" tabindex="-1" aria-labelledby="createFahrzeugModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">

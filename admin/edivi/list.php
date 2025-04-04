@@ -1,15 +1,19 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
-    // Store the current page's URL in a session variable
     $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
 
-    // Redirect the user to the login page
     header("Location: /admin/login.php");
     exit();
-} else if ($notadmincheck && !$edview) {
+}
+
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+
+if (!Permissions::check(['admin', 'edivi_view'])) {
+    Flash::set('error', 'no-permissions');
     header("Location: /admin/index.php");
 }
 ?>
@@ -68,21 +72,8 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                         <?php } ?>
                     </div>
                     <?php
-                    $messages = [
-                        'error-1' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Du kannst dich nicht selbst bearbeiten!'],
-                        'error-2' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Dazu hast du nicht die richtigen Berechtigungen!'],
-                        'success-1' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Änderung erfolgreich gespeichert!'],
-                    ];
-
-                    if (isset($_GET['message'], $messages[$_GET['message']])) {
-                        $msg = $messages[$_GET['message']];
+                    Flash::render();
                     ?>
-                        <div class="alert alert-<?= htmlspecialchars($msg['type']) ?> alert-dismissible fade show" role="alert">
-                            <h5><?= htmlspecialchars($msg['title']) ?></h5>
-                            <?= htmlspecialchars($msg['text']) ?>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Schließen"></button>
-                        </div>
-                    <?php } ?>
                     <div class="intra__tile py-2 px-3">
                         <table class="table table-striped" id="table-protokoll">
                             <thead>
@@ -134,9 +125,8 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 
                                     $patname = $row['patname'] ?? "Unbekannt";
 
-                                    $actions = ($edview || $admincheck)
-                                        ? "<a title='Protokoll ansehen' href='/admin/edivi/view.php?id={$row['id']}' class='btn btn-sm btn-primary'><i class='las la-eye'></i></a> 
-                                        <a title='Protokoll löschen' href='/admin/edivi/delete.php?id={$row['id']}' class='btn btn-sm btn-danger'><i class='las la-trash'></i></a>"
+                                    $actions = (Permissions::check(['admin', 'edivi_edit']))
+                                        ? "<a title='Protokoll löschen' href='/admin/edivi/delete.php?id={$row['id']}' class='btn btn-sm btn-danger'><i class='las la-trash'></i></a>"
                                         : "";
 
                                     echo "<tr>";
@@ -145,7 +135,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                     echo "<td><span style='display:none'>" . $row['sendezeit'] . "</span>" . $date . "</td>";
                                     echo "<td>" . $row['pfname'] . " " . $freigabe_status . "</td>";
                                     echo "<td>" . $status . "</td>";
-                                    echo "<td>{$actions}</td>";
+                                    echo "<td><a title='Protokoll ansehen' href='/admin/edivi/view.php?id={$row['id']}' class='btn btn-sm btn-primary'><i class='las la-eye'></i></a> {$actions}</td>";
                                     echo "</tr>";
                                 }
                                 ?>

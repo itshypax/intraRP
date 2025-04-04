@@ -1,15 +1,19 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
-    // Store the current page's URL in a session variable
     $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
 
-    // Redirect the user to the login page
     header("Location: /admin/login.php");
     exit();
-} else if ($notadmincheck && !$fillog) {
+}
+
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+
+if (!Permissions::check(['admin', 'files_log'])) {
+    Flash::set('error', 'no-permissions');
     header("Location: /admin/index.php");
 }
 ?>

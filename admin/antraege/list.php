@@ -2,13 +2,20 @@
 
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
-if (!isset($_SESSION['userid']) && !isset($_SESSION['permissions'])) {
-    die('Bitte zuerst <a href="/admin/login.php">einloggen</a>');
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
+if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
+    $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
+
+    header("Location: /admin/login.php");
+    exit();
 }
 
-if ($notadmincheck && !$anedit) {
-    header("Location: /admin/index.php?message=error-2");
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+
+if (!Permissions::check(['admin', 'antraege_edit'])) {
+    Flash::set('error', 'no-permissions');
+    header("Location: /admin/index.php");
 }
 
 ?>

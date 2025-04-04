@@ -1,10 +1,14 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 
-if ($notadmincheck) {
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+
+if (!Permissions::check('admin')) {
+    Flash::set('error', 'no-permissions');
     header("Location: /admin/edivi/management/ziele/index.php");
 }
 
@@ -17,7 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $identifier = trim($_POST['identifier'] ?? '');
 
     if ($id <= 0 || empty($name) || empty($identifier)) {
-        header("Location: /admin/edivi/management/ziele/index.php?error=invalid");
+        Flash::set('error', 'missing-fields');
+        header("Location: /admin/edivi/management/ziele/index.php");
         exit;
     }
 
@@ -33,11 +38,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':id' => $id
         ]);
 
-        header("Location: /admin/edivi/management/ziele/index.php?success=updated");
+        Flash::set('success', 'updated');
+        header("Location: /admin/edivi/management/ziele/index.php");
         exit;
     } catch (PDOException $e) {
         error_log("PDO Error: " . $e->getMessage());
-        header("Location: /admin/edivi/management/ziele/index.php?error=exception");
+        Flash::set('error', 'exception');
+        header("Location: /admin/edivi/management/ziele/index.php");
         exit;
     }
 } else {

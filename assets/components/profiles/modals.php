@@ -1,3 +1,7 @@
+<?php
+
+use App\Auth\Permissions; ?>
+
 <!-- MODAL -->
 <div class="modal fade" id="modalFDQuali" tabindex="-1" aria-labelledby="modalFDQualiLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -136,7 +140,7 @@
 <!-- MODAL ENDE -->
 
 <!-- MODAL -->
-<?php if ($admincheck || $perdelete) { ?>
+<?php if (Permissions::check(['admin', 'personal_delete'])) { ?>
     <div class="modal fade" id="modalPersoDelete" tabindex="-1" aria-labelledby="modalPersoDeleteLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -162,7 +166,7 @@
 <!-- MODAL ENDE -->
 
 <!-- MODAL -->
-<?php if ($admincheck || $perdoku) { ?>
+<?php if (Permissions::check(['admin', 'intra_mitarbeiter_dokumente'])) { ?>
     <div class="modal fade" id="modalDokuCreate" tabindex="-1" aria-labelledby="modalDokuCreateLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">

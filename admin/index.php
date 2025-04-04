@@ -1,15 +1,16 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
-    // Store the current page's URL in a session variable
     $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
 
-    // Redirect the user to the login page
     header("Location: /admin/login.php");
     exit();
 }
+
+use App\Auth\Permissions;
+use App\Helpers\Flash;
 
 ?>
 
@@ -60,12 +61,9 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                 <div class="col mb-5">
                     <hr class="text-light my-3">
                     <h1>Dashboard</h1>
-                    <?php if (isset($_GET['message']) && $_GET['message'] === 'error-2') { ?>
-                        <div class="alert alert-danger" role="alert">
-                            <h5>Fehler!</h5>
-                            Dazu hast du nicht die richtigen Berechtigungen!
-                        </div>
-                    <?php } ?>
+                    <?php
+                    Flash::render();
+                    ?>
                     <div class="alert alert-primary" role="alert">
                         <h3>Hallo, <?= $_SESSION['cirs_user'] ?>!</h3>
                         <span id="quote-of-the-day"></span>

@@ -1,21 +1,24 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
-    // Store the current page's URL in a session variable
     $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
 
-    // Redirect the user to the login page
     header("Location: /admin/login.php");
     exit();
-} else if ($notadmincheck && !$uscreate) {
-    header("Location: /admin/users/list.php?message=error-2");
+}
+
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+
+if (!Permissions::check(['admin', 'users_create'])) {
+    Flash::set('error', 'no-permissions');
+    header("Location: /admin/users/list.php");
 }
 
 require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 
-//Abfrage der Nutzer ID vom Login
 $userid = $_SESSION['userid'];
 
 if (isset($_POST['new']) && $_POST['new'] == 1) {

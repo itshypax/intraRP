@@ -1,13 +1,18 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
 
     header("Location: /admin/login.php");
     exit();
-} else if ($notadmincheck && !$edview) {
+}
+
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+
+if (!Permissions::check(['admin', 'users_view'])) {
     header("Location: /admin/index.php");
 }
 ?>
@@ -59,42 +64,14 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                     <hr class="text-light my-3">
                     <div class="d-flex justify-content-between align-items-center mb-5">
                         <h1 class="mb-0">Rollenverwaltung</h1>
-
-                        <?php if ($fadmin) : ?>
+                        <?php if (Permissions::check('full_admin')) : ?>
                             <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createRoleModal">
                                 <i class="las la-plus"></i> Rolle erstellen
                             </button>
                         <?php endif; ?>
                     </div>
                     <?php
-                    $alerts = [
-                        'success' => [
-                            'updated' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Änderung erfolgreich gespeichert.'],
-                            'deleted' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Die Rolle wurde erfolgreich gelöscht.'],
-                            'created' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Die Rolle wurde erfolgreich erstellt.'],
-                        ],
-                        'error' => [
-                            'exception' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Beim Speichern ist ein Fehler aufgetreten.'],
-                            'invalid' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Ungültige Eingabe.'],
-                            'not-allowed' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Keine Berechtigung.'],
-                            'not-found' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Die Rolle wurde nicht gefunden.'],
-                            'invalid-id' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Ungültige Rollen-ID.'],
-                            'invalid-input' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Bitte fülle alle Pflichtfelder aus, um eine Rolle anzulegen.'],
-                        ]
-                    ];
-
-                    foreach (['success', 'error'] as $type) {
-                        if (isset($_GET[$type]) && isset($alerts[$type][$_GET[$type]])) {
-                            $alert = $alerts[$type][$_GET[$type]];
-                    ?>
-                            <div class="alert alert-<?= htmlspecialchars($alert['type']) ?> alert-dismissible fade show" role="alert">
-                                <strong><?= htmlspecialchars($alert['title']) ?></strong> <?= htmlspecialchars($alert['text']) ?>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Schließen"></button>
-                            </div>
-                    <?php
-                            break;
-                        }
-                    }
+                    Flash::render();
                     ?>
                     <div class="intra__tile py-2 px-3">
                         <table class="table table-striped" id="table-rollen">
@@ -114,7 +91,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                 $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 foreach ($result as $row) {
 
-                                    $actions = ($fadmin)
+                                    $actions = (Permissions::check('full_admin'))
                                         ? "<a title='Rolle bearbeiten' href='#' class='btn btn-sm btn-primary edit-btn' data-bs-toggle='modal' data-bs-target='#editRoleModal' data-id='{$row['id']}' data-name='{$row['name']}' data-priority='{$row['priority']}' data-color='{$row['color']}' data-perms='{$row['permissions']}'><i class='las la-pen'></i></a>"
                                         : "";
 
@@ -135,7 +112,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     </div>
 
     <!-- MODAL BEGIN -->
-    <?php if ($admincheck) : ?>
+    <?php if (Permissions::check('admin')) : ?>
         <div class="modal fade" id="editRoleModal" tabindex="-1" aria-labelledby="editRoleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -250,7 +227,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     <?php endif; ?>
     <!-- MODAL END -->
     <!-- MODAL 2 BEGIN -->
-    <?php if ($fadmin) : ?>
+    <?php if (Permissions::check('full_admin')) : ?>
         <div class="modal fade" id="createRoleModal" tabindex="-1" aria-labelledby="createRoleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">

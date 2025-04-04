@@ -1,16 +1,20 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
-    // Store the current page's URL in a session variable
     $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
 
-    // Redirect the user to the login page
     header("Location: /admin/login.php");
     exit();
-} else if ($notadmincheck && !$edview) {
+}
+
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+
+if (!Permissions::check(['admin', 'edivi_view'])) {
+    Flash::set('error', 'no-permissions');
     header("Location: /admin/index.php");
 }
 
@@ -20,6 +24,7 @@ $stmt->execute();
 $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (count($row) == 0) {
+    Flash::set('edivi', 'not-found');
     header("Location: /admin/edivi/list.php");
 }
 
@@ -110,7 +115,7 @@ $prot_url = "https://" . SYSTEM_URL . "/admin/edivi/view.php?id=" . $row['id'];
             </div>
         </div>
     </form>
-    <?php if (!$admincheck && !$ededit) : ?>
+    <?php if (!Permissions::check(['admin', 'edivi_edit'])) : ?>
         <script>
             window.close();
         </script>

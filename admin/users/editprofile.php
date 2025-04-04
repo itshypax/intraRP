@@ -1,23 +1,17 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
+require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
-    // Store the current page's URL in a session variable
     $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
 
-    // Redirect the user to the login page
     header("Location: /admin/login.php");
     exit();
 }
 
-if ($notadmincheck && !$usedit) {
-    header("Location: /admin/users/list.php?message=error-2");
-}
+use App\Helpers\Flash;
 
-require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
-
-//Abfrage der Nutzer ID vom Login
 $userid = $_SESSION['userid'];
 
 $stmt = $pdo->prepare("SELECT * FROM intra_users WHERE id = :id");
@@ -44,7 +38,8 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
             'id' => $id
         ]);
 
-        header("Location: ?message=success-1");
+        Flash::set('own', 'pw-changed');
+        header("Refresh:0");
         exit();
     } else {
         $stmt = $pdo->prepare("UPDATE intra_users SET fullname = :fullname, aktenid = :aktenid WHERE id = :id");
@@ -54,7 +49,8 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
             'id' => $id
         ]);
 
-        header("Location: ?message=success-2");
+        Flash::set('own', 'data-changed');
+        header("Refresh:0");
         exit();
     }
 }
@@ -106,20 +102,8 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
                     <hr class="text-light my-3">
                     <h1 class="mb-5">Eigene Daten bearbeiten</h1>
                     <?php
-                    $messages = [
-                        'success-1' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Deine Daten & dein Passwort wurden aktualisiert!'],
-                        'success-2' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Deine Daten wurden aktualisiert!'],
-                    ];
-
-                    if (isset($_GET['message'], $messages[$_GET['message']])) {
-                        $msg = $messages[$_GET['message']];
+                    Flash::render();
                     ?>
-                        <div class="alert alert-<?= htmlspecialchars($msg['type']) ?> alert-dismissible fade show" role="alert">
-                            <h5><?= htmlspecialchars($msg['title']) ?></h5>
-                            <?= htmlspecialchars($msg['text']) ?>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Schließen"></button>
-                        </div>
-                    <?php } ?>
                     <form name="form" method="post" action="">
                         <div class="intra__tile py-2 px-3">
                             <input type="hidden" name="new" value="1" />

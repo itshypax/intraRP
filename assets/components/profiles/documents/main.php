@@ -1,3 +1,8 @@
+<?php
+
+use App\Auth\Permissions;
+?>
+
 <table class="table table-striped" id="documentTable">
     <thead>
         <th scope="col">Dokumenten-Typ</th>
@@ -41,8 +46,6 @@
                 $bg = "text-bg-danger";
             }
 
-            $adminPermission = $admincheck;
-
             echo "<tr>";
             echo "<td><span class='badge $bg'>" . $docart . "</span></td>";
             echo "<td>" . $doks['docid'] .  "</td>";
@@ -51,7 +54,7 @@
             echo "<td>";
             echo "<a href='$path' class='btn btn-sm btn-primary' target='_blank'>Ansehen</a>";
 
-            if ($adminPermission) {
+            if (Permissions::check('admin')) {
                 echo " <a href='/admin/personal/dokument-delete.php?id={$doks['docid']}&pid=$openedID' class='btn btn-sm btn-danger'><i class='las la-trash'></i></a>";
             }
 

@@ -1,16 +1,20 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
-    // Store the current page's URL in a session variable
     $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
 
-    // Redirect the user to the login page
     header("Location: /admin/login.php");
     exit();
-} else if ($notadmincheck && !$filupload) {
-    header("Location: /admin/users/list.php?message=error-2");
+}
+
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+
+if (!Permissions::check(['admin', 'files_upload'])) {
+    Flash::set('error', 'no-permissions');
+    header("Location: /admin/index.php");
 }
 ?>
 
@@ -74,8 +78,8 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
         </div>
     </div>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.2/dropzone.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.2/min/dropzone.min.js"></script>
+    <link rel="stylesheet" href="/vendor/enyo/dropzone/dist/min/dropzone.min.css" />
+    <script src="/vendor/enyo/dropzone/dist/min/dropzone.min.js"></script>
     <script>
         Dropzone.autoDiscover = false;
         var myDropzone = new Dropzone(".dropzone", {
