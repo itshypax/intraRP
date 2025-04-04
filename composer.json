@@ -6,7 +6,7 @@
     "enyo/dropzone": "^5.9",
     "components/jquery": "^3.7",
     "datatables.net/datatables.net-bs5": "^2.2",
-    "twbs/bootstrap": "5.3.5"
+    "twbs/bootstrap": "^5.3"
   },
   "autoload": {
     "psr-4": {
