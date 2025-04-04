@@ -16,11 +16,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Validate composer.json and composer.lock
-        run: composer validate --strict
-
       - name: Ensure the lock file is up-to-date
         run: composer update --lock
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
 
       - name: Cache Composer packages
         id: composer-cache
