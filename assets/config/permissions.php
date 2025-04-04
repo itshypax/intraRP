@@ -55,6 +55,29 @@ function checkPermission($requiredPermission)
     }
 }
 
+function checkPermissions($requiredPermissions)
+{
+    if (!isset($_SESSION['permissions'])) {
+        return false;
+    }
+
+    if (in_array('full_admin', $_SESSION['permissions'])) {
+        return true;
+    }
+
+    if (is_array($requiredPermissions)) {
+        foreach ($requiredPermissions as $perm) {
+            if (in_array($perm, $_SESSION['permissions'])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    return in_array($requiredPermissions, $_SESSION['permissions']);
+}
+
+
 // ADMIN
 $fadmin = checkPermission('full_admin');
 $admin = checkPermission('admin');
