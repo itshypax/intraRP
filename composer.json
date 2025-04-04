@@ -1,5 +1,5 @@
 {
-  "name": "itshypax/intraRP",
+  "name": "itshypax/intrarp",
   "description": "IntraRP ist das Intranet für deine Fraktionen (Feuerwehr, Rettungsdienst) - Allround-Fraktionsverwaltung",
   "require": {
     "vlucas/phpdotenv": "^5.6",
