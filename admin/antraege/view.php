@@ -12,6 +12,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
+use App\Utils\AuditLogger;
 
 if (!Permissions::check(['admin', 'antraege_edit'])) {
     Flash::set('error', 'no-permissions');
@@ -32,6 +33,19 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
     $cirs_status = $_REQUEST['cirs_status'];
     $cirs_text = $_REQUEST['cirs_text'];
     $jetzt = date("Y-m-d H:i:s");
+
+    $auditLogger = new AuditLogger($pdo);
+
+    if ($row['cirsmanager'] != $cirs_manager) {
+        $auditLogger->log($_SESSION['userid'], 'Bearbeiter geändert [ID: ' . $id . ']', $cirs_manager, 'Anträge',  1);
+    }
+    if ($row['cirs_status'] != $cirs_status) {
+        $auditLogger->log($_SESSION['userid'], 'Status geändert [ID: ' . $id . ']', 'Neuer Status: ' . $cirs_status, 'Anträge',  1);
+    }
+    if ($row['cirs_text'] != $cirs_text) {
+        $auditLogger->log($_SESSION['userid'], 'Bemerkung geändert [ID: ' . $id . ']', '"' . $cirs_text . '"', 'Anträge',  1);
+    }
+
     $stmt = $pdo->prepare("UPDATE intra_antrag_bef SET cirs_manager = :cirs_manager, cirs_status = :cirs_status, cirs_text = :cirs_text, cirs_time = :jetzt WHERE id = :id");
     $stmt->execute([
         ':cirs_manager' => $cirs_manager,
@@ -40,6 +54,7 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
         ':jetzt' => $jetzt,
         ':id' => $id
     ]);
+
     header("Refresh:0");
 }
 

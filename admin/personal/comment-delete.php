@@ -12,6 +12,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
+use App\Utils\AuditLogger;
 
 if (!Permissions::check(['admin', 'personal_kommentar_delete'])) {
     Flash::set('error', 'no-permissions');
@@ -26,6 +27,9 @@ $pid = $_GET['pid'];
 $stmt = $pdo->prepare("DELETE FROM personal_kommentare WHERE id = :id");
 $stmt->bindParam(':id', $id);
 $stmt->execute();
+
+$auditlogger = new AuditLogger($pdo);
+$auditlogger->log($userid, 'Profil-Kommentar gelöscht [ID: ' . $id . ']', NULL, 'Mitarbeiter', 1);
 
 header("Location: " . $_SERVER['HTTP_REFERER']);
 exit;

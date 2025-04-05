@@ -6,6 +6,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
+use App\Utils\AuditLogger;
 
 if (!Permissions::check('admin')) {
     Flash::set('error', 'no-permissions');
@@ -41,6 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
         Flash::set('success', 'updated');
+        $auditLogger = new AuditLogger($pdo);
+        $auditLogger->log($_SESSION['userid'], 'Fahrzeug aktualisiert [ID: ' . $id . ']', NULL, 'Fahrzeuge', 1);
         header("Location: /admin/edivi/management/fahrzeuge/index.php");
         exit;
     } catch (PDOException $e) {

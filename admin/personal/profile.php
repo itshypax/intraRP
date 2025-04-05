@@ -64,7 +64,6 @@ if (isset($_POST['new'])) {
         $id = $_POST['id'];
         $fullname = $_POST['fullname'];
         $gebdatum = $_POST['gebdatum'];
-        $charakterid = $_POST['charakterid'];
         $dienstgrad = $_POST['dienstgrad'];
         $discordtag = $_POST['discordtag'];
         $telefonnr = $_POST['telefonnr'];
@@ -74,7 +73,13 @@ if (isset($_POST['new'])) {
         $geschlecht = $_POST['geschlecht'];
         $zusatzqual = $_POST['zusatzqual'];
 
-        $stmt = $pdo->prepare("SELECT dienstgrad, fullname, gebdatum, charakterid, discordtag, telefonnr, dienstnr, qualird, qualifw2, geschlecht, zusatz FROM intra_mitarbeiter WHERE id = :id");
+        if (CHAR_ID) {
+            $charakterid = $_POST['charakterid'];
+            $stmt = $pdo->prepare("SELECT dienstgrad, fullname, gebdatum, charakterid, discordtag, telefonnr, dienstnr, qualird, qualifw2, geschlecht, zusatz FROM intra_mitarbeiter WHERE id = :id");
+        } else {
+            $stmt = $pdo->prepare("SELECT dienstgrad, fullname, gebdatum, discordtag, telefonnr, dienstnr, qualird, qualifw2, geschlecht, zusatz FROM intra_mitarbeiter WHERE id = :id");
+        }
+
         $stmt->execute(['id' => $id]);
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -82,7 +87,9 @@ if (isset($_POST['new'])) {
             $currentDienstgrad = $data['dienstgrad'];
             $currentFullname = $data['fullname'];
             $currentGebdatum = $data['gebdatum'];
-            $currentCharakterid = $data['charakterid'];
+            if (CHAR_ID) {
+                $currentCharakterid = $data['charakterid'];
+            }
             $currentDiscordtag = $data['discordtag'];
             $currentTelefonnr = $data['telefonnr'];
             $currentDienstnr = $data['dienstnr'];
@@ -185,19 +192,32 @@ if (isset($_POST['new'])) {
             ]);
         }
 
-        $dataChanged = (
-            $currentFullname != $fullname ||
-            $currentGebdatum != $gebdatum ||
-            $currentCharakterid != $charakterid ||
-            $currentDiscordtag != $discordtag ||
-            $currentTelefonnr != $telefonnr ||
-            $currentDienstnr != $dienstnr ||
-            $currentGeschlecht != $geschlecht ||
-            $currentZusatzqual != $zusatzqual
-        );
+        if (CHAR_ID) {
+            $dataChanged = (
+                $currentFullname != $fullname ||
+                $currentGebdatum != $gebdatum ||
+                $currentCharakterid != $charakterid ||
+                $currentDiscordtag != $discordtag ||
+                $currentTelefonnr != $telefonnr ||
+                $currentDienstnr != $dienstnr ||
+                $currentGeschlecht != $geschlecht ||
+                $currentZusatzqual != $zusatzqual
+            );
+        } else {
+            $dataChanged = (
+                $currentFullname != $fullname ||
+                $currentGebdatum != $gebdatum ||
+                $currentDiscordtag != $discordtag ||
+                $currentTelefonnr != $telefonnr ||
+                $currentDienstnr != $dienstnr ||
+                $currentGeschlecht != $geschlecht ||
+                $currentZusatzqual != $zusatzqual
+            );
+        }
 
         if ($dataChanged) {
-            $stmt = $pdo->prepare("UPDATE intra_mitarbeiter 
+            if (CHAR_ID) {
+                $stmt = $pdo->prepare("UPDATE intra_mitarbeiter 
                            SET fullname = :fullname, 
                                gebdatum = :gebdatum, 
                                charakterid = :charakterid, 
@@ -207,18 +227,38 @@ if (isset($_POST['new'])) {
                                geschlecht = :geschlecht,
                                zusatz = :zusatzqual 
                            WHERE id = :id");
-
-            $stmt->execute([
-                'fullname' => $fullname,
-                'gebdatum' => $gebdatum,
-                'charakterid' => $charakterid,
-                'discordtag' => $discordtag,
-                'telefonnr' => $telefonnr,
-                'dienstnr' => $dienstnr,
-                'geschlecht' => $geschlecht,
-                'zusatzqual' => $zusatzqual,
-                'id' => $id
-            ]);
+                $stmt->execute([
+                    'fullname' => $fullname,
+                    'gebdatum' => $gebdatum,
+                    'charakterid' => $charakterid,
+                    'discordtag' => $discordtag,
+                    'telefonnr' => $telefonnr,
+                    'dienstnr' => $dienstnr,
+                    'geschlecht' => $geschlecht,
+                    'zusatzqual' => $zusatzqual,
+                    'id' => $id
+                ]);
+            } else {
+                $stmt = $pdo->prepare("UPDATE intra_mitarbeiter 
+                           SET fullname = :fullname, 
+                               gebdatum = :gebdatum, 
+                               discordtag = :discordtag, 
+                               telefonnr = :telefonnr, 
+                               dienstnr = :dienstnr, 
+                               geschlecht = :geschlecht,
+                               zusatz = :zusatzqual 
+                           WHERE id = :id");
+                $stmt->execute([
+                    'fullname' => $fullname,
+                    'gebdatum' => $gebdatum,
+                    'discordtag' => $discordtag,
+                    'telefonnr' => $telefonnr,
+                    'dienstnr' => $dienstnr,
+                    'geschlecht' => $geschlecht,
+                    'zusatzqual' => $zusatzqual,
+                    'id' => $id
+                ]);
+            }
 
             $logContent = 'Profildaten wurden bearbeitet.';
             $logStmt = $pdo->prepare("INSERT INTO intra_mitarbeiter_log (profilid, type, content, paneluser) 
@@ -488,10 +528,12 @@ if (isset($_POST['new'])) {
                                                     <td class="fw-bold">Geburtsdatum</td>
                                                     <td><?= $geburtstag ?></td>
                                                 </tr>
-                                                <tr>
-                                                    <td class="fw-bold">Charakter-ID</td>
-                                                    <td><?= $row['charakterid'] ?></td>
-                                                </tr>
+                                                <?php if (CHAR_ID) : ?>
+                                                    <tr>
+                                                        <td class="fw-bold">Charakter-ID</td>
+                                                        <td><?= $row['charakterid'] ?></td>
+                                                    </tr>
+                                                <?php endif; ?>
                                                 <tr>
                                                     <td class="fw-bold">Discord</td>
                                                     <td><?= $row['discordtag'] ?? 'N. hinterlegt' ?></td>
@@ -541,10 +583,12 @@ if (isset($_POST['new'])) {
                                                         </select>
                                                     </td>
                                                 </tr>
-                                                <tr>
-                                                    <td class="fw-bold">Charakter-ID</td>
-                                                    <td><input class="form-control" type="text" name="charakterid" id="charakterid" value="<?= $row['charakterid'] ?>"></td>
-                                                </tr>
+                                                <?php if (CHAR_ID) : ?>
+                                                    <tr>
+                                                        <td class="fw-bold">Charakter-ID</td>
+                                                        <td><input class="form-control" type="text" name="charakterid" id="charakterid" value="<?= $row['charakterid'] ?>"></td>
+                                                    </tr>
+                                                <?php endif; ?>
                                                 <tr>
                                                     <td class="fw-bold">Discord</td>
                                                     <td><input class="form-control" type="text" name="discordtag" id="discordtag" value="<?= $row['discordtag'] ?>"></td>

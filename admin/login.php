@@ -14,6 +14,34 @@ if (isset($_SESSION['userid']) && isset($_SESSION['permissions'])) {
     header('Location: /admin/index.php');
 }
 
+$checkStmt = $pdo->query("SELECT COUNT(*) FROM intra_users");
+$userCount = $checkStmt->fetchColumn();
+
+if ($userCount == 0 && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = trim($_POST['username']);
+    $fullname = trim($_POST['fullname']);
+    $passwort = $_POST['passwort'];
+    $passwortConfirm = $_POST['passwort_confirm'];
+
+    if ($passwort !== $passwortConfirm) {
+        $errorMessage = "Passwörter stimmen nicht überein.";
+    } else {
+        $hashedPassword = password_hash($passwort, PASSWORD_BCRYPT);
+
+        $stmt = $pdo->prepare("INSERT INTO intra_users (username, fullname, passwort, role, full_admin) VALUES (:username, :fullname, :passwort, :role, :full_admin)");
+        $stmt->execute([
+            'username' => $username,
+            'fullname' => $fullname,
+            'passwort' => $hashedPassword,
+            'role' => 0,
+            'full_admin' => 1
+        ]);
+
+        header("Refresh: 0");
+        exit();
+    }
+}
+
 if (isset($_GET['login'])) {
     $username = $_POST['username'];
     $passwort = $_POST['passwort'];
@@ -88,15 +116,34 @@ if (isset($_GET['login'])) {
                 }
                 ?>
 
-                <form action="?login=1" method="post">
-                    <strong>Benutzername:</strong><br>
-                    <input class="form-control" type="text" size="40" maxlength="250" name="username"><br><br>
+                <?php if ($userCount == 0) : ?>
+                    <div class="alert alert-info mb-3">Kein Benutzer gefunden. Du erstellst jetzt den ersten Administrator-Account.</div>
+                    <form method="post">
+                        <strong>Benutzername:</strong><br>
+                        <input class="form-control" type="text" size="40" maxlength="250" name="username" required><br><br>
 
-                    <strong>Passwort:</strong><br>
-                    <input class="form-control" type="password" size="40" maxlength="250" name="passwort"><br>
+                        <strong>Vor- und Zuname (RP):</strong><br>
+                        <input class="form-control" type="text" size="40" maxlength="250" name="fullname" required><br><br>
 
-                    <input class="btn btn-primary w-100" type="submit" value="Anmelden">
-                </form>
+                        <strong>Passwort:</strong><br>
+                        <input class="form-control" type="password" size="40" maxlength="250" name="passwort" required><br>
+
+                        <strong>Passwort wiederholen:</strong><br>
+                        <input class="form-control" type="password" name="passwort_confirm" required><br>
+
+                        <input class="btn btn-primary w-100" type="submit" value="Erstellen">
+                    </form>
+                <?php else : ?>
+                    <form action="?login=1" method="post">
+                        <strong>Benutzername:</strong><br>
+                        <input class="form-control" type="text" size="40" maxlength="250" name="username" required><br><br>
+
+                        <strong>Passwort:</strong><br>
+                        <input class="form-control" type="password" size="40" maxlength="250" name="passwort" required><br>
+
+                        <input class="btn btn-primary w-100" type="submit" value="Anmelden">
+                    </form>
+                <?php endif; ?>
             </div>
         </div>
     </div>

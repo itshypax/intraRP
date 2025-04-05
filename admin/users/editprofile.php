@@ -11,6 +11,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 }
 
 use App\Helpers\Flash;
+use App\Utils\AuditLogger;
 
 $userid = $_SESSION['userid'];
 
@@ -39,6 +40,8 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
         ]);
 
         Flash::set('own', 'pw-changed');
+        $auditLogger = new AuditLogger($pdo);
+        $auditLogger->log($userid, 'Passwort & Daten geändert [ID: ' . $id . ']', NULL, 'Selbst', 0);
         header("Refresh:0");
         exit();
     } else {
@@ -50,6 +53,8 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
         ]);
 
         Flash::set('own', 'data-changed');
+        $auditLogger = new AuditLogger($pdo);
+        $auditLogger->log($userid, 'Daten geändert [ID: ' . $id . ']', NULL, 'Selbst', 0);
         header("Refresh:0");
         exit();
     }

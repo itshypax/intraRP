@@ -12,6 +12,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
+use App\Utils\AuditLogger;
 
 if (!Permissions::check(['admin', 'users_delete'])) {
     Flash::set('error', 'no-permissions');
@@ -27,5 +28,7 @@ $stmt->bindParam(':id', $id);
 $stmt->execute();
 
 Flash::set('user', 'deleted');
+$auditLogger = new AuditLogger($pdo);
+$auditLogger->log($userid, 'Benutzer gelöscht [ID: ' . $id . ']', NULL, 'Benutzer', 1);
 header('Location: /admin/users/list.php');
 exit;

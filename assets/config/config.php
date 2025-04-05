@@ -13,3 +13,5 @@ define('SERVER_CITY', 'Musterstadt'); // Name der Stadt in welcher der Server sp
 define('RP_ORGTYPE', 'Berufsfeuerwehr'); // Art/Name der Organisation
 define('RP_STREET', 'Musterweg 0815'); // Straße der Organisation
 define('RP_ZIP', '1337'); // PLZ der Organisation
+// FUNKTIONEN
+define('CHAR_ID', true); // Wird eine eindeutige Charakter-ID verwendet? (true = ja, false = nein)
