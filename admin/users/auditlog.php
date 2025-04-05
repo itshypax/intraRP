@@ -13,7 +13,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 use App\Auth\Permissions;
 use App\Helpers\Flash;
 
-if (!Permissions::check(['admin', 'audit_log'])) {
+if (!Permissions::check(['admin', 'audit.view'])) {
     Flash::set('error', 'no-permissions');
     header("Location: /admin/index.php");
 }

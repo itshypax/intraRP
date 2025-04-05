@@ -12,7 +12,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 use App\Auth\Permissions;
 use App\Helpers\Flash;
 
-if (!Permissions::check(['admin', 'users_view'])) {
+if (!Permissions::check(['admin', 'users.view'])) {
     header("Location: /admin/index.php");
 }
 ?>
@@ -137,29 +137,30 @@ if (!Permissions::check(['admin', 'users_view'])) {
                             <?php
                             $permission_groups = [
                                 'Anträge' => [
-                                    'antraege_view' => 'Anträge ansehen',
-                                    'antraege_edit' => 'Anträge bearbeiten'
+                                    'application.view' => 'Anträge ansehen',
+                                    'application.edit' => 'Anträge bearbeiten'
                                 ],
                                 'eDIVI' => [
-                                    'edivi_view' => 'eDIVI Protokolle ansehen',
-                                    'edivi_edit' => 'eDIVI Protokolle bearbeiten'
+                                    'edivi.view' => 'eDIVI Protokolle ansehen',
+                                    'edivi.edit' => 'eDIVI Protokolle bearbeiten'
                                 ],
                                 'Benutzer' => [
-                                    'users_view' => 'Benutzer ansehen',
-                                    'users_edit' => 'Benutzer bearbeiten',
-                                    'users_create' => 'Benutzer erstellen',
-                                    'users_delete' => 'Benutzer löschen'
+                                    'users.view' => 'Benutzer ansehen',
+                                    'users.edit' => 'Benutzer bearbeiten',
+                                    'users.create' => 'Benutzer erstellen',
+                                    'users.delete' => 'Benutzer löschen'
                                 ],
                                 'Personal' => [
-                                    'personal_view' => 'Mitarbeiter ansehen',
-                                    'personal_edit' => 'Mitarbeiter bearbeiten',
-                                    'personal_delete' => 'Mitarbeiter löschen',
-                                    'personal_kommentar_delete' => 'Mitarbeiter-Kommentare löschen',
-                                    'intra_mitarbeiter_dokumente' => 'Mitarbeiter-Dokumente verwalten'
+                                    'personnel.view' => 'Mitarbeiter ansehen',
+                                    'personnel.edit' => 'Mitarbeiter bearbeiten',
+                                    'personnel.delete' => 'Mitarbeiter löschen',
+                                    'personnel.comment.delete' => 'Mitarbeiter-Kommentare löschen',
+                                    'personnel.documents.manage' => 'Mitarbeiter-Dokumente verwalten',
+                                    'audit.view' => 'Logs einsehen',
                                 ],
                                 'Dateien' => [
-                                    'files_upload' => 'Dateien hochladen',
-                                    'files_log' => 'Datei-Uploads einsehen'
+                                    'files.upload' => 'Dateien hochladen',
+                                    'files.log.view' => 'Datei-Uploads einsehen'
                                 ],
                                 'Admin' => [
                                     'admin' => 'Alle Rechte (Admin)'

@@ -13,7 +13,7 @@ use App\Auth\Permissions;
 use App\Helpers\Flash;
 use App\Utils\AuditLogger;
 
-if (!Permissions::check(['admin', 'users_edit'])) {
+if (!Permissions::check(['admin', 'users.edit'])) {
     Flash::set('error', 'no-permissions');
     header("Location: /admin/users/list.php?message=error-2");
 }
@@ -177,7 +177,7 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
                     </form>
                 </div>
             </div>
-            <?php if (Permissions::check(['admin', 'audit_log'])) : ?>
+            <?php if (Permissions::check(['admin', 'audit.view'])) : ?>
                 <h1 class="mb-3">Benutzer-Log</h1>
                 <div class="row">
                     <div class="col">

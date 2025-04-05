@@ -13,7 +13,7 @@ use App\Auth\Permissions;
 use App\Helpers\Flash;
 use App\Utils\AuditLogger;
 
-if (!Permissions::check(['admin', 'edivi_edit'])) {
+if (!Permissions::check(['admin', 'edivi.edit'])) {
     Flash::set('error', 'no-permissions');
     header("Location: /admin/edivi/list.php");
 }

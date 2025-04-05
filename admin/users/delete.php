@@ -14,7 +14,7 @@ use App\Auth\Permissions;
 use App\Helpers\Flash;
 use App\Utils\AuditLogger;
 
-if (!Permissions::check(['admin', 'users_delete'])) {
+if (!Permissions::check(['admin', 'users.delete'])) {
     Flash::set('error', 'no-permissions');
     header("Location: /admin/users/list.php");
 }

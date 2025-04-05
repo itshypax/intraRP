@@ -12,7 +12,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 use App\Auth\Permissions;
 use App\Helpers\Flash;
 
-if (!Permissions::check(['admin', 'users_view'])) {
+if (!Permissions::check(['admin', 'users.view'])) {
     Flash::set('error', 'no-permissions');
     header("Location: /admin/index.php");
 }
@@ -102,7 +102,7 @@ if (!Permissions::check(['admin', 'users_view'])) {
                                     echo "<td>" . $row['fullname'] .  " (<strong>" . $row['username'] . "</strong>)</td>";
                                     echo "<td><span class='badge text-bg-" . $role_color . "'>" . $role_name . "</span></td>";
                                     echo "<td><span style='display:none'>" . $row['created_at'] . "</span>" . $date . "</td>";
-                                    if (Permissions::check(['admin', 'users_edit'])) {
+                                    if (Permissions::check(['admin', 'users.edit'])) {
                                         echo "<td><a href='/admin/users/edit.php?id=" . $row['id'] . "' class='btn btn-sm btn-primary'>Bearbeiten</a>";
                                         if (isset($row['aktenid']) && $row['aktenid'] > 0) {
                                             echo " <a href='/admin/personal/profile.php?id=" . $row['aktenid'] . "' class='btn btn-sm btn-warning'>Profil</a>";

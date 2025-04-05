@@ -9,7 +9,7 @@ use App\Auth\Permissions; ?>
     </div>
     <?php
     if (isset($_SESSION['userid']) && isset($_SESSION['permissions'])) {
-        if (Permissions::check(['admin', 'antraege_view'])) { ?>
+        if (Permissions::check(['admin', 'application.view'])) { ?>
             <hr class="my-3">
             <h6>Verwaltung</h6>
             <div class="cirs-link mb-2">

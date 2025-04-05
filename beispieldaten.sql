@@ -70,11 +70,11 @@ INSERT INTO `intra_users` (`id`, `username`, `fullname`, `created_at`, `passwort
 -- Exportiere Daten aus Tabelle intradev.intra_users_roles: ~7 rows (ungefähr)
 INSERT INTO `intra_users_roles` (`id`, `priority`, `name`, `color`, `permissions`, `created_at`) VALUES
 	(1, 10, 'Admin', 'danger', '["admin"]', '2025-03-23 22:17:15'),
-	(2, 100, 'SGL', 'primary', '["antraege_view", "antraege_edit", "edivi_view", "personal_view", "personal_edit", "intra_mitarbeiter_dokumente", "users_view", "users_edit", "users_create", "files_upload", "files_log"]', '2025-03-23 22:27:45'),
-	(3, 110, 'TL', 'primary', '["personal_view", "intra_mitarbeiter_dokumente"]', '2025-03-23 22:28:16'),
-	(4, 200, 'QM-RD', 'info', '["personal_view", "edivi_view", "edivi_edit"]', '2025-03-23 22:30:31'),
-	(5, 210, 'Ausbilder', 'success', '["personal_view", "intra_mitarbeiter_dokumente"]', '2025-03-23 22:31:57'),
-	(6, 220, 'Personaler', 'success', '["personal_view", "personal_edit", "intra_mitarbeiter_dokumente"]', '2025-03-23 22:32:18'),
+	(2, 100, 'SGL', 'primary', '["application.view", "application.edit", "edivi.view", "personnel.view", "personnel.edit", "personnel.documents.manage", "users.view", "users.edit", "users.create", "files.upload", "files.log.view"]', '2025-03-23 22:27:45'),
+	(3, 110, 'TL', 'primary', '["personnel.view", "personnel.documents.manage"]', '2025-03-23 22:28:16'),
+	(4, 200, 'QM-RD', 'info', '["personnel.view", "edivi.view", "edivi.edit"]', '2025-03-23 22:30:31'),
+	(5, 210, 'Ausbilder', 'success', '["personnel.view", "personnel.documents.manage"]', '2025-03-23 22:31:57'),
+	(6, 220, 'Personaler', 'success', '["personnel.view", "personnel.edit", "personnel.documents.manage"]', '2025-03-23 22:32:18'),
 	(7, 999, 'Gast', 'secondary', '[]', '2025-03-23 22:33:25');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;

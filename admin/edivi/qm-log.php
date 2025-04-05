@@ -13,7 +13,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 use App\Auth\Permissions;
 use App\Helpers\Flash;
 
-if (!Permissions::check(['admin', 'edivi_view'])) {
+if (!Permissions::check(['admin', 'edivi.view'])) {
     Flash::set('error', 'no-permissions');
     header("Location: /admin/index.php");
 }
@@ -115,7 +115,7 @@ $prot_url = "https://" . SYSTEM_URL . "/admin/edivi/view.php?id=" . $row['id'];
             </div>
         </div>
     </form>
-    <?php if (!Permissions::check(['admin', 'edivi_edit'])) : ?>
+    <?php if (!Permissions::check(['admin', 'edivi.edit'])) : ?>
         <script>
             window.close();
         </script>

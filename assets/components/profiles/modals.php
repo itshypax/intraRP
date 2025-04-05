@@ -140,7 +140,7 @@ use App\Auth\Permissions; ?>
 <!-- MODAL ENDE -->
 
 <!-- MODAL -->
-<?php if (Permissions::check(['admin', 'personal_delete'])) { ?>
+<?php if (Permissions::check(['admin', 'personnel.delete'])) { ?>
     <div class="modal fade" id="modalPersoDelete" tabindex="-1" aria-labelledby="modalPersoDeleteLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -166,7 +166,7 @@ use App\Auth\Permissions; ?>
 <!-- MODAL ENDE -->
 
 <!-- MODAL -->
-<?php if (Permissions::check(['admin', 'intra_mitarbeiter_dokumente'])) { ?>
+<?php if (Permissions::check(['admin', 'personnel.documents.manage'])) { ?>
     <div class="modal fade" id="modalDokuCreate" tabindex="-1" aria-labelledby="modalDokuCreateLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">

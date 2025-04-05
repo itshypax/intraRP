@@ -15,7 +15,7 @@ use App\Auth\Permissions;
 use App\Helpers\Flash;
 use App\Utils\AuditLogger;
 
-if (!Permissions::check(['admin', 'personal_edit'])) {
+if (!Permissions::check(['admin', 'personnel.edit'])) {
     Flash::set('error', 'no-permissions');
     header("Location: /admin/index.php");
 }
