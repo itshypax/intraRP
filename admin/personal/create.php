@@ -34,7 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $fullname = $_POST['fullname'] ?? '';
         $gebdatum = $_POST['gebdatum'] ?? '';
-        $charakterid = $_POST['charakterid'] ?? '';
         $dienstgrad = $_POST['dienstgrad'] ?? '';
         $geschlecht = $_POST['geschlecht'] ?? '';
         $discordtag = $_POST['discordtag'] ?? '';
@@ -44,28 +43,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $qualird = $resultr['id'];
         $qualifw = $resultf['id'];
 
-        if (empty($fullname) || empty($gebdatum) || empty($charakterid) || empty($dienstgrad)) {
-            $response['message'] = "Bitte alle erforderlichen Felder ausfüllen.";
-            echo json_encode($response);
-            exit;
+        if (CHAR_ID) {
+            $charakterid = $_POST['charakterid'] ?? '';
+            if (empty($fullname) || empty($gebdatum) || empty($charakterid) || empty($dienstgrad)) {
+                $response['message'] = "Bitte alle erforderlichen Felder ausfüllen.";
+                echo json_encode($response);
+                exit;
+            }
+        } else {
+            if (empty($fullname) || empty($gebdatum) || empty($dienstgrad)) {
+                $response['message'] = "Bitte alle erforderlichen Felder ausfüllen.";
+                echo json_encode($response);
+                exit;
+            }
         }
 
-        $stmt = $pdo->prepare("INSERT INTO intra_mitarbeiter 
+        if (CHAR_ID) {
+            $stmt = $pdo->prepare("INSERT INTO intra_mitarbeiter 
             (fullname, gebdatum, charakterid, dienstgrad, geschlecht, discordtag, telefonnr, dienstnr, einstdatum, qualifw2, qualird) 
             VALUES (:fullname, :gebdatum, :charakterid, :dienstgrad, :geschlecht, :discordtag, :telefonnr, :dienstnr, :einstdatum, :qualifw, :qualird)");
-        $stmt->execute([
-            'fullname' => $fullname,
-            'gebdatum' => $gebdatum,
-            'charakterid' => $charakterid,
-            'dienstgrad' => $dienstgrad,
-            'geschlecht' => $geschlecht,
-            'discordtag' => $discordtag,
-            'telefonnr' => $telefonnr,
-            'dienstnr' => $dienstnr,
-            'einstdatum' => $einstdatum,
-            'qualifw' => $qualifw,
-            'qualird' => $qualird
-        ]);
+            $stmt->execute([
+                'fullname' => $fullname,
+                'gebdatum' => $gebdatum,
+                'charakterid' => $charakterid,
+                'dienstgrad' => $dienstgrad,
+                'geschlecht' => $geschlecht,
+                'discordtag' => $discordtag,
+                'telefonnr' => $telefonnr,
+                'dienstnr' => $dienstnr,
+                'einstdatum' => $einstdatum,
+                'qualifw' => $qualifw,
+                'qualird' => $qualird
+            ]);
+        } else {
+            $stmt = $pdo->prepare("INSERT INTO intra_mitarbeiter 
+            (fullname, gebdatum, dienstgrad, geschlecht, discordtag, telefonnr, dienstnr, einstdatum, qualifw2, qualird) 
+            VALUES (:fullname, :gebdatum, :dienstgrad, :geschlecht, :discordtag, :telefonnr, :dienstnr, :einstdatum, :qualifw, :qualird)");
+            $stmt->execute([
+                'fullname' => $fullname,
+                'gebdatum' => $gebdatum,
+                'dienstgrad' => $dienstgrad,
+                'geschlecht' => $geschlecht,
+                'discordtag' => $discordtag,
+                'telefonnr' => $telefonnr,
+                'dienstnr' => $dienstnr,
+                'einstdatum' => $einstdatum,
+                'qualifw' => $qualifw,
+                'qualird' => $qualird
+            ]);
+        }
 
         $savedId = $pdo->lastInsertId();
 
@@ -183,11 +209,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                     </td>
                                                 </tr>
                                                 <tr>
-                                                    <td class="fw-bold text-center" style="width: 15%">Charakter-ID</td>
-                                                    <td style="width: 35%;">
-                                                        <input class="form-control" type="text" name="charakterid" id="charakterid" value="" pattern="[a-zA-Z]{3}[0-9]{5}" required>
-                                                        <div class="invalid-feedback">Bitte gebe eine charakter-ID ein.</div>
-                                                    </td>
+                                                    <?php if (CHAR_ID) : ?>
+                                                        <td class="fw-bold text-center" style="width: 15%">Charakter-ID</td>
+                                                        <td style="width: 35%;">
+                                                            <input class="form-control" type="text" name="charakterid" id="charakterid" value="" pattern="[a-zA-Z]{3}[0-9]{5}" required>
+                                                            <div class="invalid-feedback">Bitte gebe eine charakter-ID ein.</div>
+                                                        </td>
+                                                    <?php endif; ?>
                                                     <td class="fw-bold text-center" style="width: 15%;">Geschlecht</td>
                                                     <td style="width: 35%;">
                                                         <select name="geschlecht" id="geschlecht" class="form-select" required>
