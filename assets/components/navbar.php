@@ -21,6 +21,9 @@ use App\Auth\Permissions; ?>
                                 <li><a class="dropdown-item" href="/admin/users/create.php">Erstellen</a></li>
                             <?php } ?>
                             <div class="dropdown-divider"></div>
+                            <?php if (Permissions::check(['admin', 'audit_log'])) { ?>
+                                <li><a class="dropdown-item" href="/admin/users/auditlog.php">Audit-Log</a></li>
+                            <?php } ?>
                             <li><a class="dropdown-item" href="/admin/users/roles/index.php">Rollenverwaltung</a></li>
                         </ul>
                     </li>

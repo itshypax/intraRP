@@ -12,6 +12,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
+use App\Utils\AuditLogger;
 
 if (!Permissions::check('admin')) {
     Flash::set('error', 'no-permissions');
@@ -28,5 +29,7 @@ $stmt = $pdo->prepare("DELETE FROM intra_mitarbeiter_dokumente WHERE id = :id");
 $stmt->bindParam(':id', $id);
 $stmt->execute();
 
+$auditlogger = new AuditLogger($pdo);
+$auditlogger->log($userid, 'Dokument gelöscht [ID: ' . $id . ']', NULL, 'Mitarbeiter', 1);
 header("Location: " . $_SERVER['HTTP_REFERER']);
 exit;

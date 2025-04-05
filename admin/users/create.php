@@ -11,6 +11,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
+use App\Utils\AuditLogger;
 
 if (!Permissions::check(['admin', 'users_create'])) {
     Flash::set('error', 'no-permissions');
@@ -41,6 +42,9 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
         'created_at' => $jetzt,
         'role' => $role
     ]);
+
+    $auditlogger = new AuditLogger($pdo);
+    $auditlogger->log($userid, 'Benutzer erstellt', 'Name: ' . $fullname, 'Benutzer', 1);
     header("Location: /admin/users/list.php");
 }
 ?>

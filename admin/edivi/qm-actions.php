@@ -13,6 +13,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
+use App\Utils\AuditLogger;
 
 if (!Permissions::check(['admin', 'edivi_view'])) {
     Flash::set('error', 'no-permissions');
@@ -81,6 +82,9 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
             ]);
         }
     }
+
+    $auditLogger = new AuditLogger($pdo);
+    $auditLogger->log($_SESSION['userid'], 'Protokoll aktualisiert [ID: ' . $_GET['id'] . ']', NULL, 'eDIVI', 1);
 
     $stmt = $pdo->prepare("UPDATE intra_edivi SET bearbeiter = :bearbeiter, protokoll_status = :status WHERE id = :id");
     $stmt->execute([

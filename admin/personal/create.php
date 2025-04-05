@@ -13,6 +13,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
+use App\Utils\AuditLogger;
 
 if (!Permissions::check(['admin', 'personal_edit'])) {
     Flash::set('error', 'no-permissions');
@@ -83,6 +84,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (Exception $e) {
         $response['message'] = "Fehler: " . $e->getMessage();
     }
+
+    $auditlogger = new AuditLogger($pdo);
+    $auditlogger->log($_SESSION['userid'], 'Mitarbeiter erstellt', 'Name: ' . $fullname . ', Dienstnummer: ' . $dienstnr, 'Mitarbeiter', 1);
 
     echo json_encode($response);
     exit;
