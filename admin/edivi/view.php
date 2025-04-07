@@ -14,7 +14,6 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 } else if ($notadmincheck && !$edview) {
     header("Location: /admin/index.php");
 }
-
 $stmt = $pdo->prepare("SELECT * FROM intra_edivi WHERE id = :id");
 $stmt->bindParam(':id', $_GET['id']);
 $stmt->execute();

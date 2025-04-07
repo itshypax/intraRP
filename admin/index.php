@@ -197,6 +197,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
             document.getElementById("quote-of-the-day").textContent = randomQuote;
         });
     </script>
+    <?php include "../assets/components/footer.php"; ?>
 </body>
 
 </html>

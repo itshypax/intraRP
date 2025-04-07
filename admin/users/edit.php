@@ -213,6 +213,7 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
     <?php endif; ?>
     <!-- MODAL END -->
 
+    <?php include $_SERVER['DOCUMENT_ROOT'] . "/assets/components/footer.php"; ?>
 </body>
 
 </html>

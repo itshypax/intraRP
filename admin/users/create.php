@@ -174,6 +174,7 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
             }
         });
     </script>
+    <?php include $_SERVER['DOCUMENT_ROOT'] . "/assets/components/footer.php"; ?>
 </body>
 
 </html>

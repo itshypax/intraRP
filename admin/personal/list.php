@@ -195,6 +195,7 @@ $rdginfo = $stmtr->fetchAll(PDO::FETCH_UNIQUE);
             });
         });
     </script>
+    <?php include $_SERVER['DOCUMENT_ROOT'] . "/assets/components/footer.php"; ?>
 </body>
 
 </html>

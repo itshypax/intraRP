@@ -109,12 +109,7 @@ if (isset($_GET['login'])) {
             </div>
         </div>
     </div>
-    <footer>
-        <div class="footerCopyright">
-            <a href="https://hypax.wtf" target="_blank"><i class="las la-code"></i> hypax</a>
-            <span>© 2023-<?php echo date("Y"); ?> intraRP | Version <?php echo SYSTEM_VERSION ?></span>
-        </div>
-    </footer>
+    <?php include $_SERVER['DOCUMENT_ROOT'] . "/assets/components/footer.php"; ?>
 </body>
 
 </html>

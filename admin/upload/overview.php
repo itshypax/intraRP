@@ -141,6 +141,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
             });
         });
     </script>
+    <?php include $_SERVER['DOCUMENT_ROOT'] . "/assets/components/footer.php"; ?>
 </body>
 
 </html>

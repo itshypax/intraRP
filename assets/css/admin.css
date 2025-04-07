@@ -199,3 +199,35 @@
 .badge {
   border-radius: 0 !important;
 }
+
+/* Footer Styles */
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.footer {
+  margin-top: auto;
+  background-color: #0f1828 !important;
+  border-top: 2px solid #192231;
+}
+
+[data-bs-theme=dark] .footer {
+  background-color: #0f1828 !important;
+  border-color: #192231 !important;
+}
+
+.footer a {
+  color: var(--main-color);
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
