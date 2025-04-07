@@ -31,7 +31,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
   <meta property="og:description" content="Verwaltungsportal der <?php echo RP_ORGTYPE . " " .  SERVER_CITY ?>" />
 </head>
 
-<body id="dashboard">
+<body data-bs-theme="dark" id="dashboard" class="container-full position-relative">
   <div class="container-full mx-5">
     <div class="row mt-3">
       <div class="col-4 mx-auto text-center">
@@ -130,12 +130,8 @@ require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
         </div>
       </div>
     </div>
-    <footer>
-      <div class="footerCopyright">
-        <a href="https://hypax.wtf" target="_blank"><i class="las la-code"></i> hypax</a>
-        <span>© 2023-<?php echo date("Y"); ?> intraRP | Version <?php echo SYSTEM_VERSION ?></span>
-      </div>
-    </footer>
+  </div>
+  <?php include $_SERVER['DOCUMENT_ROOT'] . "/assets/components/footer.php"; ?>
 </body>
 
 </html>
