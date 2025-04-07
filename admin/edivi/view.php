@@ -18,7 +18,6 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
     Flash::set('error', 'no-permissions');
     header("Location: /admin/index.php");
 }
-
 $stmt = $pdo->prepare("SELECT * FROM intra_edivi WHERE id = :id");
 $stmt->bindParam(':id', $_GET['id']);
 $stmt->execute();

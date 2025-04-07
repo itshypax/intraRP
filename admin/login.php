@@ -102,57 +102,54 @@ if (isset($_GET['login'])) {
     <meta property="og:description" content="Verwaltungsportal der <?php echo RP_ORGTYPE . " " .  SERVER_CITY ?>" />
 </head>
 
-<body data-bs-theme="dark" id="dashboard" class="d-flex justify-content-center align-items-center">
-    <div class="row">
-        <div class="col">
-            <div class="card px-4 py-3">
-                <h1 id="loginHeader"><?php echo SYSTEM_NAME ?></h1>
-                <p class="subtext">Das Intranet der Stadt <?php echo SERVER_CITY ?>!</p>
-                <?php
-                if (isset($errorMessage)) {
-                    echo '<div class="alert alert-danger mb-5" role="alert">';
-                    echo $errorMessage;
-                    echo '</div>';
-                }
-                ?>
+<body data-bs-theme="dark" id="dashboard" class="container-full position-relative">
+    <div class="container d-flex justify-content-center align-items-center h-100">
+        <div class="row">
+            <div class="col">
+                <div class="card px-4 py-3">
+                    <h1 id="loginHeader"><?php echo SYSTEM_NAME ?></h1>
+                    <p class="subtext">Das Intranet der Stadt <?php echo SERVER_CITY ?>!</p>
+                    <?php
+                    if (isset($errorMessage)) {
+                        echo '<div class="alert alert-danger mb-5" role="alert">';
+                        echo $errorMessage;
+                        echo '</div>';
+                    }
+                    ?>
 
-                <?php if ($userCount == 0) : ?>
-                    <div class="alert alert-info mb-3">Kein Benutzer gefunden. Du erstellst jetzt den ersten Administrator-Account.</div>
-                    <form method="post">
-                        <strong>Benutzername:</strong><br>
-                        <input class="form-control" type="text" size="40" maxlength="250" name="username" required><br><br>
+                    <?php if ($userCount == 0) : ?>
+                        <div class="alert alert-info mb-3">Kein Benutzer gefunden. Du erstellst jetzt den ersten Administrator-Account.</div>
+                        <form method="post">
+                            <strong>Benutzername:</strong><br>
+                            <input class="form-control" type="text" size="40" maxlength="250" name="username" required><br><br>
 
-                        <strong>Vor- und Zuname (RP):</strong><br>
-                        <input class="form-control" type="text" size="40" maxlength="250" name="fullname" required><br><br>
+                            <strong>Vor- und Zuname (RP):</strong><br>
+                            <input class="form-control" type="text" size="40" maxlength="250" name="fullname" required><br><br>
 
-                        <strong>Passwort:</strong><br>
-                        <input class="form-control" type="password" size="40" maxlength="250" name="passwort" required><br>
+                            <strong>Passwort:</strong><br>
+                            <input class="form-control" type="password" size="40" maxlength="250" name="passwort" required><br>
 
-                        <strong>Passwort wiederholen:</strong><br>
-                        <input class="form-control" type="password" name="passwort_confirm" required><br>
+                            <strong>Passwort wiederholen:</strong><br>
+                            <input class="form-control" type="password" name="passwort_confirm" required><br>
 
-                        <input class="btn btn-primary w-100" type="submit" value="Erstellen">
-                    </form>
-                <?php else : ?>
-                    <form action="?login=1" method="post">
-                        <strong>Benutzername:</strong><br>
-                        <input class="form-control" type="text" size="40" maxlength="250" name="username" required><br><br>
+                            <input class="btn btn-primary w-100" type="submit" value="Erstellen">
+                        </form>
+                    <?php else : ?>
+                        <form action="?login=1" method="post">
+                            <strong>Benutzername:</strong><br>
+                            <input class="form-control" type="text" size="40" maxlength="250" name="username" required><br><br>
 
-                        <strong>Passwort:</strong><br>
-                        <input class="form-control" type="password" size="40" maxlength="250" name="passwort" required><br>
+                            <strong>Passwort:</strong><br>
+                            <input class="form-control" type="password" size="40" maxlength="250" name="passwort" required><br>
 
-                        <input class="btn btn-primary w-100" type="submit" value="Anmelden">
-                    </form>
-                <?php endif; ?>
+                            <input class="btn btn-primary w-100" type="submit" value="Anmelden">
+                        </form>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
     </div>
-    <footer>
-        <div class="footerCopyright">
-            <a href="https://hypax.wtf" target="_blank"><i class="las la-code"></i> hypax</a>
-            <span>© 2023-<?php echo date("Y"); ?> intraRP | Version <?php echo SYSTEM_VERSION ?></span>
-        </div>
-    </footer>
+    <?php include $_SERVER['DOCUMENT_ROOT'] . "/assets/components/footer.php"; ?>
 </body>
 
 </html>

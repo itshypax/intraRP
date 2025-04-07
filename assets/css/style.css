@@ -218,10 +218,6 @@ body#dashboard::before {
   transition: background-color 0.2s ease-in-out;
 }
 
-#cards .card:hover {
-  background-color: var(--gray) !important;
-}
-
 #cards .card .card-fa > i {
   font-size: 3rem;
   background-color: var(--secondary-color);
@@ -252,64 +248,36 @@ p.subtext {
   margin-top: -10px;
 }
 
-body#dashboard footer {
-  letter-spacing: 0px;
-  width: 100%;
+/* Footer Styles */
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  position: fixed;
-  vertical-align: middle;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 42px;
-  background: rgba(0, 0, 0, 0.7);
-  box-shadow: 0px -4px 20px 0px rgba(0, 0, 0, 0.6);
-  image-rendering: -webkit-optimize-contrast;
-  z-index: 999;
+  flex-direction: column;
 }
-body#dashboard footer i {
-  font-size: 10px;
-  margin: 2px 4px;
-  width: 16px;
+
+.footer {
+  margin-top: auto;
+  background-color: #0f1828 !important;
+  border-top: 2px solid #192231;
 }
-body#dashboard footer .footerCopyright {
-  font-size: 10px;
-  position: absolute;
-  left: 38px;
+
+[data-bs-theme=dark] .footer {
+  background-color: #0f1828 !important;
+  border-color: #192231 !important;
 }
-body#dashboard footer .footerCopyright span {
-  color: var(--white);
-  opacity: 0.6;
-}
-body#dashboard footer .footerCopyright a {
-  border-radius: 5px;
-  color: var(--white);
-  margin-left: -3px;
-  padding: 4px 6px 3px 0;
+
+.footer a {
+  color: var(--main-color);
   text-decoration: none;
 }
-body#dashboard footer .footerLegal {
-  font-size: 10px;
-  position: absolute;
-  right: 38px;
-}
-body#dashboard footer .footerLegal a {
-  margin: 0 4px;
-  color: var(--white);
-  margin-left: -3px;
-  padding: 4px 6px 3px 0;
-  text-decoration: none;
-}
-body#dashboard footer a {
-  color: var(--white);
-}
-@media screen and (max-width: 1024px) {
-  body#dashboard footer {
-    display: none;
-  }
+
+.footer a:hover {
+  text-decoration: underline;
 }
 
 .loader {

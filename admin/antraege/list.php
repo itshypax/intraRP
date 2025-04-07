@@ -168,6 +168,7 @@ if (!Permissions::check(['admin', 'application.edit'])) {
             });
         });
     </script>
+    <?php include $_SERVER['DOCUMENT_ROOT'] . "/assets/components/footer.php"; ?>
 </body>
 
 </html>

@@ -261,6 +261,8 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
         </div>
     <?php endif; ?>
     <!-- MODAL END -->
+    <?php include $_SERVER['DOCUMENT_ROOT'] . "/assets/components/footer.php"; ?>
+  
     <script src="/vendor/datatables.net/datatables.net/js/dataTables.min.js"></script>
     <script src="/vendor/datatables.net/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
     <script>

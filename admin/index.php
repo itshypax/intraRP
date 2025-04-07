@@ -51,7 +51,7 @@ use App\Helpers\Flash;
 <body data-bs-theme="dark" data-page="dashboard">
     <!-- PRELOAD -->
 
-    <?php include "../assets/components/navbar.php"; ?>
+    <?php include $_SERVER['DOCUMENT_ROOT'] . "/assets/components/navbar.php"; ?>
     <div class="container-full position-relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
@@ -195,6 +195,7 @@ use App\Helpers\Flash;
             document.getElementById("quote-of-the-day").textContent = randomQuote;
         });
     </script>
+    <?php include $_SERVER['DOCUMENT_ROOT'] . "/assets/components/footer.php"; ?>
 </body>
 
 </html>

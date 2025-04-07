@@ -636,6 +636,7 @@ if (isset($_POST['new'])) {
     </div>
     <?php include $_SERVER['DOCUMENT_ROOT'] . '/assets/components/profiles/modals.php' ?>
 
+    <?php include $_SERVER['DOCUMENT_ROOT'] . "/assets/components/footer.php"; ?>
 </body>
 
 </html>

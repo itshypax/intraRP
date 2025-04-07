@@ -146,6 +146,7 @@ if (!Permissions::check(['admin', 'files.log.view'])) {
             });
         });
     </script>
+    <?php include $_SERVER['DOCUMENT_ROOT'] . "/assets/components/footer.php"; ?>
 </body>
 
 </html>
