@@ -2,7 +2,7 @@
 name: Fehler/Bug melden
 about: Melde einen Fehler oder Bug
 title: ''
-labels: ''
+labels: bug/unbestätigt
 assignees: ''
 
 ---
