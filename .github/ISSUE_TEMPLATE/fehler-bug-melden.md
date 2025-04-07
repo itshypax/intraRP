@@ -22,5 +22,8 @@ Eine klare und präzise Beschreibung dessen, was geschehen sollte.
 - [ ] Computer (Browser)
 - [ ] Handy (Browser)
 
+**Welche Version wird verwendet?**
+Version X.X.X oder z.B. Datum, wann die Dateien heruntergeladen wurden.
+
 **Zusätzlicher Kontext**
 Weitere Informationen zum Problem bitte hier hinzufügen.
