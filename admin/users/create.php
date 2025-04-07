@@ -1,21 +1,25 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
-    // Store the current page's URL in a session variable
     $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
 
-    // Redirect the user to the login page
     header("Location: /admin/login.php");
     exit();
-} else if ($notadmincheck && !$uscreate) {
-    header("Location: /admin/users/list.php?message=error-2");
+}
+
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+use App\Utils\AuditLogger;
+
+if (!Permissions::check(['admin', 'users.create'])) {
+    Flash::set('error', 'no-permissions');
+    header("Location: /admin/users/list.php");
 }
 
 require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 
-//Abfrage der Nutzer ID vom Login
 $userid = $_SESSION['userid'];
 
 if (isset($_POST['new']) && $_POST['new'] == 1) {
@@ -38,6 +42,9 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
         'created_at' => $jetzt,
         'role' => $role
     ]);
+
+    $auditlogger = new AuditLogger($pdo);
+    $auditlogger->log($userid, 'Benutzer erstellt', 'Name: ' . $fullname, 'Benutzer', 1);
     header("Location: /admin/users/list.php");
 }
 ?>
@@ -56,9 +63,9 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
     <link rel="stylesheet" href="/assets/_ext/lineawesome/css/line-awesome.min.css" />
     <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
-    <script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="/assets/_ext/jquery/jquery.min.js"></script>
+    <link rel="stylesheet" href="/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <script src="/vendor/components/jquery/jquery.min.js"></script>
+    <script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />

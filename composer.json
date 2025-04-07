@@ -1,5 +1,17 @@
 {
-    "require": {
-        "vlucas/phpdotenv": "^5.6"
+  "name": "itshypax/intrarp",
+  "description": "IntraRP ist das Intranet für deine Fraktionen (Feuerwehr, Rettungsdienst) - Allround-Fraktionsverwaltung",
+  "license": "proprietary",
+  "require": {
+    "vlucas/phpdotenv": "^5.6",
+    "enyo/dropzone": "^5.9",
+    "components/jquery": "^3.7",
+    "datatables.net/datatables.net-bs5": "^2.2",
+    "twbs/bootstrap": "^5.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
     }
+  }
 }

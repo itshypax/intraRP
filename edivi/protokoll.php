@@ -34,7 +34,7 @@ $enr = $daten['enr'];
 if (isset($_POST['new']) && $_POST['new'] == 1) {
     // STAMMDATEN
     $patname = $_POST['patname'] ?? NULL;
-    $patgebdat = $_POST['patgebdat'] ?? NULL;
+    $patgebdat = !empty($_POST['patgebdat']) ? $_POST['patgebdat'] : NULL;
     $patsex = $_POST['patsex'] ?? NULL;
     $edatum = $_POST['edatum'];
     $ezeit = $_POST['ezeit'];
@@ -63,12 +63,12 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
     $rrdias = $_POST['rrdias'] ?? NULL;
     $herzfreq = $_POST['herzfreq'] ?? NULL;
     $c_ekg = $_POST['c_ekg'];
-    $c_zugang_art_1 = $_POST['c_zugang_art_1'] ?? NULL;
-    $c_zugang_art_2 = $_POST['c_zugang_art_2'] ?? NULL;
-    $c_zugang_art_3 = $_POST['c_zugang_art_3'] ?? NULL;
-    $c_zugang_gr_1 = $_POST['c_zugang_gr_1'] ?? NULL;
-    $c_zugang_gr_2 = $_POST['c_zugang_gr_2'] ?? NULL;
-    $c_zugang_gr_3 = $_POST['c_zugang_gr_3'] ?? NULL;
+    $c_zugang_art_1 = ($_POST['c_zugang_art_1'] ?? '') !== '' ? (int)$_POST['c_zugang_art_1'] : NULL;
+    $c_zugang_art_2 = ($_POST['c_zugang_art_2'] ?? '') !== '' ? (int)$_POST['c_zugang_art_2'] : NULL;
+    $c_zugang_art_3 = ($_POST['c_zugang_art_3'] ?? '') !== '' ? (int)$_POST['c_zugang_art_3'] : NULL;
+    $c_zugang_gr_1 = ($_POST['c_zugang_gr_1'] ?? '') !== '' ? (int)$_POST['c_zugang_gr_1'] : NULL;
+    $c_zugang_gr_2 = ($_POST['c_zugang_gr_2'] ?? '') !== '' ? (int)$_POST['c_zugang_gr_2'] : NULL;
+    $c_zugang_gr_3 = ($_POST['c_zugang_gr_3'] ?? '') !== '' ? (int)$_POST['c_zugang_gr_3'] : NULL;
     $c_zugang_ort_1 = $_POST['c_zugang_ort_1'] ?? NULL;
     $c_zugang_ort_2 = $_POST['c_zugang_ort_2'] ?? NULL;
     $c_zugang_ort_3 = $_POST['c_zugang_ort_3'] ?? NULL;
@@ -161,8 +161,8 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
     <link rel="stylesheet" href="/assets/_ext/lineawesome/css/line-awesome.min.css" />
     <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
-    <script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
@@ -216,7 +216,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                 <div class="col">
                                     <div class="row">
                                         <?php
-                                        if ($daten['patsex'] == NULL) {
+                                        if ($daten['patsex'] === NULL) {
                                         ?>
                                             <div class="col"><input class="form-check-input" type="radio" name="patsex" id="patsex" value="0"> männlich</div>
                                             <div class="col"><input class="form-check-input" type="radio" name="patsex" id="patsex" value="1"> weiblich</div>
@@ -293,7 +293,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                 <div class="col-4 edivi__description">Atemwegssicherung</div>
                                 <div class="col">
                                     <?php
-                                    if ($daten['awsicherung_neu'] == NULL) {
+                                    if ($daten['awsicherung_neu'] === NULL) {
                                     ?>
                                         <select name="awsicherung_neu" id="awsicherung_neu" class="w-100 form-select edivi__input-check" required>
                                             <option disabled hidden selected>---</option>
@@ -354,7 +354,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                 <div class="col-4 edivi__description">Atmung</div>
                                 <div class="col">
                                     <?php
-                                    if ($daten['b_symptome'] == NULL) {
+                                    if ($daten['b_symptome'] === NULL) {
                                     ?>
                                         <select name="b_symptome" id="b_symptome" class="w-100 form-select edivi__input-check" required>
                                             <option disabled hidden selected>Symptomauswahl</option>
@@ -386,7 +386,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                 <div class="col-4 edivi__description">Auskultation</div>
                                 <div class="col">
                                     <?php
-                                    if ($daten['b_auskult'] == NULL) {
+                                    if ($daten['b_auskult'] === NULL) {
                                     ?>
                                         <select name="b_auskult" id="b_auskult" class="w-100 form-select edivi__input-check" required>
                                             <option disabled hidden selected>---</option>
@@ -418,7 +418,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                 <div class="col-4 edivi__description">Beatmung</div>
                                 <div class="col">
                                     <?php
-                                    if ($daten['b_beatmung'] == NULL) {
+                                    if ($daten['b_beatmung'] === NULL) {
                                     ?>
                                         <select name="b_beatmung" id="b_beatmung" class="w-100 form-select edivi__input-check" required>
                                             <option disabled hidden selected>---</option>
@@ -480,7 +480,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                 <div class="col-4 edivi__description">Kreislauf</div>
                                 <div class="col">
                                     <?php
-                                    if ($daten['c_kreislauf'] == NULL) {
+                                    if ($daten['c_kreislauf'] === NULL) {
                                     ?>
                                         <select name="c_kreislauf" id="c_kreislauf" class="w-100 form-select edivi__input-check" required>
                                             <option disabled hidden selected>---</option>
@@ -522,7 +522,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                 <div class="col-4 edivi__description">EKG</div>
                                 <div class="col">
                                     <?php
-                                    if ($daten['c_ekg'] == NULL) {
+                                    if ($daten['c_ekg'] === NULL) {
                                     ?>
                                         <select name="c_ekg" id="c_ekg" class="w-100 form-select edivi__input-check" required>
                                             <option disabled hidden selected>---</option>
@@ -564,10 +564,10 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                 <div class="col-4 edivi__description">Zugänge</div>
                                 <div class="col-2">
                                     <?php
-                                    if ($daten['c_zugang_art_1'] == NULL) {
+                                    if ($daten['c_zugang_art_1'] === NULL) {
                                     ?>
                                         <select name="c_zugang_art_1" id="c_zugang_art_1" class="w-100 form-select">
-                                            <option selected>Art</option>
+                                            <option value="" selected>Art</option>
                                             <option value="3">pvk</option>
                                             <option value="1">zvk</option>
                                             <option value="2">i.o.</option>
@@ -576,7 +576,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     } else {
                                     ?>
                                         <select name="c_zugang_art_1" id="c_zugang_art_1" class="w-100 form-select" autocomplete="off">
-                                            <option selected>Art</option>
+                                            <option value="" selected>Art</option>
                                             <option value="3" <?php echo ($daten['c_zugang_art_1'] == 3 ? 'selected' : '') ?>>pvk</option>
                                             <option value="1" <?php echo ($daten['c_zugang_art_1'] == 1 ? 'selected' : '') ?>>zvk</option>
                                             <option value="2" <?php echo ($daten['c_zugang_art_1'] == 2 ? 'selected' : '') ?>>i.o.</option>
@@ -587,10 +587,10 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                 </div>
                                 <div class="col-2 edivi__zugang-container">
                                     <?php
-                                    if ($daten['c_zugang_gr_1'] == NULL) {
+                                    if ($daten['c_zugang_gr_1'] === NULL) {
                                     ?>
                                         <select name="c_zugang_gr_1" id="c_zugang_gr_1" class="w-100 form-select edivi__zugang-list">
-                                            <option selected>Gr.</option>
+                                            <option value="" selected>Gr.</option>
                                             <option disabled>-- i.v. --</option>
                                             <option value="10">G24</option>
                                             <option value="1">G22</option>
@@ -608,7 +608,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     } else {
                                     ?>
                                         <select name="c_zugang_gr_1" id="c_zugang_gr_1" class="w-100 form-select edivi__zugang-list" autocomplete="off">
-                                            <option selected>Gr.</option>
+                                            <option value="" selected>Gr.</option>
                                             <option disabled>-- i.v. --</option>
                                             <option value="10" <?php echo ($daten['c_zugang_gr_1'] == 10 ? 'selected' : '') ?>>G24</option>
                                             <option value="1" <?php echo ($daten['c_zugang_gr_1'] == 1 ? 'selected' : '') ?>>G22</option>
@@ -634,10 +634,10 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                 <div class="col-4 edivi__description"></div>
                                 <div class="col-2">
                                     <?php
-                                    if ($daten['c_zugang_art_2'] == NULL) {
+                                    if ($daten['c_zugang_art_2'] === NULL) {
                                     ?>
                                         <select name="c_zugang_art_2" id="c_zugang_art_2" class="w-100 form-select">
-                                            <option selected>Art</option>
+                                            <option value="" selected>Art</option>
                                             <option value="3">pvk</option>
                                             <option value="1">zvk</option>
                                             <option value="2">i.o.</option>
@@ -646,7 +646,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     } else {
                                     ?>
                                         <select name="c_zugang_art_2" id="c_zugang_art_2" class="w-100 form-select" autocomplete="off">
-                                            <option selected>Art</option>
+                                            <option value="" selected>Art</option>
                                             <option value="3" <?php echo ($daten['c_zugang_art_2'] == 3 ? 'selected' : '') ?>>pvk</option>
                                             <option value="1" <?php echo ($daten['c_zugang_art_2'] == 1 ? 'selected' : '') ?>>zvk</option>
                                             <option value="2" <?php echo ($daten['c_zugang_art_2'] == 2 ? 'selected' : '') ?>>i.o.</option>
@@ -657,10 +657,10 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                 </div>
                                 <div class="col-2 edivi__zugang-container">
                                     <?php
-                                    if ($daten['c_zugang_gr_2'] == NULL) {
+                                    if ($daten['c_zugang_gr_2'] === NULL) {
                                     ?>
                                         <select name="c_zugang_gr_2" id="c_zugang_gr_2" class="w-100 form-select edivi__zugang-list">
-                                            <option selected>Gr.</option>
+                                            <option value="" selected>Gr.</option>
                                             <option disabled>-- i.v. --</option>
                                             <option value="10">G24</option>
                                             <option value="1">G22</option>
@@ -678,7 +678,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     } else {
                                     ?>
                                         <select name="c_zugang_gr_2" id="c_zugang_gr_2" class="w-100 form-select edivi__zugang-list" autocomplete="off">
-                                            <option selected>Gr.</option>
+                                            <option value="" selected>Gr.</option>
                                             <option disabled>-- i.v. --</option>
                                             <option value="10" <?php echo ($daten['c_zugang_gr_2'] == 10 ? 'selected' : '') ?>>G24</option>
                                             <option value="1" <?php echo ($daten['c_zugang_gr_2'] == 1 ? 'selected' : '') ?>>G22</option>
@@ -704,10 +704,10 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                 <div class="col-4 edivi__description"></div>
                                 <div class="col-2">
                                     <?php
-                                    if ($daten['c_zugang_art_3'] == NULL) {
+                                    if ($daten['c_zugang_art_3'] === NULL) {
                                     ?>
                                         <select name="c_zugang_art_3" id="c_zugang_art_3" class="w-100 form-select">
-                                            <option selected>Art</option>
+                                            <option value="" selected>Art</option>
                                             <option value="3">pvk</option>
                                             <option value="1">zvk</option>
                                             <option value="2">i.o.</option>
@@ -716,7 +716,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     } else {
                                     ?>
                                         <select name="c_zugang_art_3" id="c_zugang_art_3" class="w-100 form-select" autocomplete="off">
-                                            <option selected>Art</option>
+                                            <option value="" selected>Art</option>
                                             <option value="3" <?php echo ($daten['c_zugang_art_3'] == 3 ? 'selected' : '') ?>>pvk</option>
                                             <option value="1" <?php echo ($daten['c_zugang_art_3'] == 1 ? 'selected' : '') ?>>zvk</option>
                                             <option value="2" <?php echo ($daten['c_zugang_art_3'] == 2 ? 'selected' : '') ?>>i.o.</option>
@@ -727,10 +727,10 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                 </div>
                                 <div class="col-2 edivi__zugang-container">
                                     <?php
-                                    if ($daten['c_zugang_gr_3'] == NULL) {
+                                    if ($daten['c_zugang_gr_3'] === NULL) {
                                     ?>
                                         <select name="c_zugang_gr_3" id="c_zugang_gr_3" class="w-100 form-select edivi__zugang-list">
-                                            <option selected>Gr.</option>
+                                            <option value="" selected>Gr.</option>
                                             <option disabled>-- i.v. --</option>
                                             <option value="10">G24</option>
                                             <option value="1">G22</option>
@@ -748,7 +748,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     } else {
                                     ?>
                                         <select name="c_zugang_gr_3" id="c_zugang_gr_3" class="w-100 form-select edivi__zugang-list" autocomplete="off">
-                                            <option selected>Gr.</option>
+                                            <option value="" selected>Gr.</option>
                                             <option disabled>-- i.v. --</option>
                                             <option value="10" <?php echo ($daten['c_zugang_gr_3'] == 10 ? 'selected' : '') ?>>G24</option>
                                             <option value="1" <?php echo ($daten['c_zugang_gr_3'] == 1 ? 'selected' : '') ?>>G22</option>
@@ -784,7 +784,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                 <div class="col-4 edivi__description">Bewusstseinslage</div>
                                 <div class="col">
                                     <?php
-                                    if ($daten['d_bewusstsein'] == NULL) {
+                                    if ($daten['d_bewusstsein'] === NULL) {
                                     ?>
                                         <select name="d_bewusstsein" id="d_bewusstsein" class="w-100 form-select edivi__input-check" required>
                                             <option disabled hidden selected>---</option>
@@ -811,7 +811,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                             <div class="row my-2">
                                 <div class="col-4 edivi__description">Pupillenweite</div>
                                 <div class="col">
-                                    <?Php if ($daten['d_pupillenw_1'] == NULL) {
+                                    <?Php if ($daten['d_pupillenw_1'] === NULL) {
                                     ?>
                                         <small>li</small> <select name="d_pupillenw_1" id="d_pupillenw_1" class="form-select edivi__input-check" style="display:inline; max-width: 150px" required>
                                             <option disabled hidden selected>---</option>
@@ -837,7 +837,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     ?>
                                 </div>
                                 <div class="col">
-                                    <?Php if ($daten['d_pupillenw_2'] == NULL) {
+                                    <?Php if ($daten['d_pupillenw_2'] === NULL) {
                                     ?>
                                         <small>re</small> <select name="d_pupillenw_2" id="d_pupillenw_2" class="form-select edivi__input-check" style="display:inline; max-width: 150px" required>
                                             <option disabled hidden selected>---</option>
@@ -867,7 +867,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                 <div class="col-4 edivi__description">Lichtreaktion</div>
                                 <div class="col">
                                     <?php
-                                    if ($daten['d_lichtreakt_1'] == NULL) {
+                                    if ($daten['d_lichtreakt_1'] === NULL) {
                                     ?>
                                         <small>li</small> <select name="d_lichtreakt_1" id="d_lichtreakt_1" class="form-select edivi__input-check" style="display:inline; max-width: 150px" required>
                                             <option disabled hidden selected>---</option>
@@ -892,7 +892,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                 </div>
                                 <div class="col">
                                     <?php
-                                    if ($daten['d_lichtreakt_2'] == NULL) {
+                                    if ($daten['d_lichtreakt_2'] === NULL) {
                                     ?>
                                         <small>re</small> <select name="d_lichtreakt_2" id="d_lichtreakt_2" class="form-select edivi__input-check" style="display:inline; max-width: 150px" required>
                                             <option disabled hidden selected>---</option>
@@ -925,7 +925,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     <div class="row mb-1">
                                         <div class="col">
                                             <?php
-                                            if ($daten['d_gcs_1'] == NULL) {
+                                            if ($daten['d_gcs_1'] === NULL) {
                                             ?>
                                                 <select class="w-100 form-select edivi__input-check" name="d_gcs_1" id="d_gcs_1" required>
                                                     <option disabled hidden selected>---</option>
@@ -958,7 +958,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     <div class="row mb-1">
                                         <div class="col">
                                             <?php
-                                            if ($daten['d_gcs_2'] == NULL) {
+                                            if ($daten['d_gcs_2'] === NULL) {
                                             ?>
                                                 <select class="w-100 form-select edivi__input-check" name="d_gcs_2" id="d_gcs_2" required>
                                                     <option disabled hidden selected>---</option>
@@ -993,7 +993,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     <div class="row mb-1">
                                         <div class="col">
                                             <?php
-                                            if ($daten['d_gcs_3'] == NULL) {
+                                            if ($daten['d_gcs_3'] === NULL) {
                                             ?>
                                                 <select class="w-100 form-select edivi__input-check" name="d_gcs_3" id="d_gcs_3" required>
                                                     <option disabled hidden selected>---</option>
@@ -1028,7 +1028,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                 <div class="col-4 edivi__description">Extremitätenbewegung</div>
                                 <div class="col">
                                     <?php
-                                    if ($daten['d_ex_1'] == NULL) {
+                                    if ($daten['d_ex_1'] === NULL) {
                                     ?>
                                         <select name="d_ex_1" id="d_ex_1" class="w-100 form-select edivi__input-check" required>
                                             <option disabled hidden selected>---</option>
@@ -1071,7 +1071,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                 <div class="col-4 edivi__description">Kopf</div>
                                 <div class="col edivi__verletzungen-col">
                                     <?php
-                                    if ($daten['v_muster_k'] == NULL) {
+                                    if ($daten['v_muster_k'] === NULL) {
                                     ?>
                                         <select name="v_muster_k" id="v_muster_k" class="w-100 edivi__verletzungen form-select edivi__input-check" required>
                                             <option disabled hidden selected>---</option>
@@ -1095,7 +1095,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     ?>
                                 </div>
                                 <div class="col-3 ms-1">
-                                    <?php if ($daten['v_muster_k1'] == NULL) {
+                                    <?php if ($daten['v_muster_k1'] === NULL) {
                                     ?>
                                         <select name="v_muster_k1" id="v_muster_k1" class="w-100 form-select">
                                             <option value="0" selected>---</option>
@@ -1119,7 +1119,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                 <div class="col-4 edivi__description">Wirbelsäule</div>
                                 <div class="col edivi__verletzungen-col">
                                     <?php
-                                    if ($daten['v_muster_w'] == NULL) {
+                                    if ($daten['v_muster_w'] === NULL) {
                                     ?>
                                         <select name="v_muster_w" id="v_muster_w" class="w-100 edivi__verletzungen form-select edivi__input-check" required>
                                             <option disabled hidden selected>---</option>
@@ -1143,7 +1143,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     ?>
                                 </div>
                                 <div class="col-3 ms-1">
-                                    <?php if ($daten['v_muster_w1'] == NULL) {
+                                    <?php if ($daten['v_muster_w1'] === NULL) {
                                     ?>
                                         <select name="v_muster_w1" id="v_muster_w1" class="w-100 form-select">
                                             <option value="0" selected>---</option>
@@ -1167,7 +1167,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                 <div class="col-4 edivi__description">Thorax</div>
                                 <div class="col edivi__verletzungen-col">
                                     <?php
-                                    if ($daten['v_muster_t'] == NULL) {
+                                    if ($daten['v_muster_t'] === NULL) {
                                     ?>
                                         <select name="v_muster_t" id="v_muster_t" class="w-100 edivi__verletzungen form-select edivi__input-check" required>
                                             <option disabled hidden selected>---</option>
@@ -1191,7 +1191,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     ?>
                                 </div>
                                 <div class="col-3 ms-1">
-                                    <?php if ($daten['v_muster_t1'] == NULL) {
+                                    <?php if ($daten['v_muster_t1'] === NULL) {
                                     ?>
                                         <select name="v_muster_t1" id="v_muster_t1" class="w-100 form-select">
                                             <option value="0" selected>---</option>
@@ -1215,7 +1215,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                 <div class="col-4 edivi__description">Abdomen</div>
                                 <div class="col edivi__verletzungen-col">
                                     <?php
-                                    if ($daten['v_muster_a'] == NULL) {
+                                    if ($daten['v_muster_a'] === NULL) {
                                     ?>
                                         <select name="v_muster_a" id="v_muster_a" class="w-100 edivi__verletzungen form-select edivi__input-check" required>
                                             <option disabled hidden selected>---</option>
@@ -1239,7 +1239,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     ?>
                                 </div>
                                 <div class="col-3 ms-1">
-                                    <?php if ($daten['v_muster_a1'] == NULL) {
+                                    <?php if ($daten['v_muster_a1'] === NULL) {
                                     ?>
                                         <select name="v_muster_a1" id="v_muster_a1" class="w-100 form-select">
                                             <option value="0" selected>---</option>
@@ -1263,7 +1263,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                 <div class="col-4 edivi__description">Obere Extremitäten</div>
                                 <div class="col edivi__verletzungen-col">
                                     <?php
-                                    if ($daten['v_muster_al'] == NULL) {
+                                    if ($daten['v_muster_al'] === NULL) {
                                     ?>
                                         <select name="v_muster_al" id="v_muster_al" class="w-100 edivi__verletzungen form-select edivi__input-check" required>
                                             <option disabled hidden selected>---</option>
@@ -1287,7 +1287,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     ?>
                                 </div>
                                 <div class="col-3 ms-1">
-                                    <?php if ($daten['v_muster_al1'] == NULL) {
+                                    <?php if ($daten['v_muster_al1'] === NULL) {
                                     ?>
                                         <select name="v_muster_al1" id="v_muster_al1" class="w-100 form-select">
                                             <option value="0" selected>---</option>
@@ -1311,7 +1311,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                 <div class="col-4 edivi__description">Untere Extremitäten</div>
                                 <div class="col edivi__verletzungen-col">
                                     <?php
-                                    if ($daten['v_muster_bl'] == NULL) {
+                                    if ($daten['v_muster_bl'] === NULL) {
                                     ?>
                                         <select name="v_muster_bl" id="v_muster_bl" class="w-100 edivi__verletzungen form-select edivi__input-check" required>
                                             <option disabled hidden selected>---</option>
@@ -1335,7 +1335,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                     ?>
                                 </div>
                                 <div class="col-3 ms-1">
-                                    <?php if ($daten['v_muster_bl1'] == NULL) {
+                                    <?php if ($daten['v_muster_bl1'] === NULL) {
                                     ?>
                                         <select name="v_muster_bl1" id="v_muster_bl1" class="w-100 form-select">
                                             <option value="0" selected>---</option>
@@ -1449,7 +1449,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                             <div class="row mt-2">
                                 <div class="col-3 fw-bold">Rettungsmittel</div>
                                 <div class="col-3">
-                                    <?php if ($daten['fzg_transp'] == NULL) : ?>
+                                    <?php if ($daten['fzg_transp'] === NULL) : ?>
                                         <select name="fzg_transp" id="fzg_transp" class="w-100 form-select">
                                             <option selected value="NULL">Fzg. Transp.</option>
                                             <?php
@@ -1493,7 +1493,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                             <div class="row mt-2">
                                 <div class="col-3 fw-bold"></div>
                                 <div class="col-3">
-                                    <?php if ($daten['fzg_na'] == NULL) : ?>
+                                    <?php if ($daten['fzg_na'] === NULL) : ?>
                                         <select name="fzg_na" id="fzg_na" class="w-100 form-select">
                                             <option selected value="NULL">Fzg. NA</option>
                                             <?php
@@ -1544,7 +1544,7 @@ $prot_url = "https://" . SYSTEM_URL . "/edivi/" . $enr;
                                 <div class="col-3 fw-bold">Transportart/-ziel</div>
                                 <div class="col">
                                     <?php
-                                    if ($daten['transportziel'] == NULL) {
+                                    if ($daten['transportziel'] === NULL) {
                                     ?>
                                         <select name="transportziel" id="transportziel" class="w-100 form-select edivi__input-check" required>
                                             <option disabled hidden selected value="NULL">---</option>

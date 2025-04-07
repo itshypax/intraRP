@@ -1,4 +1,4 @@
-![intraRP Logo](/assets/img/defaultLogo.png)
+![intraRP Logo](/.github/intrarp_banner.png)
 
 # intraRP - Roleplay Intranet für fiktive Fraktionen
 
@@ -24,6 +24,7 @@ Das Projekt wird hobbymäßig weiterentwickelt und ist für jegliche Unterstütz
   - [Datei-Upload](https://github.com/itshypax/intraRP/wiki/%C3%9Cbersicht-aller-Berechtigungen#datei-upload)
 
 ### Preview
+
 <details>
   <summary>Admin Login & Dashboard</summary>
   Login-Seite
@@ -40,8 +41,9 @@ Das Projekt wird hobbymäßig weiterentwickelt und ist für jegliche Unterstütz
   Benutzerliste
   <img src="/.github/PREVIEW/userList.png">
 
-  Benutzer bearbeiten
-  <img src="/.github/PREVIEW/userEdit.png">
+Benutzer bearbeiten
+<img src="/.github/PREVIEW/userEdit.png">
+
 </details>
 <details>
   <summary>Mitarbeiterprofile</summary>
@@ -51,9 +53,10 @@ Das Projekt wird hobbymäßig weiterentwickelt und ist für jegliche Unterstütz
   Mitarbeiter-Übersicht
   <img src="/.github/PREVIEW/aktenListe.png">
 
-  Mitarbeiterprofil
-  <img src="/.github/PREVIEW/aktenView1.png">
-  <img src="/.github/PREVIEW/aktenView2.png">
+Mitarbeiterprofil
+<img src="/.github/PREVIEW/aktenView1.png">
+<img src="/.github/PREVIEW/aktenView2.png">
+
 </details>
 <details>
   <summary>eDIVI (Notfallprotokoll)</summary>
@@ -64,9 +67,10 @@ Das Projekt wird hobbymäßig weiterentwickelt und ist für jegliche Unterstütz
   eDIVI Liste
   <img src="/.github/PREVIEW/ediviList.png">
 
-  QM-Optionen<br>
-  <img src="/.github/PREVIEW/ediviQMLog.png">
-  <img src="/.github/PREVIEW/ediviQMOptions.png">
+QM-Optionen<br>
+<img src="/.github/PREVIEW/ediviQMLog.png">
+<img src="/.github/PREVIEW/ediviQMOptions.png">
+
 </details>
 <details>
   <summary>Beförderungsanträge</summary>
@@ -77,8 +81,9 @@ Das Projekt wird hobbymäßig weiterentwickelt und ist für jegliche Unterstütz
   Liste der Anträge
   <img src="/.github/PREVIEW/befAntragList.png">
 
-  Admininistrative Ansicht
-  <img src="/.github/PREVIEW/befAntragViewAdmin.png">
+Admininistrative Ansicht
+<img src="/.github/PREVIEW/befAntragViewAdmin.png">
+
 </details>
 <details>
   <summary>Datei-Upload</summary>

@@ -1,3 +1,8 @@
+<?php
+
+use App\Auth\Permissions;
+?>
+
 <table class="table table-striped" id="documentTable">
     <thead>
         <th scope="col">Dokumenten-Typ</th>
@@ -34,14 +39,12 @@
             $path = "/assets/functions/docredir.php?docid=" . $doks['docid'];
 
             if ($doks['type'] <= 3) {
-                $bg = "bg-secondary";
+                $bg = "text-bg-secondary";
             } elseif ($doks['type'] == 5 || $doks['type'] == 6 || $doks['type'] == 7) {
-                $bg = "bg-dark";
+                $bg = "text-bg-dark";
             } elseif ($doks['type'] >= 10 && $doks['type'] <= 12) {
-                $bg = "bg-danger";
+                $bg = "text-bg-danger";
             }
-
-            $adminPermission = $admincheck;
 
             echo "<tr>";
             echo "<td><span class='badge $bg'>" . $docart . "</span></td>";
@@ -51,7 +54,7 @@
             echo "<td>";
             echo "<a href='$path' class='btn btn-sm btn-primary' target='_blank'>Ansehen</a>";
 
-            if ($adminPermission) {
+            if (Permissions::check('admin')) {
                 echo " <a href='/admin/personal/dokument-delete.php?id={$doks['docid']}&pid=$openedID' class='btn btn-sm btn-danger'><i class='las la-trash'></i></a>";
             }
 

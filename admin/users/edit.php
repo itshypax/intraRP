@@ -1,23 +1,25 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
-    // Store the current page's URL in a session variable
     $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
 
-    // Redirect the user to the login page
     header("Location: /admin/login.php");
     exit();
 }
 
-if ($notadmincheck && !$usedit) {
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+use App\Utils\AuditLogger;
+
+if (!Permissions::check(['admin', 'users.edit'])) {
+    Flash::set('error', 'no-permissions');
     header("Location: /admin/users/list.php?message=error-2");
 }
 
 require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 
-//Abfrage der Nutzer ID vom Login
 $userid = $_SESSION['userid'];
 
 $stmt = $pdo->prepare("SELECT * FROM intra_users WHERE id = :id");
@@ -32,11 +34,13 @@ $stmt2->execute(['roleID' => $row['role']]);
 $rowrole = $stmt2->fetch(PDO::FETCH_ASSOC);
 
 if ($row['id'] == $userid) {
-    header("Location: /admin/users/list.php?message=error-1");
+    Flash::set('user', 'edit-self');
+    header("Location: /admin/users/list.php");
 }
 
 if ($rowrole['priority'] <= $_SESSION['role_priority']) {
-    header("Location: /admin/users/list.php?message=error-3");
+    Flash::set('user', 'low_permissions');
+    header("Location: /admin/users/list.php");
 }
 
 if (isset($_POST['new']) && $_POST['new'] == 1) {
@@ -60,6 +64,9 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
         'id' => $id
     ]);
 
+    $auditLogger = new AuditLogger($pdo);
+    $auditLogger->log($userid, 'Benutzer aktualisiert [ID: ' . $id . ']', NULL, 'Benutzer', 1);
+
     header("Refresh: 0");
 }
 ?>
@@ -78,9 +85,9 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
     <link rel="stylesheet" href="/assets/_ext/lineawesome/css/line-awesome.min.css" />
     <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
-    <script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="/assets/_ext/jquery/jquery.min.js"></script>
+    <link rel="stylesheet" href="/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <script src="/vendor/components/jquery/jquery.min.js"></script>
+    <script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
@@ -108,7 +115,7 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
             <div class="row">
                 <div class="col mb-5">
                     <hr class="text-light my-3">
-                    <h1 class="mb-3">Benutzer bearbeiten <span class="mx-3"></span> <button class="btn btn-main-color btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="las la-trash"></i> Benutzer löschen</button> <?php if ($admincheck) : ?><button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#newPassword"><i class="las la-key"></i> Neues Passwort generieren</button><?php endif; ?></h1>
+                    <h1 class="mb-3">Benutzer bearbeiten <span class="mx-3"></span> <button class="btn btn-main-color btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="las la-trash"></i> Benutzer löschen</button> <?php if (Permissions::check('admin')) : ?><button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#newPassword"><i class="las la-key"></i> Neues Passwort generieren</button><?php endif; ?></h1>
 
                     <form name="form" method="post" action="">
                         <input type="hidden" name="new" value="1" />
@@ -170,6 +177,48 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
                     </form>
                 </div>
             </div>
+            <?php if (Permissions::check(['admin', 'audit.view'])) : ?>
+                <h1 class="mb-3">Benutzer-Log</h1>
+                <div class="row">
+                    <div class="col">
+                        <div class="intra__tile py-2 px-3">
+                            <table class="table table-striped" id="table-audit">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Zeitstempel</th>
+                                        <th scope="col">Modul</th>
+                                        <th scope="col">Aktion</th>
+                                        <th scope="col">Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
+                                    $stmt = $pdo->prepare("SELECT * FROM intra_audit_log WHERE user = :userid");
+                                    $stmt->execute(
+                                        ['userid' => $row['id']]
+                                    );
+                                    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                    foreach ($result as $rr) {
+
+
+                                        $datetime = new DateTime($rr['timestamp']);
+                                        $date = $datetime->format('d.m.Y  H:i:s');
+
+                                        echo "<tr>";
+                                        echo "<td>" . $date . "</td>";
+                                        echo "<td class='fw-bold'>" . $rr['module'] . "</td>";
+                                        echo "<td>" . $rr['action'] . "</td>";
+                                        echo "<td>" . $rr['details'] . "</td>";
+                                        echo "</tr>";
+                                    }
+                                    ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -182,7 +231,7 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    Willst du wirklich den Benutzer <span class="fw-bold"><?= $row['fullname'] ?></span> löschen?
+                    Willst du wirklich den Benutzer <span class="fw-bold"><?= $row['username'] ?></span> löschen?
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary-color" data-bs-dismiss="modal">Ne, Upsi</button>
@@ -192,7 +241,7 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
         </div>
     </div>
     <!-- MODAL END & BEGIN -->
-    <?php if ($admincheck) : ?>
+    <?php if (Permissions::check('admin')) : ?>
         <div class="modal fade" id="newPassword" tabindex="-1" aria-labelledby="newPasswordLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -201,7 +250,7 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        Willst du wirklich für den Benutzer <span class="fw-bold"><?= $row['fullname'] ?></span> ein neues Passwort generieren?
+                        Willst du wirklich für den Benutzer <span class="fw-bold"><?= $row['username'] ?></span> ein neues Passwort generieren?
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary-color" data-bs-dismiss="modal">Ne, Upsi</button>
@@ -212,8 +261,51 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
         </div>
     <?php endif; ?>
     <!-- MODAL END -->
-
     <?php include $_SERVER['DOCUMENT_ROOT'] . "/assets/components/footer.php"; ?>
+  
+    <script src="/vendor/datatables.net/datatables.net/js/dataTables.min.js"></script>
+    <script src="/vendor/datatables.net/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            var table = $('#table-audit').DataTable({
+                stateSave: true,
+                paging: true,
+                lengthMenu: [10, 20, 40],
+                pageLength: 20,
+                order: [
+                    [0, 'desc']
+                ],
+                columnDefs: [{
+                    orderable: false,
+                    targets: -1
+                }],
+                language: {
+                    "decimal": "",
+                    "emptyTable": "Keine Daten vorhanden",
+                    "info": "Zeige _START_ bis _END_  | Gesamt: _TOTAL_",
+                    "infoEmpty": "Keine Daten verfügbar",
+                    "infoFiltered": "| Gefiltert von _MAX_ Einträgen",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_ Einträge pro Seite anzeigen",
+                    "loadingRecords": "Lade...",
+                    "processing": "Verarbeite...",
+                    "search": "Eintrag suchen:",
+                    "zeroRecords": "Keine Einträge gefunden",
+                    "paginate": {
+                        "first": "Erste",
+                        "last": "Letzte",
+                        "next": "Nächste",
+                        "previous": "Vorherige"
+                    },
+                    "aria": {
+                        "sortAscending": ": aktivieren, um Spalte aufsteigend zu sortieren",
+                        "sortDescending": ": aktivieren, um Spalte absteigend zu sortieren"
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

@@ -5,7 +5,7 @@ error_reporting(E_ALL);
 
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 // Set the upload directory path
 $upload_dir = '../../assets/upload/';
 // Get the file details

@@ -84,6 +84,9 @@
   background-image: repeating-linear-gradient(45deg, #1a2332 0, #1a2332 1.3px, #0f1828 0, #0f1828 50%);
   border-bottom: 2px solid #192231;
 }
+#intra-nav .dropdown-menu {
+  --bs-dropdown-link-active-bg: var(--main-color);
+}
 
 #intra-nav .nav-link {
   border-bottom-color: transparent;

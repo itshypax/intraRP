@@ -14,6 +14,34 @@ if (isset($_SESSION['userid']) && isset($_SESSION['permissions'])) {
     header('Location: /admin/index.php');
 }
 
+$checkStmt = $pdo->query("SELECT COUNT(*) FROM intra_users");
+$userCount = $checkStmt->fetchColumn();
+
+if ($userCount == 0 && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = trim($_POST['username']);
+    $fullname = trim($_POST['fullname']);
+    $passwort = $_POST['passwort'];
+    $passwortConfirm = $_POST['passwort_confirm'];
+
+    if ($passwort !== $passwortConfirm) {
+        $errorMessage = "Passwörter stimmen nicht überein.";
+    } else {
+        $hashedPassword = password_hash($passwort, PASSWORD_BCRYPT);
+
+        $stmt = $pdo->prepare("INSERT INTO intra_users (username, fullname, passwort, role, full_admin) VALUES (:username, :fullname, :passwort, :role, :full_admin)");
+        $stmt->execute([
+            'username' => $username,
+            'fullname' => $fullname,
+            'passwort' => $hashedPassword,
+            'role' => 0,
+            'full_admin' => 1
+        ]);
+
+        header("Refresh: 0");
+        exit();
+    }
+}
+
 if (isset($_GET['login'])) {
     $username = $_POST['username'];
     $passwort = $_POST['passwort'];
@@ -22,22 +50,13 @@ if (isset($_GET['login'])) {
     $result = $statement->execute(array('username' => $username));
     $user = $statement->fetch();
 
-    //Überprüfung des Passworts
     if ($user !== false && password_verify($passwort, $user['passwort'])) {
         $_SESSION['userid'] = $user['id'];
         $_SESSION['cirs_user'] = $user['fullname'];
         $_SESSION['cirs_username'] = $user['username'];
+        $_SESSION['aktenid'] = $user['aktenid'];
         $permissions = json_decode($user['permissions'], true) ?? [];
         $_SESSION['permissions'] = $permissions;
-
-        if ($user['aktenid'] != null) {
-            $statement = $pdo->prepare("SELECT * FROM intra_mitarbeiter WHERE id = :id");
-            $result = $statement->execute(array('id' => $user['aktenid']));
-            $profile = $statement->fetch();
-
-            $_SESSION['cirs_dg'] = $profile['dienstgrad'];
-            $_SESSION['ic_name'] = $profile['fullname'];
-        }
 
         if (isset($_SESSION['redirect_url'])) {
             $redirect_url = $_SESSION['redirect_url'];
@@ -65,8 +84,8 @@ if (isset($_GET['login'])) {
     <link rel="stylesheet" href="/assets/_ext/lineawesome/css/line-awesome.min.css" />
     <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
-    <script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
@@ -97,15 +116,34 @@ if (isset($_GET['login'])) {
                 }
                 ?>
 
-                <form action="?login=1" method="post">
-                    <strong>Benutzername:</strong><br>
-                    <input class="form-control" type="text" size="40" maxlength="250" name="username"><br><br>
+                <?php if ($userCount == 0) : ?>
+                    <div class="alert alert-info mb-3">Kein Benutzer gefunden. Du erstellst jetzt den ersten Administrator-Account.</div>
+                    <form method="post">
+                        <strong>Benutzername:</strong><br>
+                        <input class="form-control" type="text" size="40" maxlength="250" name="username" required><br><br>
 
-                    <strong>Passwort:</strong><br>
-                    <input class="form-control" type="password" size="40" maxlength="250" name="passwort"><br>
+                        <strong>Vor- und Zuname (RP):</strong><br>
+                        <input class="form-control" type="text" size="40" maxlength="250" name="fullname" required><br><br>
 
-                    <input class="btn btn-primary w-100" type="submit" value="Anmelden">
-                </form>
+                        <strong>Passwort:</strong><br>
+                        <input class="form-control" type="password" size="40" maxlength="250" name="passwort" required><br>
+
+                        <strong>Passwort wiederholen:</strong><br>
+                        <input class="form-control" type="password" name="passwort_confirm" required><br>
+
+                        <input class="btn btn-primary w-100" type="submit" value="Erstellen">
+                    </form>
+                <?php else : ?>
+                    <form action="?login=1" method="post">
+                        <strong>Benutzername:</strong><br>
+                        <input class="form-control" type="text" size="40" maxlength="250" name="username" required><br><br>
+
+                        <strong>Passwort:</strong><br>
+                        <input class="form-control" type="password" size="40" maxlength="250" name="passwort" required><br>
+
+                        <input class="btn btn-primary w-100" type="submit" value="Anmelden">
+                    </form>
+                <?php endif; ?>
             </div>
         </div>
     </div>

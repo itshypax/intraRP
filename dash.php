@@ -14,8 +14,8 @@ require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
   <link rel="stylesheet" href="/assets/_ext/lineawesome/css/line-awesome.min.css" />
   <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
   <!-- Bootstrap -->
-  <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
-  <script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <link rel="stylesheet" href="/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+  <script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="/assets/favicon/favicon.ico" />
   <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png" />

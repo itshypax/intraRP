@@ -1,14 +1,22 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
-if (!isset($_SESSION['userid']) && !isset($_SESSION['permissions'])) {
-    die('Bitte zuerst <a href="/admin/login.php">einloggen</a>');
+if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
+    $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
+
+    header("Location: /admin/login.php");
+    exit();
 }
 
-if ($notadmincheck && !$anedit) {
-    header("Location: /admin/index.php?message=error-2");
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+use App\Utils\AuditLogger;
+
+if (!Permissions::check(['admin', 'application.edit'])) {
+    Flash::set('error', 'no-permissions');
+    header("Location: /admin/index.php");
 }
 
 $caseid = $_GET['antrag'];
@@ -25,6 +33,19 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
     $cirs_status = $_REQUEST['cirs_status'];
     $cirs_text = $_REQUEST['cirs_text'];
     $jetzt = date("Y-m-d H:i:s");
+
+    $auditLogger = new AuditLogger($pdo);
+
+    if ($row['cirsmanager'] != $cirs_manager) {
+        $auditLogger->log($_SESSION['userid'], 'Bearbeiter geändert [ID: ' . $id . ']', $cirs_manager, 'Anträge',  1);
+    }
+    if ($row['cirs_status'] != $cirs_status) {
+        $auditLogger->log($_SESSION['userid'], 'Status geändert [ID: ' . $id . ']', 'Neuer Status: ' . $cirs_status, 'Anträge',  1);
+    }
+    if ($row['cirs_text'] != $cirs_text) {
+        $auditLogger->log($_SESSION['userid'], 'Bemerkung geändert [ID: ' . $id . ']', '"' . $cirs_text . '"', 'Anträge',  1);
+    }
+
     $stmt = $pdo->prepare("UPDATE intra_antrag_bef SET cirs_manager = :cirs_manager, cirs_status = :cirs_status, cirs_text = :cirs_text, cirs_time = :jetzt WHERE id = :id");
     $stmt->execute([
         ':cirs_manager' => $cirs_manager,
@@ -33,6 +54,7 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
         ':jetzt' => $jetzt,
         ':id' => $id
     ]);
+
     header("Refresh:0");
 }
 
@@ -52,9 +74,9 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
     <link rel="stylesheet" href="/assets/_ext/lineawesome/css/line-awesome.min.css" />
     <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
-    <script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="/assets/_ext/jquery/jquery.min.js"></script>
+    <link rel="stylesheet" href="/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <script src="/vendor/components/jquery/jquery.min.js"></script>
+    <script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />

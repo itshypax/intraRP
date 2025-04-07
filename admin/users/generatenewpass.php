@@ -1,18 +1,24 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
+require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
 
     header("Location: /admin/login.php");
     exit();
 }
-if ($notadmincheck) {
-    header("Location: /admin/users/list.php?message=error-2");
+
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+use App\Utils\AuditLogger;
+
+if (!Permissions::check('admin')) {
+    Flash::set('error', 'no-permissions');
+    header("Location: /admin/users/list.php");
 }
 
-require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 $userid = $_SESSION['userid'];
 $id = $_GET['id'];
 
@@ -30,5 +36,8 @@ $stmt->bindParam(':passwort', $hashedPassword);
 $stmt->bindParam(':id', $id);
 $stmt->execute();
 
-header("Location: /admin/users/list.php?message=success-1&user=" . urlencode($user['username']) . "&pass=" . urlencode($newPassword));
+Flash::set('user', 'new-password', ['username' => $user['username'], 'pass' => $newPassword]);
+$auditLogger = new AuditLogger($pdo);
+$auditLogger->log($userid, 'Neues Passwort generiert [ID: ' . $id . ']', null, 'Benutzer', 1);
+header("Location: /admin/users/list.php");
 exit;

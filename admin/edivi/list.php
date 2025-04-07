@@ -1,15 +1,19 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
-    // Store the current page's URL in a session variable
     $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
 
-    // Redirect the user to the login page
     header("Location: /admin/login.php");
     exit();
-} else if ($notadmincheck && !$edview) {
+}
+
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+
+if (!Permissions::check(['admin', 'edivi.view'])) {
+    Flash::set('error', 'no-permissions');
     header("Location: /admin/index.php");
 }
 ?>
@@ -28,10 +32,10 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     <link rel="stylesheet" href="/assets/_ext/lineawesome/css/line-awesome.min.css" />
     <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
-    <script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="/assets/_ext/jquery/jquery.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="/assets/_ext/datatables/datatables.min.css">
+    <link rel="stylesheet" href="/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <script src="/vendor/components/jquery/jquery.min.js"></script>
+    <script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="/vendor/datatables.net/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
@@ -68,21 +72,8 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                         <?php } ?>
                     </div>
                     <?php
-                    $messages = [
-                        'error-1' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Du kannst dich nicht selbst bearbeiten!'],
-                        'error-2' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Dazu hast du nicht die richtigen Berechtigungen!'],
-                        'success-1' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Änderung erfolgreich gespeichert!'],
-                    ];
-
-                    if (isset($_GET['message'], $messages[$_GET['message']])) {
-                        $msg = $messages[$_GET['message']];
+                    Flash::render();
                     ?>
-                        <div class="alert alert-<?= htmlspecialchars($msg['type']) ?> alert-dismissible fade show" role="alert">
-                            <h5><?= htmlspecialchars($msg['title']) ?></h5>
-                            <?= htmlspecialchars($msg['text']) ?>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Schließen"></button>
-                        </div>
-                    <?php } ?>
                     <div class="intra__tile py-2 px-3">
                         <table class="table table-striped" id="table-protokoll">
                             <thead>
@@ -104,16 +95,16 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                     $date = $datetime->format('d.m.Y | H:i');
                                     switch ($row['protokoll_status']) {
                                         case 0:
-                                            $status = "<span class='badge bg-secondary'>Ungesehen</span>";
+                                            $status = "<span class='badge text-bg-secondary'>Ungesehen</span>";
                                             break;
                                         case 1:
-                                            $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='badge bg-warning'>in Prüfung</span>";
+                                            $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='badge text-bg-warning'>in Prüfung</span>";
                                             break;
                                         case 2:
-                                            $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='badge bg-success'>Geprüft</span>";
+                                            $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='badge text-bg-success'>Geprüft</span>";
                                             break;
                                         default:
-                                            $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='badge bg-danger'>Ungenügend</span>";
+                                            $status = "<span title='Prüfer: " . $row['bearbeiter'] . "' class='badge text-bg-danger'>Ungenügend</span>";
                                             break;
                                     }
 
@@ -122,7 +113,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                             $freigabe_status = "";
                                             break;
                                         case 1:
-                                            $freigabe_status = "<span title='Freigeber: " . $row['freigeber_name'] . "' class='badge bg-success'>F</span>";
+                                            $freigabe_status = "<span title='Freigeber: " . $row['freigeber_name'] . "' class='text-badge bg-success'>F</span>";
                                             break;
                                     }
 
@@ -134,9 +125,8 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 
                                     $patname = $row['patname'] ?? "Unbekannt";
 
-                                    $actions = ($edview || $admincheck)
-                                        ? "<a title='Protokoll ansehen' href='/admin/edivi/view.php?id={$row['id']}' class='btn btn-sm btn-primary'><i class='las la-eye'></i></a> 
-                                        <a title='Protokoll löschen' href='/admin/edivi/delete.php?id={$row['id']}' class='btn btn-sm btn-danger'><i class='las la-trash'></i></a>"
+                                    $actions = (Permissions::check(['admin', 'edivi.edit']))
+                                        ? "<a title='Protokoll löschen' href='/admin/edivi/delete.php?id={$row['id']}' class='btn btn-sm btn-danger'><i class='las la-trash'></i></a>"
                                         : "";
 
                                     echo "<tr>";
@@ -145,7 +135,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
                                     echo "<td><span style='display:none'>" . $row['sendezeit'] . "</span>" . $date . "</td>";
                                     echo "<td>" . $row['pfname'] . " " . $freigabe_status . "</td>";
                                     echo "<td>" . $status . "</td>";
-                                    echo "<td>{$actions}</td>";
+                                    echo "<td><a title='Protokoll ansehen' href='/admin/edivi/view.php?id={$row['id']}' class='btn btn-sm btn-primary'><i class='las la-eye'></i></a> {$actions}</td>";
                                     echo "</tr>";
                                 }
                                 ?>
@@ -157,8 +147,9 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
         </div>
     </div>
 
-    <script src="/assets/_ext/jquery/jquery.dataTables.min.js"></script>
-    <script src="/assets/_ext/datatables/datatables.min.js"></script>
+
+    <script src="/vendor/datatables.net/datatables.net/js/dataTables.min.js"></script>
+    <script src="/vendor/datatables.net/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function() {
             var table = $('#table-protokoll').DataTable({

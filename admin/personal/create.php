@@ -1,21 +1,32 @@
 <?php
 session_start();
 require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/permissions.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 require $_SERVER['DOCUMENT_ROOT'] . '/assets/config/database.php';
 
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
-    // Store the current page's URL in a session variable
     $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
 
-    // Redirect the user to the login page
     header("Location: /admin/login.php");
     exit();
 }
 
-if (!$admincheck && !$peredit) {
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+use App\Utils\AuditLogger;
+
+if (!Permissions::check(['admin', 'personnel.edit'])) {
+    Flash::set('error', 'no-permissions');
     header("Location: /admin/index.php");
 }
+
+$stmtr = $pdo->prepare("SELECT * FROM intra_mitarbeiter_rdquali WHERE none = 1 LIMIT 1");
+$stmtr->execute();
+$resultr = $stmtr->fetch();
+
+$stmtf = $pdo->prepare("SELECT * FROM intra_mitarbeiter_fwquali WHERE none = 1 LIMIT 1");
+$stmtf->execute();
+$resultf = $stmtf->fetch();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $response = ['success' => false, 'message' => ''];
@@ -23,41 +34,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $fullname = $_POST['fullname'] ?? '';
         $gebdatum = $_POST['gebdatum'] ?? '';
-        $charakterid = $_POST['charakterid'] ?? '';
         $dienstgrad = $_POST['dienstgrad'] ?? '';
         $geschlecht = $_POST['geschlecht'] ?? '';
         $discordtag = $_POST['discordtag'] ?? '';
         $telefonnr = $_POST['telefonnr'] ?? '';
         $dienstnr = $_POST['dienstnr'] ?? '';
         $einstdatum = $_POST['einstdatum'] ?? '';
+        $qualird = $resultr['id'];
+        $qualifw = $resultf['id'];
 
-        if (empty($fullname) || empty($gebdatum) || empty($charakterid) || empty($dienstgrad)) {
-            $response['message'] = "Bitte alle erforderlichen Felder ausfüllen.";
-            echo json_encode($response);
-            exit;
+        if (CHAR_ID) {
+            $charakterid = $_POST['charakterid'] ?? '';
+            if (empty($fullname) || empty($gebdatum) || empty($charakterid) || empty($dienstgrad)) {
+                $response['message'] = "Bitte alle erforderlichen Felder ausfüllen.";
+                echo json_encode($response);
+                exit;
+            }
+        } else {
+            if (empty($fullname) || empty($gebdatum) || empty($dienstgrad)) {
+                $response['message'] = "Bitte alle erforderlichen Felder ausfüllen.";
+                echo json_encode($response);
+                exit;
+            }
         }
 
-        $stmt = $pdo->prepare("INSERT INTO intra_mitarbeiter 
-            (fullname, gebdatum, charakterid, dienstgrad, geschlecht, discordtag, telefonnr, dienstnr, einstdatum) 
-            VALUES (:fullname, :gebdatum, :charakterid, :dienstgrad, :geschlecht, :discordtag, :telefonnr, :dienstnr, :einstdatum)");
-        $stmt->execute([
-            'fullname' => $fullname,
-            'gebdatum' => $gebdatum,
-            'charakterid' => $charakterid,
-            'dienstgrad' => $dienstgrad,
-            'geschlecht' => $geschlecht,
-            'discordtag' => $discordtag,
-            'telefonnr' => $telefonnr,
-            'dienstnr' => $dienstnr,
-            'einstdatum' => $einstdatum
-        ]);
+        if (CHAR_ID) {
+            $stmt = $pdo->prepare("INSERT INTO intra_mitarbeiter 
+            (fullname, gebdatum, charakterid, dienstgrad, geschlecht, discordtag, telefonnr, dienstnr, einstdatum, qualifw2, qualird) 
+            VALUES (:fullname, :gebdatum, :charakterid, :dienstgrad, :geschlecht, :discordtag, :telefonnr, :dienstnr, :einstdatum, :qualifw, :qualird)");
+            $stmt->execute([
+                'fullname' => $fullname,
+                'gebdatum' => $gebdatum,
+                'charakterid' => $charakterid,
+                'dienstgrad' => $dienstgrad,
+                'geschlecht' => $geschlecht,
+                'discordtag' => $discordtag,
+                'telefonnr' => $telefonnr,
+                'dienstnr' => $dienstnr,
+                'einstdatum' => $einstdatum,
+                'qualifw' => $qualifw,
+                'qualird' => $qualird
+            ]);
+        } else {
+            $stmt = $pdo->prepare("INSERT INTO intra_mitarbeiter 
+            (fullname, gebdatum, dienstgrad, geschlecht, discordtag, telefonnr, dienstnr, einstdatum, qualifw2, qualird) 
+            VALUES (:fullname, :gebdatum, :dienstgrad, :geschlecht, :discordtag, :telefonnr, :dienstnr, :einstdatum, :qualifw, :qualird)");
+            $stmt->execute([
+                'fullname' => $fullname,
+                'gebdatum' => $gebdatum,
+                'dienstgrad' => $dienstgrad,
+                'geschlecht' => $geschlecht,
+                'discordtag' => $discordtag,
+                'telefonnr' => $telefonnr,
+                'dienstnr' => $dienstnr,
+                'einstdatum' => $einstdatum,
+                'qualifw' => $qualifw,
+                'qualird' => $qualird
+            ]);
+        }
 
         $savedId = $pdo->lastInsertId();
 
         $edituser = $_SESSION['cirs_user'] ?? 'Unknown';
         $logContent = 'Mitarbeiter wurde angelegt.';
-        $logStmt = $pdo->prepare("INSERT INTO intra_mitarbeiter_log (profilid, type, content, paneluser) 
-                                  VALUES (:id, '6', :content, :paneluser)");
+        $logStmt = $pdo->prepare("INSERT INTO intra_mitarbeiter_log (profilid, type, content, paneluser) VALUES (:id, '6', :content, :paneluser)");
         $logStmt->execute([
             'id' => $savedId,
             'content' => $logContent,
@@ -70,6 +110,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (Exception $e) {
         $response['message'] = "Fehler: " . $e->getMessage();
     }
+
+    $auditlogger = new AuditLogger($pdo);
+    $auditlogger->log($_SESSION['userid'], 'Mitarbeiter erstellt', 'Name: ' . $fullname . ', Dienstnummer: ' . $dienstnr, 'Mitarbeiter', 1);
 
     echo json_encode($response);
     exit;
@@ -92,9 +135,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="/assets/_ext/lineawesome/css/line-awesome.min.css" />
     <link rel="stylesheet" href="/assets/fonts/mavenpro/css/all.min.css" />
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
-    <script src="/assets/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="/assets/_ext/jquery/jquery.min.js"></script>
+    <link rel="stylesheet" href="/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <script src="/vendor/components/jquery/jquery.min.js"></script>
+    <script src="/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
@@ -166,11 +209,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                     </td>
                                                 </tr>
                                                 <tr>
-                                                    <td class="fw-bold text-center" style="width: 15%">Charakter-ID</td>
-                                                    <td style="width: 35%;">
-                                                        <input class="form-control" type="text" name="charakterid" id="charakterid" value="" pattern="[a-zA-Z]{3}[0-9]{5}" required>
-                                                        <div class="invalid-feedback">Bitte gebe eine charakter-ID ein.</div>
-                                                    </td>
+                                                    <?php if (CHAR_ID) : ?>
+                                                        <td class="fw-bold text-center" style="width: 15%">Charakter-ID</td>
+                                                        <td style="width: 35%;">
+                                                            <input class="form-control" type="text" name="charakterid" id="charakterid" value="" pattern="[a-zA-Z]{3}[0-9]{5}" required>
+                                                            <div class="invalid-feedback">Bitte gebe eine charakter-ID ein.</div>
+                                                        </td>
+                                                    <?php endif; ?>
                                                     <td class="fw-bold text-center" style="width: 15%;">Geschlecht</td>
                                                     <td style="width: 35%;">
                                                         <select name="geschlecht" id="geschlecht" class="form-select" required>
