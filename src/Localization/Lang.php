@@ -18,12 +18,22 @@ class Lang
         }
     }
 
-    public static function get(string $key, array $values = []): string
+    public static function get(string $key, array $values = []): mixed
     {
-        if (!isset(self::$phrases[$key])) {
-            return "[unknown:{$key}]";
+        $keys = explode('.', $key);
+        $phrase = self::$phrases;
+
+        foreach ($keys as $k) {
+            if (!is_array($phrase) || !array_key_exists($k, $phrase)) {
+                return "<strong style='color:red'>[missing:{$key}]</strong>";
+            }
+            $phrase = $phrase[$k];
         }
 
-        return vsprintf(self::$phrases[$key], $values);
+        if (is_array($phrase)) {
+            return $phrase;
+        }
+
+        return vsprintf($phrase, $values);
     }
 }
