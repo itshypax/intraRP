@@ -9,7 +9,6 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     exit();
 }
 
-use App\Auth\Permissions;
 use App\Helpers\Flash;
 
 ?>
