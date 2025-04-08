@@ -11,6 +11,9 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
+use App\Localization\Lang;
+
+Lang::setLanguage(LANG ?? 'de');
 
 if (!Permissions::check(['admin', 'users.view'])) {
     header("Location: /admin/index.php");
@@ -24,7 +27,7 @@ if (!Permissions::check(['admin', 'users.view'])) {
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Administration &rsaquo; <?php echo SYSTEM_NAME ?></title>
+    <title><?= lang('title', [SYSTEM_NAME]) ?></title>
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/assets/css/style.min.css" />
     <link rel="stylesheet" href="/assets/css/admin.min.css" />
@@ -63,10 +66,10 @@ if (!Permissions::check(['admin', 'users.view'])) {
                 <div class="col mb-5">
                     <hr class="text-light my-3">
                     <div class="d-flex justify-content-between align-items-center mb-5">
-                        <h1 class="mb-0">Rollenverwaltung</h1>
+                        <h1 class="mb-0"><?= lang('users.roles.list.title') ?></h1>
                         <?php if (Permissions::check('full_admin')) : ?>
                             <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createRoleModal">
-                                <i class="las la-plus"></i> Rolle erstellen
+                                <i class="las la-plus"></i> <?= lang('users.roles.list.create') ?>
                             </button>
                         <?php endif; ?>
                     </div>
@@ -77,9 +80,9 @@ if (!Permissions::check(['admin', 'users.view'])) {
                         <table class="table table-striped" id="table-rollen">
                             <thead>
                                 <tr>
-                                    <th scope="col">ID</th>
-                                    <th scope="col">Priorität</th>
-                                    <th scope="col">Bezeichnung</th>
+                                    <th scope="col"><?= lang('users.roles.list.table.id') ?></th>
+                                    <th scope="col"><?= lang('users.roles.list.table.priority') ?></th>
+                                    <th scope="col"><?= lang('users.roles.list.table.name') ?></th>
                                     <th scope="col"></th>
                                 </tr>
                             </thead>
@@ -92,7 +95,7 @@ if (!Permissions::check(['admin', 'users.view'])) {
                                 foreach ($result as $row) {
 
                                     $actions = (Permissions::check('full_admin'))
-                                        ? "<a title='Rolle bearbeiten' href='#' class='btn btn-sm btn-primary edit-btn' data-bs-toggle='modal' data-bs-target='#editRoleModal' data-id='{$row['id']}' data-name='{$row['name']}' data-priority='{$row['priority']}' data-color='{$row['color']}' data-perms='{$row['permissions']}'><i class='las la-pen'></i></a>"
+                                        ? "<a title='" . lang('users.roles.list.table.edit_role') . "' href='#' class='btn btn-sm btn-primary edit-btn' data-bs-toggle='modal' data-bs-target='#editRoleModal' data-id='{$row['id']}' data-name='{$row['name']}' data-priority='{$row['priority']}' data-color='{$row['color']}' data-perms='{$row['permissions']}'><i class='las la-pen'></i></a>"
                                         : "";
 
                                     echo "<tr>";
@@ -118,58 +121,58 @@ if (!Permissions::check(['admin', 'users.view'])) {
                 <div class="modal-content">
                     <form action="/admin/users/roles/update.php" method="POST">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="editRoleModalLabel">Rolle bearbeiten</h5>
+                            <h5 class="modal-title" id="editRoleModalLabel"><?= lang('users.roles.list.modals.edit.title') ?></h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
                         </div>
                         <div class="modal-body">
                             <input type="hidden" name="id" id="role-id">
 
                             <div class="mb-3">
-                                <label for="role-name" class="form-label">Bezeichnung</label>
+                                <label for="role-name" class="form-label"><?= lang('users.roles.list.modals.edit.name') ?></label>
                                 <input type="text" class="form-control" name="name" id="role-name" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="role-priority" class="form-label">Priorität <small style="opacity:.5">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="role-priority" class="form-label"><?= lang('users.roles.list.modals.edit.priority') ?> <small style="opacity:.5"><?= lang('users.roles.list.modals.edit.priority_info') ?></small></label>
                                 <input type="number" class="form-control" name="priority" id="role-priority" required>
                             </div>
 
                             <?php
                             $permission_groups = [
-                                'Anträge' => [
-                                    'application.view' => 'Anträge ansehen',
-                                    'application.edit' => 'Anträge bearbeiten'
+                                lang('users.roles.list.modals.permission_names.application') => [
+                                    'application.view' => lang('users.roles.list.modals.permission_names.application_view'),
+                                    'application.edit' => lang('users.roles.list.modals.permission_names.application_edit')
                                 ],
-                                'eDIVI' => [
-                                    'edivi.view' => 'eDIVI Protokolle ansehen',
-                                    'edivi.edit' => 'eDIVI Protokolle bearbeiten'
+                                lang('users.roles.list.modals.permission_names.edivi') => [
+                                    'edivi.view' => lang('users.roles.list.modals.permission_names.edivi_view'),
+                                    'edivi.edit' => lang('users.roles.list.modals.permission_names.edivi_edit')
                                 ],
-                                'Benutzer' => [
-                                    'users.view' => 'Benutzer ansehen',
-                                    'users.edit' => 'Benutzer bearbeiten',
-                                    'users.create' => 'Benutzer erstellen',
-                                    'users.delete' => 'Benutzer löschen'
+                                lang('users.roles.list.modals.permission_names.users') => [
+                                    'users.view' => lang('users.roles.list.modals.permission_names.users_view'),
+                                    'users.edit' => lang('users.roles.list.modals.permission_names.users_edit'),
+                                    'users.create' => lang('users.roles.list.modals.permission_names.users_create'),
+                                    'users.delete' => lang('users.roles.list.modals.permission_names.users_delete'),
+                                    'audit.view' => lang('users.roles.list.modals.permission_names.audit_view')
                                 ],
-                                'Personal' => [
-                                    'personnel.view' => 'Mitarbeiter ansehen',
-                                    'personnel.edit' => 'Mitarbeiter bearbeiten',
-                                    'personnel.delete' => 'Mitarbeiter löschen',
-                                    'personnel.comment.delete' => 'Mitarbeiter-Kommentare löschen',
-                                    'personnel.documents.manage' => 'Mitarbeiter-Dokumente verwalten',
-                                    'audit.view' => 'Logs einsehen',
+                                lang('users.roles.list.modals.permission_names.personnel') => [
+                                    'personnel.view' => lang('users.roles.list.modals.permission_names.personnel_view'),
+                                    'personnel.edit' => lang('users.roles.list.modals.permission_names.personnel_edit'),
+                                    'personnel.delete' => lang('users.roles.list.modals.permission_names.personnel_delete'),
+                                    'personnel.comment.delete' => lang('users.roles.list.modals.permission_names.personnel_comment_delete'),
+                                    'personnel.documents.manage' => lang('users.roles.list.modals.permission_names.personnel_documents_manage')
                                 ],
-                                'Dateien' => [
-                                    'files.upload' => 'Dateien hochladen',
-                                    'files.log.view' => 'Datei-Uploads einsehen'
+                                lang('users.roles.list.modals.permission_names.files') => [
+                                    'files.upload' => lang('users.roles.list.modals.permission_names.files_upload'),
+                                    'files.log.view' => lang('users.roles.list.modals.permission_names.files_log_view')
                                 ],
-                                'Sonstiges' => [
-                                    'admin' => '<strong> Admin (Alle Rechte)</strong>',
-                                    'dashboard.manage' => 'Dashboard verwalten'
+                                lang('users.roles.list.modals.permission_names.others') => [
+                                    'admin' => lang('users.roles.list.modals.permission_names.admin'),
+                                    'dashboard.manage' => lang('users.roles.list.modals.permission_names.dashboard_manage')
                                 ]
                             ];
                             ?>
                             <div class="mb-3">
-                                <label class="form-label">Berechtigungen</label>
+                                <label class="form-label"><?= lang('users.roles.list.modals.edit.permissions') ?></label>
 
                                 <?php foreach ($permission_groups as $groupName => $group): ?>
                                     <div class="mb-3 border-bottom pb-2">
@@ -191,7 +194,7 @@ if (!Permissions::check(['admin', 'users.view'])) {
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Badge</label>
+                                <label class="form-label"><?= lang('users.roles.list.modals.edit.badge') ?></label>
                                 <div class="row">
                                     <?php
                                     $colors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark'];
@@ -201,7 +204,7 @@ if (!Permissions::check(['admin', 'users.view'])) {
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="color" id="role-color-<?= $color ?>" value="<?= $color ?>" required>
                                                 <label class="form-check-label w-100" for="role-color-<?= $color ?>">
-                                                    <span class="badge text-bg-<?= $color ?> w-100 py-2 d-block text-center"><?= ucfirst($color) ?></span>
+                                                    <span class="badge text-bg-<?= $color ?> w-100 py-2 d-block text-center"><?= lang('users.roles.list.modals.edit.role') ?></span>
                                                 </label>
                                             </div>
                                         </div>
@@ -211,10 +214,10 @@ if (!Permissions::check(['admin', 'users.view'])) {
 
                         </div>
                         <div class="modal-footer d-flex justify-content-between">
-                            <button type="button" class="btn btn-danger" id="delete-role-btn">Löschen</button>
+                            <button type="button" class="btn btn-danger" id="delete-role-btn"><?= lang('users.roles.list.modals.edit.delete') ?></button>
                             <div>
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
-                                <button type="submit" class="btn btn-primary">Speichern</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?= lang('users.roles.list.modals.edit.close') ?></button>
+                                <button type="submit" class="btn btn-primary"><?= lang('users.roles.list.modals.edit.save') ?></button>
                             </div>
                         </div>
                     </form>
@@ -236,24 +239,24 @@ if (!Permissions::check(['admin', 'users.view'])) {
                     <form action="/admin/users/roles/create.php" method="POST">
 
                         <div class="modal-header">
-                            <h5 class="modal-title" id="createRoleModalLabel">Neue Rolle erstellen</h5>
+                            <h5 class="modal-title" id="createRoleModalLabel"><?= lang('users.roles.list.modals.create.title') ?></h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
                         </div>
 
                         <div class="modal-body">
 
                             <div class="mb-3">
-                                <label for="new-role-name" class="form-label">Bezeichnung</label>
+                                <label for="new-role-name" class="form-label"><?= lang('users.roles.list.modals.create.name') ?></label>
                                 <input type="text" class="form-control" name="name" id="new-role-name" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-role-priority" class="form-label">Priorität</label>
+                                <label for="new-role-priority" class="form-label"><?= lang('users.roles.list.modals.create.priority') ?> <small style="opacity:.5"><?= lang('users.roles.list.modals.create.priority_info') ?></small></label>
                                 <input type="number" class="form-control" name="priority" id="new-role-priority" required>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Berechtigungen</label>
+                                <label class="form-label"><?= lang('users.roles.list.modals.create.permissions') ?></label>
                                 <div class="row">
                                     <?php foreach ($permission_groups as $groupName => $group): ?>
                                         <div class="mb-2 border-bottom pb-2">
@@ -274,7 +277,7 @@ if (!Permissions::check(['admin', 'users.view'])) {
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Badge</label>
+                                <label class="form-label"><?= lang('users.roles.list.modals.create.badge') ?></label>
                                 <div class="row">
                                     <?php
                                     $colors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark'];
@@ -284,7 +287,7 @@ if (!Permissions::check(['admin', 'users.view'])) {
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="color" id="new-role-color-<?= $color ?>" value="<?= $color ?>" required>
                                                 <label class="form-check-label w-100" for="new-role-color-<?= $color ?>">
-                                                    <span class="badge text-bg-<?= $color ?> w-100 py-2 d-block text-center"><?= ucfirst($color) ?></span>
+                                                    <span class="badge text-bg-<?= $color ?> w-100 py-2 d-block text-center"><?= lang('users.roles.list.modals.create.role') ?></span>
                                                 </label>
                                             </div>
                                         </div>
@@ -295,8 +298,8 @@ if (!Permissions::check(['admin', 'users.view'])) {
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="btn btn-success">Erstellen</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?= lang('users.roles.list.modals.create.close') ?></button>
+                            <button type="submit" class="btn btn-success"><?= lang('users.roles.list.modals.create.save') ?></button>
                         </div>
 
                     </form>
@@ -325,26 +328,26 @@ if (!Permissions::check(['admin', 'users.view'])) {
                 }],
                 language: {
                     "decimal": "",
-                    "emptyTable": "Keine Daten vorhanden",
-                    "info": "Zeige _START_ bis _END_  | Gesamt: _TOTAL_",
-                    "infoEmpty": "Keine Daten verfügbar",
-                    "infoFiltered": "| Gefiltert von _MAX_ Rollen",
+                    "emptyTable": <?= json_encode(lang('datatable.emptytable')) ?>,
+                    "info": <?= json_encode(lang('datatable.info')) ?>,
+                    "infoEmpty": <?= json_encode(lang('datatable.infoempty')) ?>,
+                    "infoFiltered": <?= json_encode(lang('users.roles.list.datatable.infofiltered')) ?>,
                     "infoPostFix": "",
                     "thousands": ",",
-                    "lengthMenu": "_MENU_ Rollen pro Seite anzeigen",
-                    "loadingRecords": "Lade...",
-                    "processing": "Verarbeite...",
-                    "search": "Rolle suchen:",
-                    "zeroRecords": "Keine Einträge gefunden",
+                    "lengthMenu": <?= json_encode(lang('users.roles.list.datatable.lengthmenu')) ?>,
+                    "loadingRecords": <?= json_encode(lang('datatable.loadingrecords')) ?>,
+                    "processing": <?= json_encode(lang('datatable.processing')) ?>,
+                    "search": <?= json_encode(lang('users.roles.list.datatable.search')) ?>,
+                    "zeroRecords": <?= json_encode(lang('datatable.zerorecords')) ?>,
                     "paginate": {
-                        "first": "Erste",
-                        "last": "Letzte",
-                        "next": "Nächste",
-                        "previous": "Vorherige"
+                        "first": <?= json_encode(lang('datatable.paginate.first')) ?>,
+                        "last": <?= json_encode(lang('datatable.paginate.last')) ?>,
+                        "next": <?= json_encode(lang('datatable.paginate.next')) ?>,
+                        "previous": <?= json_encode(lang('datatable.paginate.previous')) ?>
                     },
                     "aria": {
-                        "sortAscending": ": aktivieren, um Spalte aufsteigend zu sortieren",
-                        "sortDescending": ": aktivieren, um Spalte absteigend zu sortieren"
+                        "sortAscending": <?= json_encode(lang('datatable.aria.sortascending')) ?>,
+                        "sortDescending": <?= json_encode(lang('datatable.aria.sortdescending')) ?>
                     }
                 }
             });

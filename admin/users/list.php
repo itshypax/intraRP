@@ -162,7 +162,6 @@ if (!Permissions::check(['admin', 'users.view'])) {
                         "sortAscending": <?= json_encode(lang('datatable.aria.sortascending')) ?>,
                         "sortDescending": <?= json_encode(lang('datatable.aria.sortdescending')) ?>
                     }
-
                 }
             });
         });
