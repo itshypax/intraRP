@@ -98,7 +98,7 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
     <!-- Metas -->
     <meta name="theme-color" content="<?php echo SYSTEM_COLOR ?>" />
     <meta property="og:site_name" content="<?php echo SERVER_NAME ?>" />
-    <meta property="og:url" content="https://<?php echo SYSTEM_URL ?>/dash.php" />
+    <meta property="og:url" content="https://<?php echo SYSTEM_URL ?>/dashboard.php" />
     <meta property="og:title" content="<?php echo SYSTEM_NAME ?> - Intranet <?php echo SERVER_CITY ?>" />
     <meta property="og:image" content="<?php echo META_IMAGE_URL ?>" />
     <meta property="og:description" content="Verwaltungsportal der <?php echo RP_ORGTYPE . " " .  SERVER_CITY ?>" />
@@ -262,7 +262,7 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
     <?php endif; ?>
     <!-- MODAL END -->
     <?php include $_SERVER['DOCUMENT_ROOT'] . "/assets/components/footer.php"; ?>
-  
+
     <script src="/vendor/datatables.net/datatables.net/js/dataTables.min.js"></script>
     <script src="/vendor/datatables.net/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
     <script>
