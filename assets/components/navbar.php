@@ -81,6 +81,9 @@ use App\Auth\Permissions; ?>
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="/admin/users/editprofile.php">Profil bearbeiten</a></li>
+                        <?php if (Permissions::check(['admin', 'dashboard.manage'])) { ?>
+                            <li><a class="dropdown-item" href="/admin/settings/dashboard/index.php">Dashboard-Konfiguration</a></li>
+                        <?php } ?>
                         <li><a class="dropdown-item" href="/admin/logout.php">Abmelden</a></li>
                     </ul>
                 </li>
