@@ -109,13 +109,6 @@ a.text-main-color:hover {
   --bs-btn-disabled-border-color: var(--gray) !important;
 }
 
-.btn-tag-size {
-  --bs-btn-padding-y: 0.15rem !important;
-  --bs-btn-padding-x: 0.4rem !important;
-  --bs-btn-font-size: 0.7rem !important;
-  cursor: default !important;
-}
-
 .btn-main-color {
   --bs-btn-bg: var(--main-color) !important;
   --bs-btn-color: var(--white) !important;
@@ -138,55 +131,6 @@ a.text-main-color:hover {
   --bs-btn-active-border-color: var(--bs-btn-bg) !important;
   --bs-btn-disabled-bg: var(--secondary-color) !important;
   --bs-btn-disabled-color: var(--white) !important;
-}
-
-.btn-sh-stt {
-  --bs-btn-bg: var(--white) !important;
-  --bs-btn-color: var(--secondary-color) !important;
-  --bs-btn-hover-bg: var(--secondary-color) !important;
-  --bs-btn-hover-color: var(--white) !important;
-  --bs-btn-active-bg: var(--secondary-color) !important;
-  --bs-btn-active-color: var(--white) !important;
-  --bs-btn-active-border-color: var(--secondary-color) !important;
-  --bs-btn-disabled-bg: var(--secondary-color) !important;
-  --bs-btn-disabled-color: var(--white) !important;
-}
-
-.btn-sh-stt-2 {
-  --bs-btn-bg: var(--secondary-color) !important;
-  --bs-btn-color: var(--white) !important;
-  --bs-btn-hover-bg: var(--main-color) !important;
-  --bs-btn-hover-color: var(--white) !important;
-  --bs-btn-active-bg: var(--main-color) !important;
-  --bs-btn-active-color: var(--white) !important;
-  --bs-btn-active-border-color: var(--secondary-color) !important;
-  --bs-btn-disabled-bg: var(--main-color) !important;
-  --bs-btn-disabled-color: var(--white) !important;
-  --bs-btn-border-width: 2px !important;
-}
-
-.btn-sh-stt-3 {
-  --bs-btn-bg: var(--gray) !important;
-  --bs-btn-color: var(--secondary-color) !important;
-  --bs-btn-hover-bg: var(--secondary-color) !important;
-  --bs-btn-hover-color: var(--white) !important;
-  --bs-btn-active-bg: var(--secondary-color) !important;
-  --bs-btn-active-color: var(--white) !important;
-  --bs-btn-active-border-color: var(--secondary-color) !important;
-  --bs-btn-disabled-bg: var(--secondary-color) !important;
-  --bs-btn-disabled-color: var(--white) !important;
-}
-
-.btn-sh-tags {
-  --bs-btn-bg: var(--tag-color) !important;
-  --bs-btn-color: var(--black) !important;
-  --bs-btn-hover-bg: var(--tag-color) !important;
-  --bs-btn-hover-color: var(--black) !important;
-  --bs-btn-active-bg: var(--tag-color) !important;
-  --bs-btn-active-color: var(--black) !important;
-  --bs-btn-active-border-color: var(--tag-color) !important;
-  --bs-btn-disabled-bg: var(--tag-color) !important;
-  --bs-btn-disabled-color: var(--black) !important;
 }
 
 body#dashboard {

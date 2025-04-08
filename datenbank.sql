@@ -40,8 +40,37 @@ CREATE TABLE IF NOT EXISTS `intra_audit_log` (
   `details` text DEFAULT NULL,
   `global` tinyint(1) NOT NULL DEFAULT 0,
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `FK_intra_audit_log_intra_users` (`user`),
+  CONSTRAINT `FK_intra_audit_log_intra_users` FOREIGN KEY (`user`) REFERENCES `intra_users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+-- Daten-Export vom Benutzer nicht ausgewählt
+
+-- Exportiere Struktur von Tabelle intradev.intra_dashboard_categories
+CREATE TABLE IF NOT EXISTS `intra_dashboard_categories` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `priority` int(11) NOT NULL DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+-- Daten-Export vom Benutzer nicht ausgewählt
+
+-- Exportiere Struktur von Tabelle intradev.intra_dashboard_tiles
+CREATE TABLE IF NOT EXISTS `intra_dashboard_tiles` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `category` int(11) NOT NULL DEFAULT 0,
+  `title` varchar(255) NOT NULL,
+  `url` varchar(255) NOT NULL DEFAULT '#',
+  `icon` varchar(255) NOT NULL DEFAULT 'las la-external-link-alt',
+  `priority` int(11) NOT NULL DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `FK_intra_dashboard_tiles_intra_dashboard_categories` (`category`),
+  CONSTRAINT `FK_intra_dashboard_tiles_intra_dashboard_categories` FOREIGN KEY (`category`) REFERENCES `intra_dashboard_categories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 -- Daten-Export vom Benutzer nicht ausgewählt
 
@@ -161,7 +190,9 @@ CREATE TABLE IF NOT EXISTS `intra_edivi_qmlog` (
   `log_aktion` tinyint(1) DEFAULT NULL,
   `bearbeiter` varchar(255) DEFAULT NULL,
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `FK_intra_edivi_qmlog_intra_edivi` (`protokoll_id`),
+  CONSTRAINT `FK_intra_edivi_qmlog_intra_edivi` FOREIGN KEY (`protokoll_id`) REFERENCES `intra_edivi` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=938 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 -- Daten-Export vom Benutzer nicht ausgewählt
@@ -192,14 +223,20 @@ CREATE TABLE IF NOT EXISTS `intra_mitarbeiter` (
   `telefonnr` varchar(255) DEFAULT NULL,
   `dienstnr` varchar(255) NOT NULL,
   `einstdatum` date NOT NULL,
-  `dienstgrad` tinyint(2) NOT NULL DEFAULT 0,
-  `qualifw2` tinyint(1) NOT NULL DEFAULT 0,
-  `qualird` tinyint(1) NOT NULL DEFAULT 0,
+  `dienstgrad` int(11) NOT NULL DEFAULT 0,
+  `qualifw2` int(11) NOT NULL DEFAULT 0,
+  `qualird` int(11) NOT NULL DEFAULT 0,
   `zusatz` varchar(255) DEFAULT NULL,
   `fachdienste` longtext NOT NULL DEFAULT '[]',
   `createdate` datetime NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
-  UNIQUE KEY `dienstnr` (`dienstnr`)
+  UNIQUE KEY `dienstnr` (`dienstnr`),
+  KEY `FK_intra_mitarbeiter_intra_mitarbeiter_dienstgrade` (`dienstgrad`),
+  KEY `FK_intra_mitarbeiter_intra_mitarbeiter_fwquali` (`qualifw2`),
+  KEY `FK_intra_mitarbeiter_intra_mitarbeiter_rdquali` (`qualird`),
+  CONSTRAINT `FK_intra_mitarbeiter_intra_mitarbeiter_dienstgrade` FOREIGN KEY (`dienstgrad`) REFERENCES `intra_mitarbeiter_dienstgrade` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `FK_intra_mitarbeiter_intra_mitarbeiter_fwquali` FOREIGN KEY (`qualifw2`) REFERENCES `intra_mitarbeiter_fwquali` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
+  CONSTRAINT `FK_intra_mitarbeiter_intra_mitarbeiter_rdquali` FOREIGN KEY (`qualird`) REFERENCES `intra_mitarbeiter_rdquali` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=1038 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 -- Daten-Export vom Benutzer nicht ausgewählt
@@ -239,7 +276,9 @@ CREATE TABLE IF NOT EXISTS `intra_mitarbeiter_dokumente` (
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
   `profileid` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `docid` (`docid`)
+  UNIQUE KEY `docid` (`docid`),
+  KEY `FK_intra_mitarbeiter_dokumente_intra_mitarbeiter` (`profileid`),
+  CONSTRAINT `FK_intra_mitarbeiter_dokumente_intra_mitarbeiter` FOREIGN KEY (`profileid`) REFERENCES `intra_mitarbeiter` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=2286 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 -- Daten-Export vom Benutzer nicht ausgewählt
@@ -310,7 +349,9 @@ CREATE TABLE IF NOT EXISTS `intra_users` (
   `aktenid` int(11) DEFAULT NULL,
   `role` int(11) NOT NULL DEFAULT 0,
   `full_admin` tinyint(1) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `FK_intra_users_intra_users_roles` (`role`),
+  CONSTRAINT `FK_intra_users_intra_users_roles` FOREIGN KEY (`role`) REFERENCES `intra_users_roles` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=116 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
 -- Daten-Export vom Benutzer nicht ausgewählt

@@ -162,8 +162,9 @@ if (!Permissions::check(['admin', 'users.view'])) {
                                     'files.upload' => 'Dateien hochladen',
                                     'files.log.view' => 'Datei-Uploads einsehen'
                                 ],
-                                'Admin' => [
-                                    'admin' => 'Alle Rechte (Admin)'
+                                'Sonstiges' => [
+                                    'admin' => '<strong> Admin (Alle Rechte)</strong>',
+                                    'dashboard.manage' => 'Dashboard verwalten'
                                 ]
                             ];
                             ?>
