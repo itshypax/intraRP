@@ -94,11 +94,7 @@ use App\Auth\Permissions; ?>
 <script>
     $(document).ready(function() {
         var currentPage = $("body").data("page");
-
-        // Remove active class from all nav-links
         $(".nav-link").removeClass("active");
-
-        // Add active class to the appropriate nav-link
         $(".nav-link[data-page='" + currentPage + "']").addClass("active");
     });
 
