@@ -5,6 +5,10 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/assets/config/config.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
 require $_SERVER['DOCUMENT_ROOT'] . "/assets/config/database.php";
 
+use App\Localization\Lang;
+
+Lang::setLanguage(LANG ?? 'de');
+
 if (isset($_POST['new']) && $_POST['new'] == 1) {
     $name_dn = $_REQUEST['name_dn'];
     $dienstgrad = $_REQUEST['dienstgrad'];

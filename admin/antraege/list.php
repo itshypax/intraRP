@@ -12,6 +12,9 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
+use App\Localization\Lang;
+
+Lang::setLanguage(LANG ?? 'de');
 
 if (!Permissions::check(['admin', 'application.edit'])) {
     Flash::set('error', 'no-permissions');
@@ -27,7 +30,7 @@ if (!Permissions::check(['admin', 'application.edit'])) {
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Anträge &rsaquo; <?php echo SYSTEM_NAME ?></title>
+    <title><?= lang('title', [SYSTEM_NAME]) ?></title>
     <!-- Stylesheets -->
     <link rel="stylesheet" href="/assets/css/style.min.css" />
     <link rel="stylesheet" href="/assets/css/admin.min.css" />
@@ -65,14 +68,14 @@ if (!Permissions::check(['admin', 'application.edit'])) {
             <div class="row">
                 <div class="col mb-5">
                     <hr class="text-light my-3">
-                    <h1 class="mb-5">Antragsübersicht</h1>
+                    <h1 class="mb-5"><?= lang('application.list.title') ?></h1>
                     <div class="intra__tile py-2 px-3">
                         <table class="table table-striped" id="table-antrag">
                             <thead>
-                                <th scope="col">Nr.</th>
-                                <th scope="col">Von</th>
-                                <th scope="col">Status</th>
-                                <th scope="col">Datum</th>
+                                <th scope="col"><?= lang('application.list.table.nr') ?></th>
+                                <th scope="col"><?= lang('application.list.table.from') ?></th>
+                                <th scope="col"><?= lang('application.list.table.status') ?></th>
+                                <th scope="col"><?= lang('application.list.table.date') ?></th>
                                 <th scope="col"></th>
                             </thead>
                             <tbody>
@@ -88,18 +91,18 @@ if (!Permissions::check(['admin', 'application.edit'])) {
                                         $bgColor = "";
                                         switch ($row['cirs_status']) {
                                             case 0:
-                                                $cirs_state = "In Bearbeitung";
+                                                $cirs_state = lang('application.status.0');
                                                 break;
                                             case 1:
                                                 $bgColor = "rgba(255,0,0,.05)";
-                                                $cirs_state = "Abgelehnt";
+                                                $cirs_state = lang('application.status.1');
                                                 break;
                                             case 2:
-                                                $cirs_state = "Aufgeschoben";
+                                                $cirs_state = lang('application.status.2');
                                                 break;
                                             case 3:
                                                 $bgColor = "rgba(0,255,0,.05)";
-                                                $cirs_state = "Angenommen";
+                                                $cirs_state = lang('application.status.3');
                                                 break;
                                         }
 
@@ -112,7 +115,7 @@ if (!Permissions::check(['admin', 'application.edit'])) {
                                         <td>{$row['name_dn']}</td>
                                         <td>{$cirs_state}</td>
                                         <td><span style='display:none'>{$row['time_added']}</span>{$adddat}</td>
-                                        <td><a class='btn btn-main-color btn-sm' href='/admin/antraege/view.php?antrag={$row['uniqueid']}'>Öffnen</a></td>
+                                        <td><a class='btn btn-main-color btn-sm' href='/admin/antraege/view.php?antrag={$row['uniqueid']}'>" . lang('application.list.table.open') . "</a></td>
                                     </tr>";
                                     }
                                 }
@@ -143,26 +146,26 @@ if (!Permissions::check(['admin', 'application.edit'])) {
                 }],
                 language: {
                     "decimal": "",
-                    "emptyTable": "Keine Daten vorhanden",
-                    "info": "Zeige _START_ bis _END_  | Gesamt: _TOTAL_",
-                    "infoEmpty": "Keine Daten verfügbar",
-                    "infoFiltered": "| Gefiltert von _MAX_ Anträgen",
+                    "emptyTable": <?= json_encode(lang('datatable.emptytable')) ?>,
+                    "info": <?= json_encode(lang('datatable.info')) ?>,
+                    "infoEmpty": <?= json_encode(lang('datatable.infoempty')) ?>,
+                    "infoFiltered": <?= json_encode(lang('application.list.datatable.infofiltered')) ?>,
                     "infoPostFix": "",
                     "thousands": ",",
-                    "lengthMenu": "_MENU_ Anträge pro Seite anzeigen",
-                    "loadingRecords": "Lade...",
-                    "processing": "Verarbeite...",
-                    "search": "Anträge suchen:",
-                    "zeroRecords": "Keine Einträge gefunden",
+                    "lengthMenu": <?= json_encode(lang('application.list.datatable.lengthmenu')) ?>,
+                    "loadingRecords": <?= json_encode(lang('datatable.loadingrecords')) ?>,
+                    "processing": <?= json_encode(lang('datatable.processing')) ?>,
+                    "search": <?= json_encode(lang('application.list.datatable.search')) ?>,
+                    "zeroRecords": <?= json_encode(lang('datatable.zerorecords')) ?>,
                     "paginate": {
-                        "first": "Erste",
-                        "last": "Letzte",
-                        "next": "Nächste",
-                        "previous": "Vorherige"
+                        "first": <?= json_encode(lang('datatable.paginate.first')) ?>,
+                        "last": <?= json_encode(lang('datatable.paginate.last')) ?>,
+                        "next": <?= json_encode(lang('datatable.paginate.next')) ?>,
+                        "previous": <?= json_encode(lang('datatable.paginate.previous')) ?>
                     },
                     "aria": {
-                        "sortAscending": ": aktivieren, um Spalte aufsteigend zu sortieren",
-                        "sortDescending": ": aktivieren, um Spalte absteigend zu sortieren"
+                        "sortAscending": <?= json_encode(lang('datatable.aria.sortascending')) ?>,
+                        "sortDescending": <?= json_encode(lang('datatable.aria.sortdescending')) ?>
                     }
                 }
             });

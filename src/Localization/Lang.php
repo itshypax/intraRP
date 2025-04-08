@@ -14,7 +14,7 @@ class Lang
         if (file_exists($file)) {
             self::$phrases = require $file;
         } else {
-            throw new \Exception("Language file for '{$lang}' not found.");
+            throw new \Exception("Sprach_Datei für Sprache '{$lang}' nicht gefunden.");
         }
     }
 
