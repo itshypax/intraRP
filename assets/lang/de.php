@@ -3,9 +3,36 @@
 
 return [
     'title' => 'Administration &rsaquo; %s',
+    'error' => 'Fehler',
     'metas' => [
         'title' => '%s - Intranet %s',
         'description' => 'Verwaltungsportal der %s %s',
+    ],
+    'navbar' => [
+        'dashboard' => 'Startseite',
+        'users' =>  'Benutzer',
+        'users_overview' => ' Übersicht',
+        'users_create' => 'Erstellen',
+        'audit_log' => 'Audit-Log',
+        'rolemanagement' => 'Rollenverwaltung',
+        'personnel' => 'Mitarbeiter',
+        'personnel_overview' => 'Übersicht',
+        'personnel_create' => 'Erstellen',
+        'manage_ranks' => 'Dienstgrade verwalten',
+        'manage_fwqualifications' => 'FW-Qualifikationen verwalten',
+        'manage_rdqualifications' => 'RD-Qualifikationen verwalten',
+        'edivi' => 'Notfallprotokolle',
+        'new_protocol' => 'Neues Protokoll',
+        'quality_assurance' => 'Qualitätsmanagement',
+        'vehicle_management' => 'Fahrzeugverwaltung',
+        'target_management' => 'Zielverwaltung',
+        'application' => 'Anträge',
+        'files' => 'Dateien',
+        'files_upload' => 'Datei hochladen',
+        'files_log' => 'Datei-Log',
+        'edit_profile' => 'Profil bearbeiten',
+        'manage_dashboard' => 'Dashboard-Koniguration',
+        'logout' => 'Abmelden',
     ],
     'dashboard' => [
         'dashboard' => 'Dashboard',
@@ -562,11 +589,65 @@ return [
                 '414' => 'Qualitätsmanagement RD',
             ],
         ],
+        'modals' => [
+            'close' => 'Schließen',
+            'save' => 'Speichern',
+            'specialities' => [
+                'title' => 'Fachdienste',
+                'yes_no' => 'Ja/Nein',
+                'name' => 'Bezeichnung',
+            ],
+            'notes' => [
+                'title' => 'Neue Notiz erstellen',
+                'note_text' => 'Notiz',
+                'options' => [
+                    0 => 'Allgemein',
+                    1 => 'Positiv',
+                    2 => 'Negativ',
+                ],
+            ],
+            'delete' => [
+                'title' => 'Mitarbeiterakte löschen',
+                'text' => 'Die Mitarbeiterakte von <strong>%s</strong> wird mit der Bestätigung <strong>unwiderruflich gelöscht</strong>. Es ist nicht möglich diese im Nachhinein wiederherzustellen.',
+                'abort' => 'Abbrechen',
+                'confirm' => 'Endgültig löschen',
+            ],
+            'documents' => [
+                'title' => 'Dokument anlegen',
+                'type' => 'Dokumenten-Typ',
+                'please_select' => 'Bitte wählen',
+                'new_rank' => 'Neuer Dienstgrad',
+                'issue_date' => 'Ausstellungsdatum',
+                'qualification' => 'Qualifikation',
+                'suspended_until' => 'Suspendiert bis <small>(leer lassen für unbestimmt)</small>',
+                'reason' => 'Begründung',
+                'abort' => 'Abbrechen',
+                'create' => 'Erstellen',
+                'qualification_options' => [
+                    4 => 'Sonderfahrzeug-Maschinist/-in',
+                    2 => 'Zugführer/-in',
+                    1 => 'Gruppenführer/-in',
+                    0 => 'Brandmeister/-in',
+                ],
+                'qualification_options_2' => [
+                    9 => 'Luftrettungspilot/-in',
+                    8 => 'HEMS-TC',
+                    3 => 'Leitstellen-Disponent/-in',
+                    5 => 'Helfergrundmodul (SEG)',
+                    6 => 'SEG-Sanitäter/-in',
+                    7 => 'Gruppenführer/-in-BevS',
+                ],
+                'qualification_options_rescue' => [
+                    2 => 'Notfallsanitäter/-in',
+                    1 => 'Rettungssanitäter/-in',
+                    0 => 'Rettungssanitäter/-in in Ausbildung'
+                ],
+            ],
+        ],
         'selectors' => [
             'rank' => 'Dienstgrad',
             'qualification_rescue' => 'Qualifikation Rettungsdienst',
             'qualification_fire' => 'Qualifikation Feuerwehr',
-
         ],
         'logs' => [
             'rank_changed' => 'Dienstgrad wurde von <strong>%s</strong> auf <strong>%s</strong> geändert.',
@@ -578,6 +659,18 @@ return [
         ],
     ],
     'application' => [
+        'title' => 'Anträge &rsaquo; %s',
+        'create' => [
+            'title' => 'Antragsmanagement',
+            'city_name' => 'Stadt %s',
+            'create_application' => 'Beförderungsantrag stellen',
+            'view_application' => 'Antrag ansehen',
+            'form' => [
+                'name_and_servicenr' => 'Name und Dienstnummer',
+                'current_rank' => 'Aktueller Dienstgrad',
+                'written_request' => 'Schriftlicher Antrag',
+            ],
+        ],
         'navbar' => [
             'title' => 'Anträge',
             'new' => 'Neuen Beförderungsantrag stellen',
