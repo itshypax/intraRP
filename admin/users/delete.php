@@ -13,6 +13,9 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 use App\Auth\Permissions;
 use App\Helpers\Flash;
 use App\Utils\AuditLogger;
+use App\Localization\Lang;
+
+Lang::setLanguage(LANG ?? 'de');
 
 if (!Permissions::check(['admin', 'users.delete'])) {
     Flash::set('error', 'no-permissions');
@@ -29,6 +32,6 @@ $stmt->execute();
 
 Flash::set('user', 'deleted');
 $auditLogger = new AuditLogger($pdo);
-$auditLogger->log($userid, 'Benutzer gelöscht [ID: ' . $id . ']', NULL, 'Benutzer', 1);
+$auditLogger->log($userid, lang('auditlog.user_deleted', [$id]), NULL, lang('auditlog.users'), 1);
 header('Location: /admin/users/list.php');
 exit;

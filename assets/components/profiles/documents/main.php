@@ -5,10 +5,10 @@ use App\Auth\Permissions;
 
 <table class="table table-striped" id="documentTable">
     <thead>
-        <th scope="col">Dokumenten-Typ</th>
-        <th scope="col">#</th>
-        <th scope="col">Ersteller</th>
-        <th scope="col">Am</th>
+        <th scope="col"><?= lang('personnel.profile.documents.type') ?></th>
+        <th scope="col"><?= lang('personnel.profile.documents.id') ?></th>
+        <th scope="col"><?= lang('personnel.profile.documents.created_by') ?></th>
+        <th scope="col"><?= lang('personnel.profile.documents.created_at') ?></th>
         <th scope="col"></th>
     </thead>
     <tbody>
@@ -19,19 +19,7 @@ use App\Auth\Permissions;
         $stmt->execute(['profileid' => $openedID]);
         $dokuresult = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $arten = [
-            0 => "Ernennungsurkunde",
-            1 => "Beförderungsurkunde",
-            2 => "Entlassungsurkunde",
-            3 => "Ausbildungsvertrag",
-            5 => "Ausbildungszertifikat",
-            6 => "Lehrgangszertifikat",
-            7 => "Lehrgangszertifikat (Fachdienste)",
-            10 => "Schriftliche Abmahnung",
-            11 => "Vorläufige Dienstenthebung",
-            12 => "Dienstentfernung",
-            13 => "Außerordentliche Kündigung",
-        ];
+        $arten = larray('personnel.profile.documents.types');
 
         foreach ($dokuresult as $doks) {
             $austdatum = date("d.m.Y", strtotime($doks['ausstellungsdatum']));
@@ -52,7 +40,7 @@ use App\Auth\Permissions;
             echo "<td>" . $doks['fullname'] . "</td>";
             echo "<td>" . $austdatum . "</td>";
             echo "<td>";
-            echo "<a href='$path' class='btn btn-sm btn-primary' target='_blank'>Ansehen</a>";
+            echo "<a href='$path' class='btn btn-sm btn-primary' target='_blank'>" . lang('personnel.profile.documents.view') . "</a>";
 
             if (Permissions::check('admin')) {
                 echo " <a href='/admin/personal/dokument-delete.php?id={$doks['docid']}&pid=$openedID' class='btn btn-sm btn-danger'><i class='las la-trash'></i></a>";
@@ -65,3 +53,43 @@ use App\Auth\Permissions;
 
     </tbody>
 </table>
+<script src="/vendor/datatables.net/datatables.net/js/dataTables.min.js"></script>
+<script src="/vendor/datatables.net/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function() {
+        var table = $('#documentTable').DataTable({
+            stateSave: true,
+            paging: true,
+            lengthMenu: [5, 10, 20],
+            pageLength: 10,
+            columnDefs: [{
+                orderable: false,
+                targets: -1
+            }],
+            language: {
+                "decimal": "",
+                "emptyTable": <?= json_encode(lang('datatable.emptytable')) ?>,
+                "info": <?= json_encode(lang('datatable.info')) ?>,
+                "infoEmpty": <?= json_encode(lang('datatable.infoempty')) ?>,
+                "infoFiltered": <?= json_encode(lang('personnel.profile.documents.datatable.infofiltered')) ?>,
+                "infoPostFix": "",
+                "thousands": ",",
+                "lengthMenu": <?= json_encode(lang('personnel.profile.documents.datatable.lengthmenu')) ?>,
+                "loadingRecords": <?= json_encode(lang('datatable.loadingrecords')) ?>,
+                "processing": <?= json_encode(lang('datatable.processing')) ?>,
+                "search": <?= json_encode(lang('personnel.profile.documents.datatable.search')) ?>,
+                "zeroRecords": <?= json_encode(lang('datatable.zerorecords')) ?>,
+                "paginate": {
+                    "first": <?= json_encode(lang('datatable.paginate.first')) ?>,
+                    "last": <?= json_encode(lang('datatable.paginate.last')) ?>,
+                    "next": <?= json_encode(lang('datatable.paginate.next')) ?>,
+                    "previous": <?= json_encode(lang('datatable.paginate.previous')) ?>
+                },
+                "aria": {
+                    "sortAscending": <?= json_encode(lang('datatable.aria.sortascending')) ?>,
+                    "sortDescending": <?= json_encode(lang('datatable.aria.sortdescending')) ?>
+                }
+            }
+        });
+    });
+</script>
